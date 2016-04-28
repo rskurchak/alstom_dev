@@ -1,0 +1,10 @@
+<apex:page standardController="PxOStandard__c" extensions="VFC85_ClonePxOStandard" action="{!deepClone}">
+	<apex:form >
+        <apex:pageBlock >
+            <apex:pageBlockButtons location="bottom">
+            	<apex:commandButton action="{!cancel}" value="{!$Label.site.cancel}"/>
+            </apex:pageBlockButtons>
+        	<apex:pageMessages />
+        </apex:pageBlock>
+	</apex:form>
+</apex:page>

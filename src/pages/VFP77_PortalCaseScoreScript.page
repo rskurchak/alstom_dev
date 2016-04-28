@@ -1,0 +1,30 @@
+<!--
+ VFP77_PortalCaseScoreScript
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 27/06/2014 
+    ~ Description     : VisualForce Page to launch Satisfaction Questionnaire popup window.
+-->
+<apex:page standardController="Case" extensions="VFC77_PortalCaseScoreScript">
+    <apex:pageMessages />
+    <apex:sectionHeader title="{!$Label.LBL0221}"/>                      
+    <apex:form > 
+        <apex:pageBlock mode="edit">
+            <apex:pageBlockButtons location="top">
+	                <apex:commandButton action="{!doSave}" value="{!$Label.LBL0225}" oncomplete="window.top.location='/{!actualcase.Id}';"/>
+	                <apex:commandButton action="{!Cancel}" value="{!$Label.LBL0226}" oncomplete="window.top.location='/{!actualcase.Id}';"/>
+            </apex:pageBlockButtons>        
+            <apex:pageBlockSection columns="1" title="{!$Label.LBL0222}" collapsible="false">
+		       <apex:selectRadio value="{!SatisfactionScore}" label="" style="vertical-align: middle !important; text-align: start !important;">
+		            <apex:selectOptions value="{!Satisfactions}"/> 
+		        </apex:selectRadio>
+            </apex:pageBlockSection> 
+            <apex:pageBlockSection columns="1" title="{!$Label.LBL0223}" collapsible="false">
+                <apex:inputtextarea value="{!usercomments}" label="" cols="80" rows="4"/><br/>
+            </apex:pageBlockSection> 
+            <apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!doSave}" value="{!$Label.LBL0225}" oncomplete="window.top.location='/{!actualcase.Id}';"/>
+                <apex:commandButton action="{!Cancel}" value="{!$Label.LBL0226}" oncomplete="window.top.location='/{!actualcase.Id}';"/>
+            </apex:pageBlockButtons>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

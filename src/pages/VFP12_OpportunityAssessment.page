@@ -1,0 +1,806 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   All actions (edit, save) are taking very long even though there is
+   not a lot of server-side actions.
+   Example : Edit button on background information tab :
+    A lot of components are re-rendered (=refreshed) when user clicks on edit :
+    - pgMsg : (link go back to opportunity) : not useful
+    - pgbAssessment : assessment tab : not useful
+    - pgbConclusion : conclusion tab : not useful
+    - pgbBackground : useful as it is the current tab that needs to go in edit mode
+    - jsVarEditMode : see comment previous line
+    => Verify that it is not by design that user can go to different tab in edit mode (I could do it at least once - not reproducible)
+
+ Remove this box once modification done.
+*********************************************************************-->
+
+<apex:page id="thePage" standardController="OpportunityAssessment__c" extensions="VFC12_OpportunityAssessment" sidebar="false" showheader="true">
+
+    <apex:styleSheet value="{!URLFOR($Resource.VFP11_LIB, 'css/styles_jalava.css')}"/>
+    <style type="text/css">
+        .activeTab      { font-weight:bold; color:white; background-image:none; }
+        .inactiveTab    { background-color:#E6E6E6; color:black; background-image:none; }
+        .styleTab       { font-size:100%; color:#333; white-space:nowrap; } 
+        .actionLink     { color:#015BA7; vertical-align:top; }
+        .helpText2 
+        {
+            position:absolute; 
+            z-index : 4000;
+            display:none; 
+            visibility:hidden;
+            text-decoration: none;
+            width: 15em;
+            background-color: #fefdb9;
+            padding: 2px 5px;
+            border: 1px solid orange;
+            text-align: left;
+            white-space: normal;
+            font-weight: normal;
+            font-size: 110%;
+            color: #000;
+        }
+        .myColumnHeader:hover .helpText2{ display:block; visibility:visible;}
+        .myColumnHeader:hover .helpIcons{background-position-x: -20px;}        
+        .helpIcons
+        {
+            display: inline-block;
+            width: 20px;
+            height: 15px;
+            background-image: url(/img/help/helpOrbs.gif);
+            background-repeat: no-repeat;
+            background-position: 0px 0px;
+        }  
+        .myColumnLabel
+        {
+            float: left;
+            padding-top: 1px;   
+        }
+    </style>
+    
+    <apex:variable var="oppAssessment" value="{!OpportunityAssessment__c}" />
+    <!-- show chatter feed for the Opportunity Assessment  -->
+    <!-- Note: the feed is not activated anymore so the following line has no effect. If ever reactivated, the following line will work. -->
+    <!-- <chatter:feedWithFollowers entityId="{!oppAssessment.Id}" rendered="{!oppAssessment.Id!=null && oppAssessment.Status__c==$Label.LBL0061}"/> -->
+
+    <apex:form id="theForm">
+        <!-- PAGE STATUS/loading -->
+        <c:C04_Loading displayMessage="{!$Label.LBL0007}"/><!-- "Loading"  -->  
+        <apex:actionStatus id="status" onstart="componentLoading('#loadingDialog').dialog('open');" onstop="componentLoading('#loadingDialog').dialog('close');"/>
+
+        <!-- hidden fields used for the controller -->      
+        <apex:inputHidden value="{!oppAssessment.Opportunity__c}"/>
+        <apex:inputHidden value="{!oppAssessment.TECH_SalesTeam__c}"/>
+        <apex:inputHidden value="{!oppAssessment.TECH_Partners__c}"/>
+        <apex:inputHidden value="{!oppAssessment.TECH_CustomerVisions__c}"/> 
+        <apex:inputHidden value="{!oppAssessment.TECH_OppAssessmentActors__c}"/>
+         
+        <apex:sectionHeader id="sectionHeaderId" title="{!$ObjectType.Opportunity.Label} : {!$ObjectType.OpportunityAssessment__c.Label}" subtitle="{!relatedOpp.Name}" rendered="{!oppAssessment.Id!=null}">
+            <apex:outputLabel id="oppStatus" value="[{!$Label.LBL0011}]" rendered="{!oppAssessment.Status__c!=$Label.LBL0061}" Style="color:#888;"/><!-- 'Archived' tag added to the Opportunity Assessment name when it's archived-->
+        </apex:sectionHeader>
+        
+        <apex:pageMessages id="pgMsg"/> 
+        <!-- Action buttons for archiving and PDF rendering -->
+        <apex:outputPanel rendered="{!oppAssessment.Id!=null}">
+            <table style="width:100%;">
+                <tr>
+                    <td>
+                        <apex:outputLink style="color:#015ba7;text-decoration:none" value="/{!relatedOpp.Id}"  >« Back to {!$ObjectType.Opportunity.Label}: {!relatedOpp.Name}</apex:outputLink>
+                    </td>
+                </tr>
+            </table>
+        </apex:outputPanel>
+       
+        <!--  tab panel Start -->
+        <apex:tabPanel switchType="client" value="{!TabId}" activeTabClass="activeTab" inactiveTabClass="inactiveTab" tabClass="styleTab" id="tabPanel" rendered="{!oppAssessment.Id!=null}">
+            <!-- js variable to check if the edit mode is enabled on a tab and to prevent leaving it -->
+            <apex:outputPanel id="jsVarEditMode">
+                <script>
+                /*********************************************************************
+                 SANITY CHECK INSTRUCTION: 
+                 Why use a JS variable instead of controller property ?
+                 Remove this box once modification done.
+                *********************************************************************/
+                    var isEditMode = {!isEditMode};
+                </script>       
+            </apex:outputPanel>
+            
+<!-- Background Information - START -->     
+            <apex:tab label="{!$Label.LBL0023}" name="bgInfoTab" id="bgdInfoTab" ontableave="if(isEditMode) {alert('{!$Label.LBL0013}'); return false;}"> <!-- alert message to inform the user he has to save/cancel before leaving the tab -->
+                <apex:pageBlock id="pgbBackground" mode="maindetail">
+                    <!-- actions buttons/links shown only when the Opportunity Assessment status = Open  -->
+                    <apex:pageBlockButtons location="top" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:commandButton value="{!$Label.LBL0253}" action="{!editAssessement}" rendered="{!!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0327}" action="{!cloneAssessement}" rendered="{!!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0254}" action="{!saveAssessement}" rendered="{!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0255}" action="{!cancelEditAssessement}" immediate="true" rendered="{!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                    </apex:pageBlockButtons>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0256}" collapsible="false">
+                        <apex:outputField value="{!relatedOpp.AccountId}" label="{!$Label.LBL0257}"/>
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.BOid__c.Label}"/>
+                            <apex:outputText value="{!relatedOpp.BOid__c}"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:outputField value="{!relatedOpp.RFP__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/>
+                        <apex:outputField label="{!$ObjectType.Opportunity.fields.RFP__c.Label}" value="{!oppAssessment.TECH_RFP__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0011}"/>
+                        <apex:outputField value="{!relatedOpp.CloseDate}" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/>
+                        <apex:outputField label="{!$ObjectType.Opportunity.fields.CloseDate.Label}" value="{!oppAssessment.TECH_ComingIntoForceDate__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0011}"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0258}" collapsible="false">
+                        <apex:outputField value="{!oppAssessment.AssessmentVersion__c}" />
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="{!$Label.LBL0259}"/>
+                            <apex:outputPanel >
+                                <apex:outputField value="{!oppAssessment.CreatedById}"/>
+                                &nbsp;
+                                <apex:outputField value="{!oppAssessment.CreatedDate}"/>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                        
+                        
+                        <apex:outputField value="{!oppAssessment.AssessmentDate__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:inputField value="{!oppAssessment.AssessmentDate__c}" rendered="{!isEditAssessement}"/>
+                        
+                        <apex:pageBlockSectionItem >
+                            <apex:outputLabel value="{!$Label.LBL0260}"/>
+                            <apex:outputPanel >
+                                <apex:outputField value="{!oppAssessment.LastModifiedById}"/>
+                                &nbsp;
+                                <apex:outputField value="{!oppAssessment.LastModifiedDate}"/>
+                            </apex:outputPanel>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    
+                     <apex:pageBlockSection columns="1" title="{!$Label.LBL0261}" collapsible="false">
+                        <apex:outputPanel rendered="{!(oppAssessment.Status__c=$Label.LBL0061 && customerVisions.size=0) || (oppAssessment.Status__c=$Label.LBL0011 &&archivedCustomerVisions.size=0)}">
+                            {!$Label.LBL0017}<br/><!-- an info msg is shown when no elements are available to show -->
+                        </apex:outputPanel>
+                    
+                    <!-- section shown only for Open Opportunity Assessment -->
+                        <apex:repeat value="{!customerVisions}" var="cv">
+                            <apex:outputPanel rendered="{!customerVisions.size>0 && oppAssessment.Status__c=$Label.LBL0061}">
+                                <apex:outputField value="{!cv.Name}"/>&nbsp;:&nbsp;
+                                <apex:outputText value="{!cv.Description__c}"/>
+                            </apex:outputPanel>
+                        </apex:repeat>
+                    
+                    <!-- section shown only for archived Opportunity Assessment -->
+                        <apex:repeat value="{!archivedCustomerVisions}" var="cv">
+                            <apex:outputPanel rendered="{!archivedCustomerVisions.size>0 && oppAssessment.Status__c=$Label.LBL0011}">
+                                <apex:outputText value="{!cv.axis}"/>&nbsp;:&nbsp;
+                                <apex:outputText value="{!cv.description}"/>
+                            </apex:outputPanel>
+                        </apex:repeat>
+                        <apex:outputField value="{!oppAssessment.ProjectFitWithCustomerSStrategy__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:inputTextarea value="{!oppAssessment.ProjectFitWithCustomerSStrategy__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0262}" collapsible="false" id="pgbSecProjectO">
+                    <!-- output fields for view mode -->
+                        <apex:outputField value="{!oppAssessment.CustomerBusinessObjective_problems__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:outputText value="" rendered="{!!isEditAssessement}"/>
+                        <apex:outputField value="{!oppAssessment.CustomerProjectDescription__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:outputField value="{!oppAssessment.IdealSolutionScenario__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                            <apex:outputLabel value="{!$objectType.Opportunity.Fields.Amount.Label}"/>
+                            <apex:outputText value="{!relatedOpp.CurrencyISOCode} {0, number, ###,###,###}">
+                                <apex:param value="{!relatedOpp.Amount}" />
+                            </apex:outputText>
+                        </apex:pageBlockSectionItem>
+                        <apex:outputField value="{!oppAssessment.SellingPriceComment__c}" rendered="{!!isEditAssessement}"/>
+                        <!-- CR-0734 - Not used anymore -->
+                        <!-- <apex:outputField value="{!relatedOpp.GrossMargin__c}" rendered="{!!isEditAssessement}"/> -->
+                        
+                    <!-- Input fields for edit mode -->
+                        <apex:inputTextarea value="{!oppAssessment.CustomerProjectDescription__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                        <apex:inputTextarea value="{!oppAssessment.IdealSolutionScenario__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                        <apex:inputTextarea value="{!oppAssessment.CustomerBusinessObjective_problems__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                        <apex:inputTextarea value="{!oppAssessment.SellingPriceComment__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                    </apex:pageBlockSection>         
+                    
+                    <apex:pageBlockSection columns="3" title="{!$Label.LBL0263}" collapsible="false">
+                        <apex:outputPanel rendered="{!(oppAssessment.Status__c=$Label.LBL0061 && relatedOppSalesTeam.size=0) || (oppAssessment.Status__c=$Label.LBL0011 && archivedRelatedOppSalesTeam.size=0)}">
+                            {!$Label.LBL0014}<br/><!-- an info msg is shown when no elements are available to show -->
+                        </apex:outputPanel>
+                    
+                        <apex:pageBlockTable value="{!relatedOppSalesTeam}" var="oppSalesTeam" rendered="{!relatedOppSalesTeam.size>0 && oppAssessment.Status__c=$Label.LBL0061}"> 
+                            <apex:column headerValue="{!$Label.LBL0264}" value="{!oppSalesTeam.UserId}" />
+                            <apex:column headerValue="{!$ObjectType.OpportunityTeamMember.fields.TeamMemberRole.Label}" value="{!oppSalesTeam.TeamMemberRole}" />
+                        </apex:pageBlockTable>
+                        
+                        <apex:pageBlockTable value="{!archivedRelatedOppSalesTeam}" var="oppSalesTeamArchived" rendered="{!archivedRelatedOppSalesTeam.size>0 && oppAssessment.Status__c=$Label.LBL0011}">
+                            <apex:column headerValue="{!$Label.LBL0264}" value="{!oppSalesTeamArchived.userName}" />
+                            <apex:column headerValue="{!$ObjectType.OpportunityTeamMember.fields.TeamMemberRole.Label}" value="{!oppSalesTeamArchived.teamMemberRole}" />
+                        </apex:pageBlockTable>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="3" title="{!$Label.LBL0265}" collapsible="false">
+                        <apex:outputPanel rendered="{!(oppAssessment.Status__c=$Label.LBL0061 && relatedOpp.LeadingBidManager__c='' && relatedOpp.LeadingPlatformDirector__c='') || (oppAssessment.Status__c=$Label.LBL0011 && oppAssessment.TECH_OppBidManager__c='' && oppAssessment.TECH_OppPlatformDirector__c='')}">
+                            {!$Label.LBL0015}<br/><!-- an info msg is shown when no elements are available to show -->
+                        </apex:outputPanel>
+                        
+                        <apex:outputPanel rendered="{!relatedOpp.LeadingBidManager__c!='' || relatedOpp.LeadingPlatformDirector__c!='' || oppAssessment.TECH_OppBidManager__c!='' || oppAssessment.TECH_OppPlatformDirector__c!=''}" >
+                            <table border="0" class="list" cellspacing="0" cellpadding="0">
+                                <tr class="headerRow">
+                                    <th>{!$Label.LBL0264}</th>
+                                    <th>{!$ObjectType.OpportunityTeamMember.fields.TeamMemberRole.Label}</th>
+                                </tr>
+                                
+                                <apex:outputPanel rendered="{!oppAssessment.TECH_OppBidManager__c!='' || relatedOpp.LeadingBidManager__c!=''}">
+                                <tr class="dataRow even first">
+                                    <td class="dataCell" >
+                                        <apex:outputLink value="/{!relatedOpp.LeadingBidManager__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0061 && relatedOpp.LeadingBidManager__c!=''}">{!relatedOpp.LeadingBidManager__r.FullName__c}</apex:outputLink>
+                                        <apex:outputText value="{!oppAssessment.TECH_OppBidManager__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0011 && oppAssessment.TECH_OppBidManager__c!=''}" />
+                                    </td>
+                                    <td class="dataCell">{!$ObjectType.Opportunity.Fields.LeadingBidManager__c.Label}</td>
+                                </tr>
+                                </apex:outputPanel>
+                                
+                                <apex:outputPanel rendered="{!oppAssessment.TECH_OppPlatformDirector__c!='' || relatedOpp.LeadingPlatformDirector__c!=''}">
+                                <tr class="dataRow even last">
+                                    <td class="dataCol" nowarp="nowarp" >
+                                        <apex:outputLink value="/{!relatedOpp.LeadingPlatformDirector__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0061 && relatedOpp.LeadingPlatformDirector__c!=''}">{!relatedOpp.LeadingPlatformDirector__r.FullName__c}</apex:outputLink>
+                                        <apex:outputText value="{!oppAssessment.TECH_OppPlatformDirector__c}" rendered="{!oppAssessment.Status__c=$Label.LBL0011 && oppAssessment.TECH_OppPlatformDirector__c!=''}" />
+                                        </td>
+                                    <td class="dataCol">{!$ObjectType.Opportunity.Fields.LeadingPlatformDirector__c.Label}</td>
+                                </tr> 
+                                </apex:outputPanel>
+                            </table>
+                        </apex:outputPanel>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="3" title="{!$Label.LBL0266}" collapsible="false">
+                        <apex:outputPanel rendered="{!relatedOppActors.size = 0}">
+                            {!$Label.LBL0016}<br/><!-- an info msg is shown when no elements are available to show -->
+                        </apex:outputPanel>
+                    <!-- section shown only for Open Opportunity Assessment -->                      
+                        <apex:pageBlockTable value="{!relatedOppActors}" var="oppActor" rendered="{!relatedOppActors.size>0}"> 
+                            <apex:column headerValue="{!$Label.LBL0128}"> <!-- "Opportunity Actor Name" -->
+                                <apex:outputField value="{!oppActor.Account__c}" rendered="{!oppActor.Account__c!=null}"/>
+                                <apex:outputField value="{!oppActor.Competitor__c}" rendered="{!oppActor.Competitor__c!=null}"/>
+                            </apex:column>
+                        </apex:pageBlockTable>
+                        
+                    <!-- section shown only for archived Opportunity Assessment -->
+                        <apex:repeat value="{!archivedRelatedOppActors}" var="oppActorArchived" rendered="{!archivedRelatedOppActors != null && oppAssessment.Status__c=$Label.LBL0011}">
+                            <apex:outputPanel rendered="{!oppAssessment.Status__c=$Label.LBL0011}">
+                                <apex:outputText value="{!oppActorArchived}"/>
+                            </apex:outputPanel>
+                        </apex:repeat>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+            </apex:tab>
+<!-- Background Information - END-->                
+
+<!-- Assessment - START -->             
+            <apex:tab label="{!$Label.LBL0267}" name="assessmentTab" id="assessmentTab" ontableave="if(isEditMode)  {alert('{!$Label.LBL0013}'); return false;}">
+                <apex:pageBlock id="pgbAssessment" mode="{!IF(isEditMode, 'edit', 'maindetail')}">
+                    <apex:pageMessage summary="{!$Label.LBL0268}" severity="Info" strength="1" />
+                    <apex:pageBlockButtons location="top" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:commandButton value="{!$Label.LBL0253}" action="{!editAssessement}" rendered="{!!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0254}" action="{!saveAssessement}" rendered="{!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0255}" immediate="true" action="{!cancelEditAssessement}" rendered="{!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                    </apex:pageBlockButtons>
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0269}" collapsible="false">
+                        <!-- Input fields for edit mode -->
+                            <apex:inputField value="{!oppAssessment.ProjectDefined__c}" rendered="{!isEditAssessement}"/> 
+                            <apex:inputField value="{!oppAssessment.BenefitROIQuantified__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.FundsBudgetted__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.CompellingReasonToBuy__c}" rendered="{!isEditAssessement}"/>
+                        <!-- Output fields for view mode -->
+                            <apex:outputField value="{!oppAssessment.ProjectDefined__c}" rendered="{!!isEditAssessement}"/> 
+                            <apex:outputField value="{!oppAssessment.BenefitROIQuantified__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.FundsBudgetted__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.CompellingReasonToBuy__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="false">
+                        <apex:pageBlockSectionItem rendered="{!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>                        
+                            <apex:inputTextarea value="{!oppAssessment.Motivation__c}" cols="90" rows="4"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:outputField value="{!oppAssessment.Motivation__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0271}" collapsible="false">
+                        <!-- Input fields for edit mode -->
+                            <apex:inputField value="{!oppAssessment.FormalDecisionCriteria__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.CompetitiveConditions__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.RequirementFulfilled__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.UniqueBenefits__c}" rendered="{!isEditAssessement}"/>
+                        <!-- Output fields for view mode -->
+                            <apex:outputField value="{!oppAssessment.FormalDecisionCriteria__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.CompetitiveConditions__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.RequirementFulfilled__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.UniqueBenefits__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="false">
+                        <apex:pageBlockSectionItem rendered="{!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>   
+                            <apex:inputTextarea value="{!oppAssessment.Differentiation__c}" cols="90" rows="4"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:outputField value="{!oppAssessment.Differentiation__c}"/>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0272}" collapsible="false">
+                        <!-- Input fields for edit mode -->
+                            <apex:inputField value="{!oppAssessment.DecisionMakerKnown__c}" rendered="{!isEditAssessement}"/>
+                             <apex:pageBlockSectionItem rendered="{!isEditAssessement}">
+                                <apex:outputLabel value="{!$Label.LBL0273}"/>
+                                <apex:inputField value="{!oppAssessment.LinkedWithGoalOfDecisionMaker__c}"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:inputField value="{!oppAssessment.InformalDecisionCriteriaKnown__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.SupportedByPeopleWithInfluence__c}" rendered="{!isEditAssessement}"/>
+                        <!-- Output fields for view mode -->
+                            <apex:outputField value="{!oppAssessment.DecisionMakerKnown__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                                <apex:outputLabel value="{!$Label.LBL0273}"/>
+                                <apex:outputField value="{!oppAssessment.LinkedWithGoalOfDecisionMaker__c}"/>
+                            </apex:pageBlockSectionItem>
+                            <apex:outputField value="{!oppAssessment.InformalDecisionCriteriaKnown__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.SupportedByPeopleWithInfluence__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="false">
+                         <apex:pageBlockSectionItem rendered="{!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:inputTextarea value="{!oppAssessment.Politics__c}" cols="90" rows="4"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:outputField value="{!oppAssessment.Politics__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0274}" collapsible="false">
+                        <!-- Input fields for edit mode -->
+                            <apex:inputField value="{!oppAssessment.ShortTermRevenueMiniThreshold__c}" rendered="{!isEditAssessement}"/> 
+                            <apex:inputField value="{!oppAssessment.Profitability__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.StrategicValueFitsWithAlstomStrat__c}" rendered="{!isEditAssessement}"/>
+                            <apex:inputField value="{!oppAssessment.ManageableRisks__c}" rendered="{!isEditAssessement}"/>
+                        <!-- Output fields for !edit mode -->
+                            <apex:outputField value="{!oppAssessment.ShortTermRevenueMiniThreshold__c}" rendered="{!!isEditAssessement}"/> 
+                            <apex:outputField value="{!oppAssessment.Profitability__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.StrategicValueFitsWithAlstomStrat__c}" rendered="{!!isEditAssessement}"/>
+                            <apex:outputField value="{!oppAssessment.ManageableRisks__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection columns="1" collapsible="false">
+                        <apex:pageBlockSectionItem rendered="{!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:inputTextarea value="{!oppAssessment.Attractiveness__c}" cols="90" rows="4"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem rendered="{!!isEditAssessement}">
+                            <apex:outputLabel value="{!$Label.LBL0270}"/>
+                            <apex:outputField value="{!oppAssessment.Attractiveness__c}"/>
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                
+                </apex:pageBlock>
+            </apex:tab>
+<!-- Assessment - END-->        
+        
+<!-- Decision Criteria - START -->
+            <apex:tab label="{!$Label.LBL0275}" name="decisionTab" id="decisionTab" ontableave="if(isEditMode) {alert('{!$Label.LBL0013}'); return false;}">
+                
+                <apex:pageBlock id="pgbDecision" mode="maindetail">
+                    
+                    <apex:pageblockSection title="{!$Label.LBL0276}" collapsible="false"/>
+                    
+                    <apex:pageMessage summary="{!$Label.LBL0277}" severity="info" strength="1" rendered="{!decisions.size = 0}"/>
+                    
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="{!$Label.LBL0253}" rendered="{!!decEditMode && decisions.size > 0}" action="{!editAllDecisions}" reRender="pgMsg, pgbDecision, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0254}" rendered="{!decEditMode}" action="{!saveAllDecisions}" reRender="pgMsg, pgbDecision, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0255}" rendered="{!decEditMode}" action="{!cancelEditAllDecisions}" reRender="pgMsg, pgbDecision, jsVarEditMode" status="status"/>
+                    </apex:pageBlockButtons>
+                    
+                    <apex:pageBlockTable value="{!decisions}" var="decisionItem" rendered="{!decisions.size > 0}">
+                        <apex:column headerValue="Action" styleClass="actionColumn" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                            <apex:commandLink styleClass="actionLink" value="{!$Label.LBL0278}" onClick="if(!confirm('{!$Label.LBL0034}')) return false;" action="{!removeDecision}" reRender="pgMsg, pgbDecision, jsVarEditMode" status="status">
+                                <apex:param name="decItem" value="{!decisionItem.item}" assignTo="{!decItem}"/>
+                            </apex:commandLink>
+                        </apex:column>
+                  
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.DecisionCriteria__c.fields.DecisionCriteria__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                <div class="helpText2">
+                                    {!$ObjectType.DecisionCriteria__c.fields.DecisionCriteria__c.inlineHelpText}
+                                </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!decisionItem.dc.DecisionCriteria__c}" rendered="{!!decisionItem.editMode}"/>
+                            <apex:inputField value="{!decisionItem.dc.DecisionCriteria__c}" rendered="{!decisionItem.editMode}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.DecisionCriteria__c.fields.Weight__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                <div class="helpText2">
+                                    {!$ObjectType.DecisionCriteria__c.fields.Weight__c.inlineHelpText}
+                                </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!decisionItem.dc.Weight__c}" rendered="{!!decisionItem.editMode}"/>
+                            <apex:inputField value="{!decisionItem.dc.Weight__c}" rendered="{!decisionItem.editMode}"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.DecisionCriteria__c.fields.Rating__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                <div class="helpText2">
+                                    {!$ObjectType.DecisionCriteria__c.fields.Rating__c.inlineHelpText}
+                                </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!decisionItem.dc.Rating__c}" rendered="{!!decisionItem.editMode}"/>
+                            <apex:inputField value="{!decisionItem.dc.Rating__c}" rendered="{!decisionItem.editMode}"/>
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!$ObjectType.DecisionCriteria__c.fields.Comment__c.Label}">
+                            <apex:outputField value="{!decisionItem.dc.Comment__c}" rendered="{!!decisionItem.editMode}"/>
+                            <apex:inputTextArea value="{!decisionItem.dc.Comment__c}" rendered="{!decisionItem.editMode}" cols="40" rows="2"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                    <br/>
+                    <apex:commandButton action="{!addDecision}" value="New Criteria" reRender="pgMsg, pgbDecision, jsVarEditMode" status="status" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/>
+                </apex:pageBlock>
+            </apex:tab>
+<!-- Decision Criteria - END-->             
+
+<!-- Politics - START -->               
+            <apex:tab label="{!$Label.LBL0279}" name="politicsTab" id="politicsTab" ontableave="if(isEditMode) {alert('{!$Label.LBL0013}'); return false;}" title="{!$Label.LBL0280}">
+                <apex:actionFunction name="toggleMap" action="{!toggleMap}" reRender="pgMsg, mapSection,jsVarEditMode" status="status"/>
+                <apex:outputPanel id="mapSection">
+                    <!-- VIEW MODE -->                       
+                    <apex:pageBlock rendered="{!!showEditBPSMap}" mode="maindetail">
+                        <apex:pageMessage summary="Powermap Modeling Tool" severity="info" strength="1"/>
+                        <apex:pageBlockButtons location="top" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                           <apex:commandButton action="{!toggleMap}" value="Edit" reRender="pgMsg, mapSection,jsVarEditMode" status="status"/>
+                        </apex:pageBlockButtons>
+                        <apex:outputPanel layout="block" id="mapContainer" style="position:relative;height:1250px" rendered="{!LEN(bcpMapHTML) > 0}"> 
+                                <apex:outputText value="{!bcpMapHTML}" escape="false"/>
+                        </apex:outputPanel>
+                        <apex:image value="{!URLFOR($Resource.VFP11_LIB, '/img/legend.png')}" />
+                    </apex:pageBlock>
+                    
+                    <!-- EDIT MODE -->   
+                    <apex:pageBlock rendered="{!showEditBPSMap}"  mode="maindetail">
+                        <c:BPSMap oppAsId="{!oppAssessment.Id}" oppId="{!relatedOpp.Id}"/>
+                    </apex:pageBlock>
+               </apex:outputPanel>
+            </apex:tab>
+<!-- Politics - END-->
+
+<!-- Competition - START -->            
+            <apex:tab label="{!$Label.LBL0281}" name="competitionTab" id="competitionTab" ontableave="if(isEditMode) {alert('{!$Label.LBL0013}'); return false;}">
+                
+                <apex:pageBlock id="pgbCompetition" mode="maindetail">
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="{!$Label.LBL0253}" action="{!editAllCompetitions}" reRender="pgMsg, pgbCompetition, jsVarEditMode" rendered="{!!compeditMode && competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061}" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0254}" action="{!saveAllCompetitions}" reRender="pgMsg, pgbCompetition, jsVarEditMode" rendered="{!compeditMode}" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0255}" action="{!cancelEditAllCompetitions}" reRender="pgMsg, pgbCompetition, jsVarEditMode" rendered="{!compeditMode}" status="status"/>
+                    </apex:pageBlockButtons>
+
+                    <apex:pageMessage summary="{!$Label.LBL0282}" severity="Info" strength="1" rendered="{!(oppAssessment.Status__c=$Label.LBL0061 && competitions.size=0) || (oppAssessment.Status__c=$Label.LBL0011 && archivedCompetitions.size=0)}"/>
+                    
+                    <apex:pageBlockSection title="{!$Label.LBL0283}" collapsible="false" rendered="{!(competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061) || (archivedCompetitions.size>0 && oppAssessment.Status__c=$Label.LBL0011)}"/>
+                    
+                    <apex:pageBlockTable value="{!competitions}" var="cmp" rendered="{!competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:column headerValue="{!$Label.LBL0284}" styleClass="actionColumn" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                            <apex:commandLink styleClass="actionLink" value="{!$Label.LBL0278}" onClick="if(!confirm('{!$Label.LBL0034}')) return false;" action="{!removeCompetition}" rendered="{!cmp.comp.Competitor__c != $Label.LBL0008}" reRender="pgMsg, pgbCompetition, jsVarEditMode" status="status">
+                                <apex:param name="compItem" value="{!cmp.item}" assignTo="{!compItem}"/> 
+                            </apex:commandLink>
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!$Label.LBL0128}"> <!-- "Opportunity Actor Name" -->
+                            <apex:outputField value="{!cmp.comp.Competitor__c}" rendered="{!!cmp.editMode && cmp.comp.Competitor__c!=null}"/>
+                            <apex:inputField value="{!cmp.comp.Competitor__c}" rendered="{!cmp.editCompMode && cmp.comp.RecordTypeId!=$Label.LBL0072 && cmp.allEditMode=false || cmp.allEditMode=true && cmp.comp.Competitor__c!=null}" />
+                            <apex:outputField value="{!cmp.comp.Account__c}" rendered="{!!cmp.editMode && cmp.comp.Account__c!=null}"/>
+                            <apex:inputField value="{!cmp.comp.Account__c}" rendered="{!cmp.editAccMode && cmp.comp.RecordTypeId!=$Label.LBL0073 && cmp.allEditMode=false || cmp.allEditMode=true && cmp.comp.Account__c!=null}" />
+                        </apex:column>
+
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Ranking__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Ranking__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputField value="{!cmp.comp.Ranking__c}" rendered="{!cmp.editMode}" />
+                        </apex:column>
+                     
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Product__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Product__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.Product__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                         <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Service__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Service__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.Service__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.BrandImage__c.Label}">
+                            <apex:outputField value="{!cmp.comp.BrandImage__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.BrandImage__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Relationship__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Relationship__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.Relationship__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                    
+                    <!-- archived competitions 1st part start -->
+                    <apex:pageBlockTable value="{!archivedCompetitions}" var="archComp" rendered="{!archivedCompetitions.size>0 && oppAssessment.Status__c=$Label.LBL0011}">
+                        <apex:column headerValue="{!$Label.LBL0128}" value="{!archComp.compName}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Ranking__c.Label}" value="{!archComp.ranking}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Product__c.Label}" value="{!archComp.product}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Service__c.Label}" value="{!archComp.service}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.BrandImage__c.Label}" value="{!archComp.brandImage}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Relationship__c.Label}" value="{!archComp.relationship}"/>
+                    </apex:pageBlockTable>
+                    <!-- archived competitions 1st part end -->
+                    
+                    <apex:pageBlockSection title="{!$Label.LBL0285}" collapsible="false" rendered="{!(competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061) || (archivedCompetitions.size>0 && oppAssessment.Status__c=$Label.LBL0011)}" />
+                    <apex:outputPanel layout="block" style="width:380px; padding-left: 250px;" rendered="{!competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:pageMessage summary="{!$Label.LBL0286}" severity="Info" strength="1"  />
+                    </apex:outputPanel>
+                    
+                    
+                    <apex:pageBlockTable value="{!competitions}" var="cmp" rendered="{!competitions.size>0 && oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:column headerValue="{!$Label.LBL0128}">
+                            <apex:outputField value="{!cmp.comp.Account__c}" rendered="{!cmp.comp.Account__c!=null}"/>
+                            <apex:outputField value="{!cmp.comp.Competitor__c}" rendered="{!cmp.comp.Competitor__c!=null}"/>
+                        </apex:column>
+
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Strenghts__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Strenghts__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.Strenghts__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Weaknesses__c.Label}">
+                            <apex:outputField value="{!cmp.comp.Weaknesses__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.Weaknesses__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+        
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.OpportunityActor__c.fields.IsGorilla__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                    <div class="helpText2">
+                                        {!$ObjectType.OpportunityActor__c.fields.IsGorilla__c.inlineHelpText}
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!cmp.comp.IsGorilla__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputField value="{!cmp.comp.IsGorilla__c}" rendered="{!cmp.editMode}" />
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsGorrillaComments__c.Label}">
+                            <apex:outputField value="{!cmp.comp.IsGorrillaComments__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.IsGorrillaComments__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        
+                        <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.OpportunityActor__c.fields.IsFlank__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                    <div class="helpText2">
+                                        {!$ObjectType.OpportunityActor__c.fields.IsFlank__c.inlineHelpText}
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!cmp.comp.IsFlank__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputField value="{!cmp.comp.IsFlank__c}" rendered="{!cmp.editMode}" />
+                        </apex:column>
+                       <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFlankComments__c.Label}">
+                            <apex:outputField value="{!cmp.comp.IsFlankComments__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.IsFlankComments__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        
+                          <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.OpportunityActor__c.fields.IsFragment__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                    <div class="helpText2">
+                                        {!$ObjectType.OpportunityActor__c.fields.IsFragment__c.inlineHelpText}
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!cmp.comp.IsFragment__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputField value="{!cmp.comp.IsFragment__c}" rendered="{!cmp.editMode}" />
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFragmentComments__c.Label}">
+                            <apex:outputField value="{!cmp.comp.IsFragmentComments__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.IsFragmentComments__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>                            
+                        </apex:column>
+                        
+                         <apex:column >
+                            <apex:facet name="header">
+                                <apex:outputPanel layout="block" styleClass="myColumnHeader">
+                                <div>
+                                    <apex:outputLabel value="{!$ObjectType.OpportunityActor__c.fields.IsDelay__c.Label}" styleClass="myColumnLabel" />
+                                    <div class="helpIcons"/>
+                                </div>
+                                    <div class="helpText2">
+                                        {!$ObjectType.OpportunityActor__c.fields.IsDelay__c.inlineHelpText}
+                                    </div>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!cmp.comp.IsDelay__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputField value="{!cmp.comp.IsDelay__c}" rendered="{!cmp.editMode}" />
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsDelayComments__c.Label}">
+                            <apex:outputField value="{!cmp.comp.IsDelayComments__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.IsDelayComments__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.AlignedWithWhow__c.Label}">
+                            <apex:outputField value="{!cmp.comp.AlignedWithWhow__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.AlignedWithWhow__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.InformalStrategy__c.Label}">
+                            <apex:outputField value="{!cmp.comp.InformalStrategy__c}" rendered="{!!cmp.editMode}"/>
+                            <apex:inputTextArea value="{!cmp.comp.InformalStrategy__c}" rendered="{!cmp.editMode}" cols="30" rows="2"/>
+                        </apex:column>
+                    </apex:pageBlockTable>
+                    
+                    <!-- archived competitions 2nd part start -->
+                    <apex:pageBlockTable value="{!archivedCompetitions}" var="archComp" rendered="{!archivedCompetitions.size>0 && oppAssessment.Status__c=$Label.LBL0011}">
+                        <apex:column headerValue="{!$Label.LBL0128}" value="{!archComp.compName}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Strenghts__c.Label}" value="{!archComp.strenghts}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.Weaknesses__c.Label}" value="{!archComp.weaknesses}"/>
+                     
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsGorilla__c.Label}">
+                            <img src="{!IF(archComp.isGorilla, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" width="21" height="16"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsGorrillaComments__c.Label}" value="{!archComp.isGorillaComment}"/>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFlank__c.Label}">
+                            <img src="{!IF(archComp.isFlank, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" width="21" height="16"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFlankComments__c.Label}" value="{!archComp.isFlankComment}"/>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFragment__c.Label}">
+                            <img src="{!IF(archComp.isFragment, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" width="21" height="16"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsFragmentComments__c.Label}" value="{!archComp.isFragmentComment}"/>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsDelay__c.Label}">
+                            <img src="{!IF(archComp.isDelay, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" width="21" height="16"/>
+                        </apex:column>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.IsDelayComments__c.Label}" value="{!archComp.isDelayComment}"/>
+                        
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.AlignedWithWhow__c.Label}" value="{!archComp.alignedWithWhow}"/>
+                        <apex:column headerValue="{!$ObjectType.OpportunityActor__c.fields.InformalStrategy__c.Label}" value="{!archComp.informalStrategy}"/>
+                    </apex:pageBlockTable>
+                    <!-- archived competitions 2nd part end -->
+                    
+                    <br/>
+                    <apex:commandButton value="{!$Label.LBL0287}" action="{!addCompetitionAccount}" reRender="pgMsg, pgbCompetition, jsVarEditMode" status="status" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/>
+                    <apex:commandButton value="{!$Label.LBL0288}" action="{!addCompetition}" reRender="pgMsg, pgbCompetition, jsVarEditMode" status="status" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/>
+                </apex:pageBlock>
+            </apex:tab>
+<!-- Competition - END-->
+
+<!-- Conclusion - START -->
+            <apex:tab label="{!$Label.LBL0289}" name="conclusionTab" id="conclusionTab" ontableave="if(isEditMode) {alert('{!$Label.LBL0013}'); return false;}">
+                <apex:pageBlock id="pgbConclusion" mode="{!IF(isEditMode, 'edit', 'maindetail')}">
+                    <apex:pageBlockButtons location="top" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                        <apex:commandButton value="{!$Label.LBL0253}" action="{!editAssessement}" rendered="{!!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0254}" action="{!saveAssessement}" rendered="{!isEditAssessement}" reRender="pgMsg, pgbAssessment, pgbConclusion, pgbBackground, jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0255}" action="{!cancelEditAssessement}" immediate="true" rendered="{!isEditAssessement}" reRender="pgMsg, pgbConclusion,jsVarEditMode" status="status"/>
+                        <apex:commandButton value="{!$Label.LBL0290}" action="{!archiveOppAssessemnt}" rendered="{!oppAssessment.Status__c=$Label.LBL0061 && !isEditAssessement}" onClick="if(!confirm('{!$Label.LBL0012}')) return false;" /><!-- LBL0012 = confirmation msg -->
+                    </apex:pageBlockButtons>
+                    
+                    <apex:pageBlockSection columns="2" title="{!$Label.LBL0291}" collapsible="false">
+                    <!-- Input fields for edit mode -->
+                        <apex:inputField value="{!oppAssessment.Decision__c}" rendered="{!isEditAssessement}"/>
+                        <apex:inputField value="{!oppAssessment.DecisionDate__c}" rendered="{!isEditAssessement}"/>
+                    <!-- Output fields for view mode -->
+                        <apex:outputField value="{!oppAssessment.Decision__c}" rendered="{!!isEditAssessement}"/>
+                        <apex:outputField value="{!oppAssessment.DecisionDate__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                    
+                    <apex:pageBlockSection columns="1" collapsible="false">
+                        <apex:inputTextarea value="{!oppAssessment.Conclusion__c}" rendered="{!isEditAssessement}" cols="90" rows="4"/>
+                        <apex:outputField value="{!oppAssessment.Conclusion__c}" rendered="{!!isEditAssessement}"/>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+                
+                <apex:pageBlock id="pgbActions" mode="mainDetail" rendered="{!oppAssessment.Status__c=$Label.LBL0061}">
+                    <apex:pageBlockSection columns="1" title="{!$Label.LBL0292}" collapsible="false"/>
+                
+                    <apex:outputPanel rendered="{!actions.size = 0}">
+                        <br/>{!$Label.LBL0028}<br/>
+                    </apex:outputPanel> 
+                    
+                    <apex:pageBlockTable value="{!actions}" var="action" rendered="{!actions.size>0}" >
+                        <apex:column headerValue="{!$Label.LBL0284}" styleClass="actionColumn">
+                            <apex:commandLink styleClass="actionLink" value="{!$Label.LBL0293}" action="{!URLFOR($Action.Task.Edit, action.task.Id, [retURL=URLFOR($Page.VFP12_OpportunityAssessment, null, [id=oppAssessment.Id, tabNum='5'])])}"/><!-- url to the standard edit of the clicked task -->
+                            &nbsp;|&nbsp;
+                            <apex:commandLink styleClass="actionLink" value="{!$Label.LBL0278}" onClick="if(!confirm('{!$Label.LBL0034}')) return false;" action="{!removeAction}" status="status" reRender="pgMsg, pgbActions, jsVarEditMode">
+                                <apex:param name="actionItem" value="{!action.item}" assignTo="{!actionItem}"/>
+                            </apex:commandLink>
+                        </apex:column>
+                        
+                        <apex:column value="{!action.task.Domain__c}"/>
+                        <apex:column value="{!action.task.Subject}"/>
+                        <apex:column value="{!action.task.OwnerId}"/>
+                        <apex:column value="{!action.task.Priority}"/>
+                        <apex:column value="{!action.task.Status}"/>
+                        <apex:column value="{!action.task.ActivityDate}"/>
+                        <apex:column value="{!action.task.ExpectedResults__c}"/>
+                    </apex:pageBlockTable>
+                    
+                    <br/>
+                    <apex:commandButton value="{!$Label.LBL0294}" action="{!URLFOR('/00T/e', null, [what_id=oppAssessment.Opportunity__c, tsk10=$Label.LBL0295, retURL=URLFOR($Page.VFP12_OpportunityAssessment, null, [id=oppAssessment.Id, tabNum='5'])])}" style="text-decoration:none" rendered="{!oppAssessment.Status__c=$Label.LBL0061}"/><!-- url to the standard new of a task with predefaulted values (related object ...) -->
+                </apex:pageBlock>
+            </apex:tab> 
+<!-- Conclusion - END-->                
+        </apex:tabPanel>
+    </apex:form>
+    <script>
+        window.onload = function()
+        {
+            var archElement = document.getElementById('thePage:theForm:oppStatus');
+            if(archElement == null) return;
+            
+            var archParent = archElement.parentNode;
+            var archIndex = findChildIndex(archParent, archElement);
+            var targetMainNode = archParent.children[archIndex - 1];
+            var targetSubNode = targetMainNode.childNodes[0].childNodes[0];
+            for(var i = 0; i < targetSubNode.children.length; i++) 
+            {
+                if('pageDescription' == targetSubNode.children[i].className) {
+                     targetSubNode.children[i].innerHTML += archElement.outerHTML;
+                    break;
+                }
+            }
+            archElement.style.display = 'none';
+        }
+        
+        function findChildIndex (parent, child)
+        {
+            var children = parent.children;
+            var count = children.length;
+            var theIndex = -1;
+            for (var i = 0; i < count; i++) 
+            {
+              if (child === children[i]) 
+              {
+                theIndex = i;
+                break;
+              }
+            }
+            return theIndex;
+        }
+    </script>
+</apex:page>

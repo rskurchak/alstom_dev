@@ -1,0 +1,3 @@
+<apex:page standardController="Account" tabStyle="Account" >
+    <c:C26_AccountHierarchy paramCurrentId="{!Account.id}" />
+</apex:page>

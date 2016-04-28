@@ -1,0 +1,95 @@
+<apex:page title="Program Synthesis {!Program__c.Name}" name="Program Synthesis" standardController="Program__c"
+           extensions="ClusterInfoContExt,FiscalYearInfoContExt">
+    
+    <style>
+    .Header {
+        // padding-bottom: 5px;
+    }
+        
+    .Row {
+        margin-bottom: 2px;
+    }
+    .Total {
+        font-weight: bold;
+        // padding-top: 5px;
+     }
+    </style>
+    
+    <apex:form >
+        <apex:pageBlock id="ProgramSynthesis" title="Program Synthesis">
+            <apex:pageMessages />
+            <apex:pageBlockButtons >
+                <apex:commandButton value="Save" action="{!save}"/>
+                <apex:commandButton value="Cancel" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+            
+            
+            <apex:pageBlockSection title="Cluster" collapsible="false" columns="2">
+                <apex:outputField value="{!cluster.Name}" />
+                <apex:outputText label="{!$ObjectType.Cluster__c.fields.Cluster_Coordinator__c.Label}" value="{!cluster.Cluster_Coordinator__r.Name}" />
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection title="Program" columns="2" collapsible="false">
+                    <apex:outputText value="{!Program__c.name}" />
+                    <apex:outputField value="{!Program__c.BudgetAtCompletion__c}"/>
+                    <apex:outputText value="{!Program__c.ProgramName__c}"/>
+                    <apex:outputField value="{!Program__c.ActualsPreviousYears__c }"/>
+                    <apex:outputText label="{!$ObjectType.Program__c.fields.ProgramManager__c.Label}" value="{!Program__c.ProgramManager__r.Name}"/>
+                    <apex:outputText value="{!Program__c.ProgramStatus__c}"/>
+                    <apex:inputField value="{!Program__c.ProgramDescription__c}" style="width: 200%"/>
+            </apex:pageBlockSection>
+            
+            <apex:pageBlockSection title="Current Fiscal Year" columns="2" collapsible="false">
+                    <apex:outputField label="Granted Budget" value="{!Program__c.GrantedBudgetCurrentFY__c}" />
+                    <apex:outputField label="Actuals" value="{!Program__c.ActualsCurrentFY__c}"/>
+                    <apex:outputField label="Granted Authorization" value="{!Program__c.GrantedAuthorizationCurrentFY__c}"/>
+                    <apex:outputField label="Forecast" value="{!Program__c.TECH_ForecastCurrentFY__c }"/>
+            </apex:pageBlockSection>
+
+            <apex:pageBlockSection id="Allocations" title="Allocations" collapsible="false" columns="1">
+                <apex:repeat var="fy" value="{!fiscalYears}">
+                    <apex:pageBlockSectionItem >
+                        <apex:outputPanel layout="block" style="text-align: left;">
+                            <apex:commandButton style="width: 20px;" action="{!expand}" value="+" rerender="Allocations" rendered="{!expandedMap[fy.Name] == false}">
+                                    <apex:param name="sectionToExpand" value="{!fy.Name}" assignTo="{!sectionToExpand}"/>
+                            </apex:commandButton>
+                            <apex:commandButton style="width: 20px;" action="{!expand}" value="-" rerender="Allocations" rendered="{!expandedMap[fy.Name]}">
+                                    <apex:param name="sectionToExpand" value="{!fy.Name}" assignTo="{!sectionToExpand}"/>
+                            </apex:commandButton>
+
+                            &nbsp;<apex:outputText value="{!fy.Name}" />
+                        </apex:outputPanel>
+                        <apex:dataTable var="allocation" value="{!allocations[fy]}" rendered="{!expandedMap[fy.Name]}" headerClass="Header" footerClass="Total" cellspacing="3">
+                            <apex:column headerValue="{!$ObjectType.ProgramAllocation__c.fields.SiteName__c.Label}" width="200px">
+                                <apex:outputField value="{!allocation.SiteName__c}"/>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.ProgramAllocation__c.fields.Name.Label}" width="200px">
+                                <apex:outputField value="{!allocation.Name}"/>
+                            </apex:column>
+                            <apex:column headerValue="Actuals" width="200px">
+                                <apex:outputField value="{!allocation.ActualsCurrentFY__c}"/>
+                                <apex:facet name="footer"><apex:outputText value="{!totalsMap[fy].ActualsFormatted}"/></apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="" width="30px">
+                                <apex:image rendered="{!allocation.ActualsCurrentFY__c != null && allocation.Budget__c != null && allocation.ActualsCurrentFY__c > allocation.Budget__c}" value="{!$Resource.Warning_Icon}" width="16" height="16"/>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.ProgramAllocation__c.fields.Budget__c.Label}" width="200px">
+                                <apex:inputField value="{!allocation.Budget__c}"/>
+                                <apex:facet name="footer"><apex:outputText value="{!totalsMap[fy].BudgetFormatted}"/></apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.ProgramAllocation__c.fields.Authorization__c.Label}" width="200px">
+                                <apex:inputField value="{!allocation.Authorization__c}"/>
+                                <apex:facet name="footer"><apex:outputText value="{!totalsMap[fy].AuthorizationFormatted}"/></apex:facet>
+                            </apex:column>
+                            <apex:column headerValue="{!$ObjectType.ProgramAllocation__c.fields.Forecast__c.Label}" width="200px">
+                                <apex:inputField value="{!allocation.Forecast__c}"/>
+                                <apex:facet name="footer">
+                                    <apex:outputText value="{!totalsMap[fy].ForecastFormatted}"/></apex:facet>
+                            </apex:column>
+                        </apex:dataTable>
+                    </apex:pageBlockSectionItem>
+                </apex:repeat>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

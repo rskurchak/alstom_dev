@@ -1,0 +1,10 @@
+<!--
+ * VFP43_RedirectPageMilestone Visualforce page
+ * Jawad GHOULAM ~ jawad.ghoulam@cgi.com
+ * 06/09/2013
+-->
+<apex:page standardController="Milestone__c" extensions="VFC43_CloseReopenMilestone">
+    <script type="text/javascript">
+        window.top.parent.location = '/{!milestoneId}';
+    </script>
+</apex:page>

@@ -1,0 +1,278 @@
+<apex:page id="page" standardstylesheets="true" controller="VFC11_BPSMap" showHeader="false" >
+     <!-- 
+        VFP11_BPSMap
+            ~ Author            :   Damian Hercun ~ damian.hercun@axoa.fr
+            ~ Date Created      :   18/05/2012
+            ~ Description       :   Visualforce Page to display BPS Map
+            ~ Description       :   All the ressource of this page are storage in VFP11_LIB static ressource
+            ~ Description       :   The Map is is made entirely in JavaScript, based on the Jalava open source project
+    -->
+    <!-- Resources (js,css)= -->
+    <apex:styleSheet value="{!URLFOR($Resource.VFP11_LIB, 'css/styles_jalava.css')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.VFP11_LIB, 'js/Jalava.js')}"/>
+    
+    <!-- Salesforce AJAX toolkit -->
+    <apex:includeScript value="{!URLFOR($Resource.AjaxToolkit, 'js/AjaxToolkit24.js')}"/>
+<!--    <script src="/soap/ajax/24.0/connection.js" type="text/javascript"></script>  -->
+<!--     <script src="/soap/ajax/24.0/apex.js" type="text/javascript"></script> -->
+    <script>
+        var pageJsId = [];
+                
+        var pdfView = jQuery.noConflict(); 
+        pdfView(document).ready(function() {
+            pdfView("#pdfBox").dialog({
+                modal:                  true, 
+                autoOpen:               false,
+                width:                  1100,
+                height:                 650,
+                resizable:              false, 
+                closeOnEscape:          false, 
+                dialogClass:            'flora' 
+            }); // fold, 
+            pdfView('.ui-dialog-titlebar').hide();
+        });
+        
+        var oppAsId = "{!oppAsId}";
+        var jsonAttId = "{!currentJSONFile.Id}";
+        var htmlAttId = "{!currentHTMLFile.Id}";
+        
+        var close = false;
+        var preview = false;
+    </script>
+    
+    <div id="pdfBox" style="display:none;background-color:#fff; border:3px solid #0099DB;text-align:center;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;min-heigth:0px;!important">
+        <div><button onclick="closeDialog()">Close</button></div>
+        <iframe id="pdfView" name="pdfView" src="" scrolling="yes" frameborder="1" width="90%" height="600"/>
+    </div>
+    
+    <c:C04_Loading displayMessage="Loading.."/><!-- "Loading"  -->  
+
+    <!-- Generic BPS block in edit mode -->
+    <c:CCP09_BPS oppId="{!oppId}"/>
+    
+    <!-- PAGE STATUS -->
+    <apex:actionStatus id="status" onstart="componentLoading('#loadingDialog').dialog('open');" onstop="componentLoading('#loadingDialog').dialog('close');"/>
+    
+    <!-- PAGE FORM -->
+    <apex:form id="theForm" >
+                
+        <!-- AJAX FUNCTIONS -->     
+        <apex:actionFunction name="deleteBPS" action="{!deleteBPS}" rerender="jsCallbackSection,pageMessages" status="status" oncomplete="doPageCallBack()">
+            <apex:param name="deleteBPSId" assignTo="{!deleteBPSId}" value=""/>
+        </apex:actionFunction>      
+        
+        <div style="position:absolute; z-index:3000; width:80%; top:40px;">
+            <apex:pageMessages id="pageMessages"/>
+        </div>
+        
+        <apex:outputPanel id="controlPanel" layout="block" >
+            <!-- PAGE ERROR MESSAGE -->
+            <apex:outputPanel id="jsCallbackSection">
+                <apex:inputHidden id="pageJsCallback" value="{!pageJsCallback}"/>
+                <script>pageJsId["pageJsCallback"] = "{!$Component.pageJsCallback}";</script>
+            </apex:outputPanel>
+            
+            <div id="toolBar">  
+                <ul style="list-style-type:none;list-style-position:inside;display:none;margin:0 15px">
+                    <li style="display:inline-block;margin:0 2px 0 3px;">
+                        <apex:commandButton value="Save" onclick="ajaxSaveMap(false, false); return false;"/>
+                    </li>
+                    <li style="display:inline-block;margin:0 2px 0 3px;">
+                        <apex:commandButton value="Save & Close" onclick="ajaxSaveMap(true, false); return false;"/>
+                    </li>
+                    <li style="display:inline-block;margin:0 2px 0;">   
+                        <apex:commandButton value="Close" onclick="window.parent.closeWCSPlanEdit();return false;"/>
+                    </li>
+                    <li style="display:inline-block;margin:0 3px 0 2px;">   
+                        <apex:commandButton value="Save & Preview" onclick="ajaxSaveMap(false, true); return false;"/>          
+                    </li>                   
+                </ul>
+            </div>
+        </apex:outputPanel>
+    </apex:form>
+    <style type="text\css">
+        .permanentButton{
+            display: inline;
+            padding: 0;
+        }
+    </style>
+    <script type="text/javascript"> 
+        sforce.connection.sessionId = "{!$Api.Session_ID}";
+        var allBcs = new Array;
+        
+        // Repeat SF Loop START
+    <apex:repeat value="{!availableBpcs}" var="bps">
+        var bps = new Object();
+        bps.Id = "{!bps.id}";
+        bps.elementId = "BCP_{!bps.id}";
+        bps.ContactTitle = "{!bps.ContactName__r.Title}";
+        bps.ContactName = "{!bps.ContactName__r.Name}";
+        bps.ContactId = "{!bps.ContactName__c}";
+        bps.reportsToId = "{!bps.ReportsTo__c}";
+        
+        bps.ContactOwner = "";
+        bps.AlstomUser = "{!bps.AlstomUser__r.Name}";
+        
+        bps.PromotorType = "{!bps.PromotorType__c}";
+        bps.Attitude = "{!bps.Attitude__c}";
+        bps.Influence = "{!bps.Influence__c}";
+        bps.Consultant = {!bps.Consultant__c};//AMO
+        bps.DecisionMaker = {!bps.DecisionMaker__c};//AMO
+        bps.User = {!bps.User__c};//AMO
+        
+        bps.Typology = "{!bps.Typology__c}";
+        bps.Comments = "{!JSENCODE(bps.Comments__c)}"; 
+        
+        allBcs[bps.elementId] = bps;
+    </apex:repeat>
+        // Repeat SF Loop END
+        
+        // Anon construction START
+        var anon = new Object();
+        anon.Id = "";
+        anon.ContactTitle = "";
+        anon.ContactName = "";
+        anon.ContactId = "";
+        
+        anon.ContactOwner = "";
+        anon.AlstomUser = "";
+        
+        anon.PromotorType = "";
+        anon.Attitude = "";
+        anon.Influence = "";
+        anon.Consultant = false;
+        anon.DecisionMaker = false;
+        anon.User = false;
+        
+        anon.Typology = "";
+        anon.Comments = "";
+        // Anon construction END
+        
+        var ref_path = [];
+           
+        var personIcon_path = [];
+        personIcon_path[""] = "/s.gif";
+        personIcon_path["alstom"] = "{!URLFOR($Resource.VFP11_LIB, 'img/block/alstom.png')}";
+        
+        // DIAGRAM ICONS, for other image, look a the ressource : VFP11_LIB/img/icon/
+        var diagramIcon_path = [];
+        diagramIcon_path['icon'+1] = "{!URLFOR($Resource.VFP11_LIB, 'img/icon/attention_64.png')}";
+        
+        //PERSON BLOCK ICONS
+        var blockIcon_path = [];
+        //Promoter
+		blockIcon_path["Power"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_powerbase_power.png')}";
+		blockIcon_path["Expert"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_powerbase_expert.png')}";
+		blockIcon_path["Relationship"]	= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_powerbase_relationship.png')}";
+		//Attitude
+		blockIcon_path["Positive"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_attitude_positive.png')}";
+		blockIcon_path["Neutral"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_attitude_neutral.png')}";
+		blockIcon_path["Negative"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_attitude_negative.png')}";
+		//Influence
+		blockIcon_path["Strong"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_influence_strong.png')}";
+		blockIcon_path["Medium"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_influence_minor.png')}";
+		blockIcon_path["Weak"] 			= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_influence_less_lasting.png')}";
+		//Role
+		blockIcon_path["Decision"] 		= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_role_decision_maker.png')}";
+		blockIcon_path["User"] 			= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_role_user.png')}";
+		blockIcon_path["Consultant"] 	= "{!URLFOR($Resource.VFP11_LIB, 'img/block/bps_icons/icon_role_consultant.png')}";
+		
+		//PREFORMATED ARROWS
+        ARROWS = {
+            LINK :      	{ lineStyle: "solid",  color: "#000000", withLabel: false,  startStyle: "none", endStyle: "arrow", width: 1, url: "{!URLFOR($Resource.VFP11_LIB, 'img/line.gif')}", label: "Hierarchical link" },
+            CONTACTLINK : 	{ lineStyle: "solid",  color: "#000000", withLabel: false,  startStyle: "none", endStyle: "arrow", width: 1, url: "{!URLFOR($Resource.VFP11_LIB, 'img/line.gif')}", label: "Import hierarchical link from contacts" },
+            STRONG :    	{ lineStyle: "solid",  color: "#00ff00", withLabel: false,  startStyle: "none", endStyle: "none",  width: 3, url: "{!URLFOR($Resource.VFP11_LIB, 'img/arrow_pics/pic_arrow_00FF00.png')}", label: "Strong Relationship" },
+            NEUTRAL :   	{ lineStyle: "solid",  color: "#ffff00", withLabel: false,  startStyle: "none", endStyle: "none",  width: 3, url: "{!URLFOR($Resource.VFP11_LIB, 'img/arrow_pics/pic_arrow_FFFF00.png')}", label: "Neutral Relationship" },
+            CONFLICT:   	{ lineStyle: "solid",  color: "#ff0000", withLabel: false,  startStyle: "none", endStyle: "none",  width: 3, url: "{!URLFOR($Resource.VFP11_LIB, 'img/arrow_pics/pic_arrow_FF0000.png')}", label: "Conflictual Relationship" },
+            OTHER :     	{ lineStyle: "dashed", color: "#0000ff", withLabel: true,   startStyle: "none", endStyle: "none",  width: 1, url: "{!URLFOR($Resource.VFP11_LIB, 'img/arrow_pics/pic_arrow_0000FF.png')}", label: "Other Relationship type" }
+        };
+        
+        //PERSON BLOCK BACKGROUND IMAGE
+        var legendImg_path = [];
+        legendImg_path["big"] = "{!URLFOR($Resource.VFP11_LIB, 'img/legend.png')}";
+        legendImg_path["small"] = "{!URLFOR($Resource.VFP11_LIB, 'img/legend_icon.png')}";
+        
+        var saveSerial = "{!JSENCODE(currentJSONContent)}";
+        function initJalava()
+        {
+            Jalava.diagram = new Diagram(1, 38, 1025, 1250); // x, y, width, height
+            var toolBar = new ToolBar(new MyPaletteFactory(), 30); // factory, height
+            
+            toolBar.addSeparator();
+            // PERSONS MENU
+            toolBar.addMenu("myMenuPerson", "Buying Center Stakeholder", "{!URLFOR($Resource.VFP11_LIB, 'img/sfdc/people16.png')}", "{!URLFOR($Resource.IconPicklist, 'img/arrow.png')}", "160px")// menu id ; displayName, icon, minWidth
+            //(menuId, name, item, iconUrl, notBCP, removalUrl, displayName, mode)
+            toolBar.addMenuItem("myMenuPerson", "Person", anon, "{!URLFOR($Resource.VFP11_LIB, 'img/add.png')}", true, null, null, ToolBar.DRAG_TOOL);//the element to increment is named : menuid + "List" , menuid, name(of the item), item (personObj or displayName), icon
+            for(var id in allBcs){
+                toolBar.addMenuItem("myMenuPerson", "Person", allBcs[id], "{!URLFOR($Resource.VFP11_LIB, 'img/sfdc/people16.png')}", false, "{!URLFOR($Resource.VFP11_LIB, 'img/delete.png')}", null, ToolBar.DRAG_TOOL);
+            }
+            
+            toolBar.addSeparator();
+            // RELATIONSHIPS
+            toolBar.addMenu("myMenuLink", "Add Relationship", "{!URLFOR($Resource.VFP11_LIB, 'img/line.gif')}", "{!URLFOR($Resource.IconPicklist, 'img/arrow.png')}", "100px")// menuId ; displayName, icon, minWidth 
+            for(var arrow in ARROWS){
+                toolBar.addMenuItem("myMenuLink", "Arrow",  "ARROW_" + arrow, ARROWS[arrow].url, true, null, ARROWS[arrow].label, ToolBar.CLICK_TOOL);
+            }
+            
+            toolBar.addSeparator();
+            // COMMENT
+            toolBar.addTool("rect", "Comment", ToolBar.DRAG_TOOL, "{!URLFOR($Resource.VFP11_LIB, 'img/comment.gif')}");
+            toolBar.addSeparator();
+            // TITLE
+            toolBar.addTool("title", "Title", ToolBar.DRAG_TOOL, "{!URLFOR($Resource.VFP11_LIB, 'img/title.png')}");
+            toolBar.addSeparator();
+            //ICONS
+            toolBar.addMenu("myMenuIcon", "Add Icon", "{!URLFOR($Resource.VFP11_LIB, 'img/icon/content_64.png')}", "{!URLFOR($Resource.IconPicklist, 'img/arrow.png')}", "100px")// menuId ; displayName, icon, minWidth 
+            for(var icon in diagramIcon_path){
+                toolBar.addMenuItem("myMenuIcon", "Icon", icon, diagramIcon_path[icon], true, null, null, ToolBar.DRAG_TOOL);
+            }           
+            //CHECKBOXS
+            toolBar.addSeparator();
+            toolBar.addVisibilityLinksBox("visibleH", "Hide Hierarchial links", "visibleR", "Hide Relationship links");
+            
+            //PROPERTYPAGE  
+            Jalava.propertyPage = new PropertyPage(5, 40, 5); //x, y, numRows
+            Jalava.toolBar = toolBar;
+            
+            addPageMarker();
+            addLegend();
+        }
+        
+        function getBcpIndexByContact(cont) {
+            for(var i=0; i<allBcs.length; i++){
+                if(allBcs[i].ContactName==cont)
+                    return i;
+            }
+            return false;
+        }
+        
+        function addLegend() {
+        	
+        	var container = document.createElement("div", "legend");
+        	container.style.position = "fixed";
+        	container.style.top = "70%";
+        	container.style.background = "transparent url(" + legendImg_path["small"] + ") no-repeat center";
+        	container.style.height = "114px";
+        	container.style.width = "50px";
+        	container.style.zIndex = 1000;
+        	
+        	//LITTLE
+        	container.onmouseout = function() {
+        		container.style.background = "transparent url(" + legendImg_path["small"] + ") no-repeat center";
+        		container.style.height = "114px";
+        		container.style.width = "50px";
+        	}
+        	
+        	//BIG
+        	container.onmouseover = function() {
+        		container.style.background = "transparent url(" + legendImg_path["big"] + ") no-repeat center";
+        		container.style.height = "149px";
+        		container.style.width = "942px";
+        	}
+        	document.body.appendChild(container);
+        }
+        // start Diagram
+        Jalava.start(initJalava, "{!URLFOR($Resource.VFP11_LIB)}", saveSerial);
+    </script>
+    
+</apex:page>

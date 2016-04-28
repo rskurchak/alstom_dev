@@ -1,0 +1,13 @@
+<apex:page standardController="BudgetLine__c" extensions="VFC51_FI15_ApprovalStatus" action="{!sUrl}">
+    <apex:pageMessages />                       
+    <!-- DO NOT REMOVE THESE VARIABLES -->
+    <apex:form >
+        <apex:inputHidden value="{!fi15CreatedById}"/>
+        <apex:inputHidden value="{!fi15Name}"/>
+        <apex:sectionHeader title="Budget Line" subtitle="New : Budget Line"/>
+        <!-- Info msg shown to the user to explain why he has been redirected to this page-->
+        <apex:pageMessage summary="{!$Label.LBL0108}" severity="info" strength="1"> <!--New error msg -->
+            <apex:outputLink style="color:#015ba7;" value="/{!fi15Id}">Back to FI15: {!fi15Name}</apex:outputLink>
+        </apex:pageMessage>
+    </apex:form>  
+</apex:page>

@@ -1,0 +1,27 @@
+<apex:page standardController="PxO__c" extensions="VFC84_PxOCreation" action="{!getPxOStandards}" id="page">
+	<apex:sectionHeader title="{!$ObjectType.PxO__c.Label} {!$Label.LBL0303}" subtitle="{!$Label.LBL0302} {!$ObjectType.PxO__c.Label}"/>
+	<apex:form id="form">
+		<apex:pageBlock title="" id="pageBlock">
+			<apex:pageMessages />
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!getPxOStandards}" value="Next" rendered="{!listPxOStandards.size == 0 && newPxO.Opportunity__c == null}"/>
+                <apex:commandButton action="{!cancel}" value="{!$Label.site.cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+            	<apex:inputField value="{!newPxO.Opportunity__c}" rendered="{!newPxO.Opportunity__c == null}"/>
+            </apex:pageBlockSection>
+            <apex:pageBlockTable value="{!listPxOStandards}" var="pxoStd" rendered="{!listPxOStandards.size > 0 && newPxO.Opportunity__c != null}">
+            	<apex:column headerValue="{!$Label.LBL0307}"> 
+					<apex:commandLink action="{!selectPxOStandard}" value="{!$Label.LBL0306}" 
+					 onclick="return confirm('{!SUBSTITUTE(SUBSTITUTE(SUBSTITUTE($Label.LBL0313, '{0}', pxoStd.RecordType.Name), '{1}', relatedOpp.BOid__c), '{2}', JSENCODE(relatedOpp.Name))}');">
+						<apex:param name="pxoStdId" value="{!pxoStd.Id}" assignTo="{!selectedPxOId}" />
+					</apex:commandLink>
+				</apex:column>
+            	<apex:column value="{!pxoStd.Platform__c}"/>
+            	<apex:column value="{!pxoStd.Product__c}"/>
+            	<apex:column value="{!pxoStd.ATRegion__c}"/>
+            	<apex:column value="{!pxoStd.SubRegion__c}"/>
+            </apex:pageBlockTable>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

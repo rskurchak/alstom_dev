@@ -1,0 +1,13 @@
+<!-- VFP25_OpportunityProductLinesShare
+        ~ Author        : Fabien TAILLON fabien.taillon@cgi.com 
+        ~ Date Created  : 15/02/2013
+        ~ Description   : shown as visualforce component on Opportunity pagelayout 
+                            - display a warning if the sum of all contributions is not equal to 100%
+-->
+<apex:page standardController="Opportunity" >
+    <apex:variable value="{!0}" var="numberOfProducts"/> 
+    <apex:repeat value="{!Opportunity.Other_Products__r}">
+        <apex:variable var="numberOfProducts" value="{!numberOfProducts+1}"/>
+    </apex:repeat>
+    <apex:pageMessage summary="<b>Warning:</b> The Sum of all Business shares is not equal to 100%" severity="error" strength="1" rendered="{!(numberOfProducts != 0) && (Opportunity.RailControlTotalPct__c+Opportunity.RailInfrastructureTotalPct__c+Opportunity.RailServicesTotalPct__c+Opportunity.TrainsTotalPct__c+Opportunity.TurnkeySystemsTotalPct__c != 100)}" escape="false" />
+</apex:page>

@@ -1,0 +1,84 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   Avoid relying direcly on Salesforce CSS : use VF tags instead (it is possible 
+   to mimick standard fields using pageBlockSectionItem - apex:outputLabel - apex:outputText)
+ Remove this box once modification done.
+*********************************************************************-->
+<!-- 
+        VFP27_SumGlobalChildSellingPrice
+            ~ Author            : Fabien Taillon ~ fabien.taillon@cgi.com
+            ~ Date Created      : 21/02/2013 (production deployment with v2.0
+            ~ Description       : FEAT#0196 - display a fake field summarizing dynamically the Amounts of current 
+                                              Opportunity and of all its children opportunities.
+-->
+<apex:page standardController="Opportunity" Extensions="VFC27_SumGlobalChildSellingPrice">
+<style type="text/css">
+    .myLabelCol {  
+        width: 15%;
+        text-align: right;
+        font-size: 91%;
+        font-weight: bold;
+        color: #4a4a56;
+        padding: 0px !important;
+    }
+    .myDataCol {
+        //padding: 0px 0px 0px 20px !important;
+        padding: 0px !important;
+        width: 85%;
+        text-align: left;
+    }
+    .helpText2
+    {
+        position:absolute;;
+        z-index : 4000;
+        display:none; 
+        visibility:hidden;
+        text-decoration: none;
+        width: 45em;
+        background-color: #fefdb9;
+        padding: 2px 5px;
+        border: 1px solid orange;
+        text-align: left;
+        white-space: normal;
+        font-weight: normal;
+        font-size: 110%;
+        color: #000;
+    }
+    .myDataCol:hover .helpText2{ display:block; visibility:visible;}
+    .myDataCol:hover .helpIcons{background-position-x: -20px;}        
+    .helpIcons
+    {
+        display: inline-block;
+        width: 20px;
+        height: 15px;
+        text-align: left;
+        background-image: url(/img/help/helpOrbs.gif);
+        background-repeat: no-repeat;
+        background-position: 0px 0px;
+    } 
+</style>
+<apex:form >
+<apex:inputHidden value="{!Opportunity.CurrencyIsoCode}" />
+<apex:inputHidden value="{!Opportunity.Sum_of_Global_Child_Opp_Selling_Price__c}" />
+
+<apex:outputPanel layout="none" rendered="{!Opportunity.IsAGlobalOpportunity__c && Opportunity.Global_Opportunity__c == null}">
+    <table style="width:100%;border-collapse:collapse;">
+        <td class="myLabelCol">{!$ObjectType.Opportunity.fields.Sum_of_Global_Child_Opp_Selling_Price__c.Label}</td>
+        <td class="myDataCol">
+            <div class="helpIcons"/>
+            {!formattedGlobalPrice}
+            <div class="helpText2">
+                {!$ObjectType.Opportunity.fields.Sum_of_Global_Child_Opp_Selling_Price__c.inlineHelpText}
+            </div>
+        </td>
+    </table>
+</apex:outputPanel>             
+                                
+</apex:form>
+</apex:page>

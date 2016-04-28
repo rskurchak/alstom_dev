@@ -1,0 +1,42 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   Not useful to use JavaScript functions to refer to controller methods. 
+   {!doClone} and {!CancelClone} are available directly
+ Remove this box once modification done.
+*********************************************************************-->
+<!-- 
+        VFP18_Opportunity_Clone
+            ~ Author            : Damian Hercun ~ damian.hercun@axoa.fr 
+            ~ Date Created      : 27/07/2012
+            ~ Description       : Controlled by VFC18_Opportunity_Clone.cls
+            ~ Description       : Custom clone functionality to create a duplicated opportunity 
+            ~ Description       : with attached Product in just one click
+-->
+<apex:page standardController="Opportunity" extensions="VFC18_Opportunity_Clone" >
+    <apex:form >
+        <apex:actionFunction action="{!doClone}" name="JSDoInit" rerender="out" status="myStatus" />
+        <apex:actionFunction action="{!CancelClone}" name="CancelClone" status="myStatus2" />
+        
+        <apex:pageMessage summary="{!$Label.LBL0322}" severity="confirm" strength="3" escape="false" />
+<center>
+                <apex:commandButton value="Clone" onclick="JSDoInit(); return false; "/>
+                <apex:commandButton value="Cancel" onclick="CancelClone(); return false;"/>
+</center>
+
+    </apex:form>
+<apex:outputPanel id="out">
+       <apex:actionStatus startText="Cloning... {Opportunity.Id}" id="myStatus">
+           <apex:facet name="start" >Processing... 
+           </apex:facet>
+       </apex:actionStatus>
+    <apex:messages rendered="false"/>
+    <apex:pageMessages />
+</apex:outputPanel>
+
+</apex:page>

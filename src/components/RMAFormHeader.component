@@ -1,0 +1,24 @@
+<apex:component >
+    <apex:attribute name="rmaName" description="RMA Name" type="String" required="false"/>
+    <apex:attribute name="rmaDate" description="Date" type="Date" required="false"/>
+    <apex:attribute name="rmaProcessingOption" description="RMA Processing Option" type="String" required="false"/>
+
+    <div class="rmaFormHeaderCommonStyle">
+        <div class="rmaHeaderWatermark" style="{!IF(rmaProcessingOption == '' || rmaProcessingOption == null,'display:none;','')}">{!rmaProcessingOption}</div>
+        <div class="rmaHeaderMain">{!$Label.RMA_Form_Header}</div>
+        <table class="rmaHeaderTableClassStyle">
+            <tr>
+                <td rowspan="2" style="width:50%;">
+                    <img src="{!URLFOR($Resource.RMA_PDF_Logo)}" class="rmaHeaderTableClassStyle"/>
+                </td>
+                <td class="rmaHeaderTableClassStyle">
+                    {!$ObjectType.RMA__c.fields.Name.label}#: {!rmaName}<br/>
+                    <apex:outputText value="Date: {!$Label.LBL0392}">
+                        <apex:param value="{!rmaDate}"/>
+                    </apex:outputText>
+                </td>
+            </tr>
+        </table>
+        <apex:outputText value="{!$Label.RMA_Form_Header_Information}" escape="false" />
+    </div>
+</apex:component>

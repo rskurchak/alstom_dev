@@ -1,0 +1,23 @@
+<apex:page controller="VFC87_MultiRegionalAccount" contentType="application/vnd.ms-excel#MultiRegionalAccount.xls" cache="true">
+    <apex:pageBlock title="Multi Regional Account" >
+        <apex:pageBlockTable value="{!items}" var="anItem">
+            <apex:column headerValue="{!$ObjectType.Account.Fields.Name.label}" value="{!anItem.AccountName}"/>
+            <apex:column headerValue="{!$ObjectType.Opportunity.label} {!$ObjectType.Opportunity.Fields.Name.label}" value="{!anItem.OpportunityName}"/>
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.BOid__c.label}" value="{!anItem.boidInfo}"/>
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.Platform__c.label}" value="{!anItem.Platform}"/>
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.SubmittalDate__c.label}">
+                <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                    <apex:param value="{!anItem.SubmittalDate}" /> 
+                </apex:outputText>
+            </apex:column>
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.RFP__c.label}">
+                <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                    <apex:param value="{!anItem.RFP}"/> 
+                </apex:outputText>
+            </apex:column>
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.StageName.label}" value="{!anItem.Status}"/>
+            <apex:column headerValue="{!$ObjectType.Opportunity.label} {!$ObjectType.Opportunity.Fields.OwnerId.relationshipName}" value="{!anItem.Owner}"/>                                
+            <apex:column headerValue="{!$ObjectType.Opportunity.Fields.Country__c.label}" value="{!anItem.Country}"/>
+        </apex:pageBlockTable>         
+    </apex:pageBlock>
+</apex:page>

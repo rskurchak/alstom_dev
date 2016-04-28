@@ -1,0 +1,91 @@
+<apex:page standardController="Account" id="thePage">
+    <script type="text/javascript">
+        var jsIds = [];
+        // function to copy field values from reftable info to crm info
+        function copyAdressInfo()
+        {
+            document.getElementById(jsIds["street"]).value  = "{!Account.RefTable_Street__c}";
+            document.getElementById(jsIds["city"]).value    = "{!Account.RefTable_City__c}";
+            document.getElementById(jsIds["zipCode"]).value = "{!Account.RefTable_ZipPostalCode__c}";
+            document.getElementById(jsIds["state"]).value   = "{!Account.RefTable_State_Province__c}";
+            document.getElementById(jsIds["country"]).value = "{!Account.RefTableCountry__c}";
+            return false;
+        }
+    </script>
+    <style>
+        span.requiredText {color:transparent;}
+        span.requiredExample 
+        {
+            opacity:0; 
+            filter:alpha(opacity=0); /* For IE8 and earlier */
+        }
+        .pbSubheader { margin-top:0; }
+        .nowarpTD { white-space: nowrap;}       
+    </style>
+
+    <apex:form id="theForm">
+        <apex:pageMessages id="pgMSG"/>
+        
+        <apex:sectionHeader title="Account Edit" subtitle="{!Account.Name}"/>
+        
+        <apex:pageBlock id="pgBlock" title="Address" mode="edit">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton value="Copy RefTable address into wall.C fields" onClick="copyAdressInfo();" reRender="pgMSG, pgbSectionCRM"/>
+                <apex:commandButton value="Save" action="{!Save}"/>
+                <apex:commandButton value="Cancel" action="{!Cancel}"/>
+            </apex:pageBlockButtons>
+        
+            <apex:pageBlockSection columns="2">
+                <apex:pageBlockSection title="RefTable Information" columns="1" collapsible="false" id="pgbSectionreftable">
+                
+                    <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.RefTable_Street__c.Label}"/>
+                        <apex:inputText value="{!Account.RefTable_Street__c}" disabled="true" style="width:450px"/>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.RefTable_City__c.Label}"/>
+                        <apex:inputText value="{!Account.RefTable_City__c}" disabled="true" style="width:200px"/>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.RefTable_ZipPostalCode__c.Label}"/>
+                        <apex:inputText value="{!Account.RefTable_ZipPostalCode__c}" disabled="true"/>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.RefTable_State_Province__c.Label}"/>
+                        <apex:inputText value="{!Account.RefTable_State_Province__c}" disabled="true" style="width:300px"/>
+                    </apex:pageBlockSectionItem>
+                    
+                    <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.RefTableCountry__c.Label}"/>
+                        <apex:inputText value="{!Account.RefTableCountry__c}" disabled="true"/>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+        
+                <apex:pageBlockSection title="wall.C Information" columns="1" collapsible="false" id="pgbSectionCRM">
+                    <apex:inputField value="{!Account.Street__c}" id="street" style="width:450px"/>
+                    <script>jsIds["street"] = "{!$Component.street}";</script>
+                    
+                    <apex:inputField value="{!Account.City__c}" id="city" style="width:200px"/>
+                    <script>jsIds["city"] = "{!$Component.city}";</script>
+                    
+                    <apex:inputField value="{!Account.ZipPostalCode__c}" id="zipCode"/>
+                    <script>jsIds["zipCode"] = "{!$Component.zipCode}";</script>
+                    
+                    <apex:inputField value="{!Account.StateProvince__c}" id="state" style="width:300px"/>
+                    <script type="text/javascript">jsIds["state"] = "{!$Component.state}";</script>
+                    
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$ObjectType.Account.fields.Country__c.Label}"/>
+                        <apex:outputPanel >
+                            <apex:inputField value="{!Account.Country__c}" id="country" />
+                            <script>jsIds["country"] = "{!$Component.country}";</script>
+                        </apex:outputPanel>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

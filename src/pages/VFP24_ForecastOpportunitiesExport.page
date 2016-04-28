@@ -1,0 +1,74 @@
+<apex:page controller="VFC23_Forecasts" contentType="application/vnd.ms-excel#ForecastOpportunitiesExport.xls" cache="true" >
+	<apex:pageBlock >
+		<table>
+			<tr>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.BOid__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.LastModifiedDate.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Name.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ATRegion__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ATCluster__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Country__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Platform__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Formula_Status__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ForecastedFiscalPeriod__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.AdjustedForecastCategory__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.AdjustedSellingPrice__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ForecastedGrossMargin__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.AdjustmentComment__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.GlobalEnvironmentRisk__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Product_Strategy__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Project_Feasibility__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ProbP1OfImplementation__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.ProbP2OfWin__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.CloseDate.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.FiscalPeriod__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.SuggestedForecastCategory__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Amount.label}" style="font-weight:bold;" /></td>
+				<!-- CR-0734 - Not used anymore -->
+				<!-- <td><apex:outputText value="{!$ObjectType.Opportunity.fields.GrossMargin__c.label}" style="font-weight:bold;" /></td> -->
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.CurrencyIsoCode.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="Opportunity Owner" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Global_Child__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="{!$ObjectType.Opportunity.fields.Global_Opportunity__c.label}" style="font-weight:bold;" /></td>
+				<td><apex:outputText value="Account Name" style="font-weight:bold;" /></td>					
+			</tr>
+		</table>
+		<apex:repeat value="{!opportunitiesFullList}" var="oppFullList">
+			<apex:dataTable value="{!oppFullList}" var="oLine">
+	        	<apex:column value="{!oLine.opp.BOid__c}" />
+	            <apex:column value="{!oLine.opp.LastModifiedDate}" />
+	            <apex:column value="{!oLine.opp.Name}" />
+	            <apex:column value="{!oLine.opp.ATRegion__c}" />
+	            <apex:column value="{!oLine.opp.ATCluster__c}" />     
+	         	<apex:column value="{!oLine.opp.Country__c}" />
+	            <apex:column value="{!oLine.opp.LeadingProductLine__c}" />
+	            <apex:column value="{!oLine.opp.Platform__c}" />
+	         	<apex:column value="{!oLine.opp.Formula_Status__c}" />
+	         	<apex:column value="{!oLine.opp.ForecastedFiscalPeriod__c}" />
+	         	<apex:column value="{!oLine.opp.AdjustedForecastCategory__c}" />
+	         	<apex:column >{!TEXT(oLine.opp.AdjustedSellingPrice__c)}</apex:column>
+	         	<apex:column value="{!oLine.opp.ForecastedGrossMargin__c}" />
+	         	<apex:column value="{!oLine.opp.AdjustmentComment__c}" />
+	         	<apex:column value="{!oLine.opp.GlobalEnvironmentRisk__c}" />
+	         	<apex:column value="{!oLine.opp.Product_Strategy__c}" />
+	         	<apex:column value="{!oLine.opp.Project_Feasibility__c}" />
+	         	<apex:column value="{!oLine.opp.ProbP1OfImplementation__c}" />
+	         	<apex:column value="{!oLine.opp.ProbP2OfWin__c}" />
+	         	<apex:column value="{!oLine.opp.CloseDate}" />
+	         	<apex:column value="{!oLine.opp.FiscalPeriod__c}" />
+	         	<apex:column value="{!oLine.opp.SuggestedForecastCategory__c}" />
+	         	<apex:column >{!TEXT(oLine.opp.Amount)}</apex:column>
+	         	<!-- CR-0734 - Not used anymore -->
+	         	<!-- <apex:column value="{!oLine.opp.GrossMargin__c}" /> -->
+	         	<apex:column value="{!oLine.opp.CurrencyIsoCode}" />
+	         	<apex:column value="{!oLine.opp.Owner.Name}" />
+	         	<apex:column value="{!oLine.opp.Global_Child__c}" />
+	         	<apex:column value="{!oLine.opp.Global_Opportunity__r.Name}" />
+	         	<apex:column value="{!oLine.opp.Account.Name}" />
+			</apex:dataTable>
+		</apex:repeat>
+		<br/>
+		<apex:outputText value="Generated By: {!$User.FirstName} {!$User.LastName} {!NOW()}"/>	
+    </apex:pageBlock>
+</apex:page>

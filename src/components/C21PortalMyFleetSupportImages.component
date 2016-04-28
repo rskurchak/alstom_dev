@@ -1,0 +1,56 @@
+<!--
+ C21PortalMyFleetSupportImages
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the interactive images on MyFleetSupport header page.
+-->
+<apex:component >
+    <style>
+        .photoBanner .fleetsup h1 {
+            top: 40px !important;
+            left: 65px !important;
+        }
+    </style>
+
+    <div class="imgContain centerContent" id="thumbs">
+        <div class="photoBanner">
+            <div class="fleetsup">
+                <h1><b>{!$Label.LBL0187}<br/>
+                {!$Label.LBL0188}</b></h1>
+                <p>{!$Label.LBL0189}</p> <!-- Second line of text (LBL0190) removed during user acceptance tests -->
+            </div>
+        </div>
+         <div class="widget_outer">
+          <div class="widget_inner">
+            <div class="widget_body">
+                    <div class="row-fluid" align="center">
+                        <br/>
+                        <table><tbody>
+                            <tr>
+                                <td class="blocFleetSupport span3 offset2"><a title="{!$Label.LBL0160}" href="/apex/VFP83_eCatalogue"><img alt="E-catalogue" src="{!URLFOR($Resource.ComIMG,'ComIMG/image_ecatalog.png')}"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0161}" href="/_ui/knowledge/ui/KnowledgeHome"><img alt="FAQ" src="{!URLFOR($Resource.ComIMG,'ComIMG/image_faq.png')}"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0162}" href="/apex/VFP73_PortalCaseNew?retURL=VFP67_PortalMyFleetSupport&cas5={!$Label.LBL0204}"><img alt="Requ�te" src="{!URLFOR($Resource.ComIMG,'ComIMG/image_requests.png')}"/></a></td>
+                             </tr> 
+                             <tr>
+                                <td class="blocFleetSupport span3 offset2"><h2><a title="{!$Label.LBL0160}" href="/apex/VFP83_eCatalogue"><apex:outputText value="{!UPPER($Label.LBL0160)}" escape="false"/></a></h2></td>
+                                <td class="blocFleetSupport span3"><h2><a title="{!$Label.LBL0161}" href="/_ui/knowledge/ui/KnowledgeHome"><apex:outputText value="{!UPPER($Label.LBL0161)}" escape="false"/></a></h2></td>
+                                <td class="blocFleetSupport span3"><h2><a title="{!$Label.LBL0162}" href="/apex/VFP73_PortalCaseNew?retURL=VFP67_PortalMyFleetSupport&cas5={!$Label.LBL0204}"><apex:outputText value="{!UPPER($Label.LBL0162)}" escape="false"/></a></h2></td>
+                            </tr>
+                            <tr>
+                                <td class="blocFleetSupport span3 offset2"><a title="{!$Label.LBL0160}" href="/apex/VFP83_eCatalogue"><apex:outputText value="{!$Label.LBL0167}" escape="false"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0161}" href="/_ui/knowledge/ui/KnowledgeHome"><apex:outputText value="{!$Label.LBL0168}" escape="false"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0162}" href="/apex/VFP73_PortalCaseNew?retURL=VFP67_PortalMyFleetSupport&cas5={!$Label.LBL0204}"><apex:outputText value="{!$Label.LBL0169}" escape="false"/></a></td>
+                            </tr>
+                            <tr>
+                                <td class="blocFleetSupport span3 offset2"><a title="{!$Label.LBL0160}" href="/apex/VFP83_eCatalogue"><img alt="E-catalogue" src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more_full.png')}"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0161}" href="/_ui/knowledge/ui/KnowledgeHome"><img alt="FAQ" src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more_full.png')}"/></a></td>
+                                <td class="blocFleetSupport span3"><a title="{!$Label.LBL0162}" href="/apex/VFP73_PortalCaseNew?retURL=VFP67_PortalMyFleetSupport&cas5={!$Label.LBL0204}"><img alt="Requ�te" src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more_full.png')}"/></a></td>
+                            </tr>
+                        </tbody></table>
+                        <br/>
+                    </div>                                    
+                </div>
+          </div>
+        </div>
+    </div>
+</apex:component>

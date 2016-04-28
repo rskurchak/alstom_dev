@@ -1,0 +1,32 @@
+<!--
+ C22PortalMyFleetSupportMyDocuments
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the Recently Viewed user Documents.
+-->
+<apex:component controller="VFC64_PortalHome">
+	<apex:attribute name="listoheader" description="Header bulletin or alert." type="string" required="false"/>    
+  
+	<div id="widgetDocument" class="widget_inner">
+		<div class="widget_header_Document">
+			<div>{!$Label.LBL0157}</div>
+		</div>
+		<apex:outputPanel rendered="{!MyDocumentsList.size > 0}">
+			<div class="widget_body">
+				<ul class="document">
+					<apex:repeat value="{!MyDocumentsList}" var="doc" rows="{!IF(listoheader == 'My Documents',1,3)}">
+						<li><a href="/{!doc.id}" title="{!doc.Name}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/private_second_picto_document_pdf.png')}" alt="pdf"/> {!doc.Name}</a></li>
+					</apex:repeat>
+		  		</ul>
+				<div class="knowMore">
+					<a href="/_ui/core/chatter/files/FileTabPage"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more25_blue1_enable.png')}" alt="{!$Label.LBL0197}"/></a>
+				</div>
+			</div>
+		</apex:outputPanel>
+		<apex:outputPanel rendered="{!MyDocumentsList.size = 0}">
+			<div class="widget_body  AlstomMedium">
+				<p>{!$Label.LBL0199}</p>
+			</div>
+		</apex:outputPanel>
+	</div>
+</apex:component>

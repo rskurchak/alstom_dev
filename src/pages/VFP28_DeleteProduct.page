@@ -1,0 +1,21 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   Control on Product deletion should be done in trigger (applicable if 
+   action comes from UI and API) rather than VF.
+ Remove this box once modification done.
+*********************************************************************-->
+
+<apex:page standardController="Product__c" extensions="VFC28_DeleteProduct" action="{!deleteProduct}">
+    <apex:pageMessages />
+    <apex:variable var="oppId" value="{!Product__c.Opportunity__c}"/>
+    <apex:variable var="leading" value="{!Product__c.Leading__c}"/>
+    <apex:form >
+        <apex:commandButton action="{!back}" value="Back" />
+    </apex:form>
+</apex:page>

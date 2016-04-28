@@ -1,0 +1,78 @@
+<apex:page standardController="InstalledBaseRS__c" extensions="InstalledBaseRSEditorController" sidebar="false" showHeader="true">
+    <style>
+        .blockEditor tr .empty{
+            display: none;
+        }
+        body .bPageBlock, body #bodyCell .bResource .secondaryPalette, body .secondaryPalette.bPageBlock, 
+        body .individualPalette .secondaryPalette.bPageBlock, body .bodyDiv .genericTable, 
+        body .genericPageBlockTable, body .bodyDiv .bSubBlock, body .bComponentBlock .bPageBlock, 
+        body .bMyDashboard .bPageBlock, body.rlHoverFrame .bPageBlock, 
+        body.subjectSelectionPopup div.choicesBox, body.lookupTab .secondaryPalette.bPageBlock, 
+        body.popupTab .secondaryPalette.bPageBlock, body.UserTagStatsPage .secondaryPalette.bPageBlock {
+            background-color: white;
+            border: none;
+        }
+        .apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader {
+            background-color: transparent;
+            border-width: 2px 0 0;
+            border-style: solid;
+            color: #27282e;
+            padding: 4px 3px;
+            border-top-color: #DDE4E9!important;
+        }
+        .apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader h3 {
+            font-size: 1.2em;
+        }
+        .blockEditor .pbBottomButtons,
+        .blockEditor .pbHeader table{
+            border: none !important;
+        }
+        .blockEditor .sectionGeneral .dataCol span a,
+        .blockEditor .sectionGeneral .dataCol span a:hover{
+            text-decoration: inherit;
+            color: black;           
+            cursor: default;
+            pointer-events: none;
+//            display: none;
+        }   
+        img.pageTitleIcon{
+            display: none;
+        }
+    </style>
+    
+    <apex:form styleClass="blockEditor" id="mainFormId">
+        <apex:sectionHeader title="{!$Label.LBL0383}" subtitle="{!InstalledBaseRS__c.Name}" />
+        <apex:pageMessages />
+        <apex:pageBlock title="{!$Label.LBL0384}" id="pageBlock">
+            <apex:pageBlockButtons location="both" rendered="{!!globalAccount}">
+                <apex:commandButton value="{!labelSaveEdit}" action="{!actionSaveEdit}" />
+                <apex:commandButton value="{!$Label.LBL0388}" oncomplete="window.top.location='/apex/InstalledBaseRSEditor?Id={!InstalledBaseRS__c.Id}'; " rendered="{!isEdit}" />
+            </apex:pageBlockButtons>
+            <apex:outputPanel styleClass="sectionGeneral">
+                <apex:pageBlockSection title="{!$Label.LBL0385}" columns="2" collapsible="false">
+                    <apex:pageBlockSectionItem />
+                    <apex:repeat value="{!$ObjectType.InstalledBaseRS__c.FieldSets.Fleet_General_Information}" var="f">
+                        <apex:outputField value="{!InstalledBaseRS__c[f]}" styleClass="testteststyle"/>
+                    </apex:repeat>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+            <apex:pageBlockSection title="{!$Label.LBL0386}" columns="2" collapsible="false">
+                <apex:repeat value="{!$ObjectType.InstalledBaseRS__c.FieldSets.Equipment_Information}" var="f">
+                    <apex:outputField value="{!InstalledBaseRS__c[f]}" />
+                </apex:repeat>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!$Label.LBL0387}" columns="2" collapsible="false" rendered="{!!isEdit}">
+                <apex:repeat value="{!$ObjectType.InstalledBaseRS__c.FieldSets.Fleet_Usage}" var="f">
+                    <apex:outputField value="{!InstalledBaseRS__c[f]}" />
+                </apex:repeat>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection title="{!$Label.LBL0387}" columns="2" collapsible="false" rendered="{!isEdit}">
+                <apex:repeat value="{!$ObjectType.InstalledBaseRS__c.FieldSets.Fleet_Usage}" var="f">
+                    <apex:inputField value="{!InstalledBaseRS__c[f]}" />
+                </apex:repeat>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+
+    <apex:relatedList list="Units__r" />
+</apex:page>

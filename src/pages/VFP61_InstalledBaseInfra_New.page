@@ -1,0 +1,35 @@
+<!--
+ VFP61_InstalledBaseInfra_New
+   ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 27/02/2014 
+    ~ Description     : VisualForce Page to override
+    				 the new action and save the record after Recordtype is selected.
+   ~ Author          : Tiantian HE ~ tiantian.he@cgi.com 
+    ~ Date Created    : 23/02/2015 
+    ~ Description     : CR-0665 Use dependent picklists Equipment Category and Equipment Class to select RecordType.
+-->
+<apex:page standardController="InstalledBaseInfra__c"  extensions="VFC61_InstalledBaseInfra_New">
+    <apex:pageMessages />
+    <apex:sectionHeader title="Installed Base Infra Edit" subtitle="New Installed Base Infra"/>                      
+    <apex:form >
+	    <apex:actionFunction action="{!doSave}" name="doSave" rerender="out" status="myStatus" />    
+        <apex:pageBlock mode="edit" title="Installed Base Infra Edit">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="Save" value="Save" onclick="doSave(); return false; "/>
+                <apex:commandButton action="{!Cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Installed Base Infra Detail">
+<!--                 <apex:inputField value="{!InstalledBaseInfra__c.recordTypeId}" label="{!$ObjectType.InstalledBaseInfra__c.fields.EquipmentClass__c.label}" /> -->
+                <apex:inputField value="{!InstalledBaseInfra__c.EquipmentCategory__c}" required="true" />
+                <apex:inputField value="{!InstalledBaseInfra__c.Account__c}" />
+                <apex:inputField value="{!InstalledBaseInfra__c.EquipmentClass__c}" required="true" >
+                	<apex:actionSupport event="onchange" action="{!changeRecordType}" reRender="recordType" />
+                </apex:inputField>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+	<apex:outputPanel id="out">
+		<apex:messages rendered="false"/>
+		<apex:pageMessages />
+	</apex:outputPanel>
+</apex:page>

@@ -1,0 +1,16 @@
+<!--
+ VFP90_OpportunityCreateProject 
+    ~ Author            : Ali BEN AISSA
+    ~ Creation Date     : 10/07/2015
+    ~ Description       : VF component to display the "Create Project" button in Project
+-->
+<apex:page controller="VFC90_OpportunityCreateProject" action="{!checkPermission}">
+  <apex:pageMessages id="myMsg"></apex:pageMessages> 
+    <apex:form >
+        <apex:inputHidden value="{!StageName}"/>
+        <center><table>
+            <apex:commandButton value="Cancel" action="{!goBack}" rendered="{!IsCancel}"></apex:commandButton>
+        </table></center>
+    </apex:form>
+
+</apex:page>

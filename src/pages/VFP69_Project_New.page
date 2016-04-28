@@ -1,0 +1,39 @@
+<!--
+ VFP69_Project_New
+    ~ Author            : Christophe AVERSENG
+    ~ Modification Date : 06/05/2014
+    ~ Description       : "New Project from Opportunity" page
+-->
+<apex:page standardController="Opportunity" extensions="VFC69_Project_New">
+    <apex:sectionHeader title="Project Edit" subtitle="New Project from Opportunity"/>                      
+    <apex:form >
+        <apex:pageBlock mode="edit" title="Project Edit">
+            <apex:pageMessages />
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!saveWithProducts}" value="Save"/>
+                <apex:commandButton action="{!Cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Project Detail" columns="1">
+                <apex:inputHidden value="{!Opportunity.AccountId}"/>
+                <apex:inputHidden value="{!Opportunity.Country__c}"/>
+                <apex:inputHidden value="{!Opportunity.CTCode__c}"/>
+                
+                <apex:outputField value="{!Opportunity.Name}" />
+                <apex:inputField value="{!project.Name}" required="true"/>
+                <apex:inputField value="{!project.Account__c}" required="true"/>
+                <apex:inputField value="{!project.CT_Code__c}" required="true"/>
+                <apex:inputField value="{!project.Country__c}" required="true"/>
+                <apex:inputField value="{!Opportunity.ScopeOfWork__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>        
+    </apex:form>  
+    <apex:pageMessage summary="<b>Note:</b> Project Products will be initialized from Opportunity Products." severity="info" strength="1" escape="false" />
+    <apex:pageBlock title="Opportunity Products">
+        <apex:pageBlockTable value="{!Opportunity.Other_Products__r}" var="product">
+            <apex:column value="{!product.ProductLine__c}"/>
+            <apex:column value="{!product.Platform__c}"/>
+            <apex:column value="{!product.Product__c}"/>
+            <apex:column value="{!product.Leading__c}"/>
+        </apex:pageBlockTable>
+    </apex:pageBlock>
+</apex:page>

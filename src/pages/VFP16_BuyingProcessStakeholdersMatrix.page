@@ -1,0 +1,102 @@
+<apex:page id="thePage" controller="VFC16_BuyingProcessStakeholdersMatrix" renderAs="html" >
+	<apex:includeScript value="{!URLFOR($Resource.VFP16_LIB, 'js/script.js')}"/>
+	<apex:form >
+		<apex:sectionHeader id="theSectionHeader" title="Attitude vs Influence Matrix" subtitle="Opportunity : {!opp.Name}" />
+		<apex:outputPanel >
+			<apex:outputLink style="color:#015ba7;text-decoration:none"	value="/{!oppId}"  >« Back to : {!opp.Name}</apex:outputLink>
+		</apex:outputPanel>
+		<br />
+		<br />
+		<apex:pageblock >
+			<apex:pageBlockSection columns="1" >
+				<div id="mainContainer" style="width:100%; border:1px solid #000; background-color: white;">
+					<div id="backgroundContainer" style="height:432px; width:475px; background : transparent url('{!URLFOR($Resource.VFP16_LIB, 'img/backgroundMatrix3.jpg')}') no-repeat 0 0; margin: 30px auto;" >
+						<div id="matrixContainer" style="height:407px; width:407px;">
+						</div>
+					</div>
+				</div>
+			</apex:pageBlockSection>
+		</apex:pageblock>
+	</apex:form>
+	<script>
+		var bubbles = new Array(), allBps = new Array();
+		var backContainer, matrixContainer;
+		
+		// automatic calculation of margins for the child container
+		function initContainer() {
+			backContainer = document.getElementById('backgroundContainer');
+			matrixContainer = document.getElementById('matrixContainer');
+			matrixContainer.style.marginLeft = backContainer.style.width.replace("px", "") - matrixContainer.style.width.replace("px", "") + "px";
+			matrixContainer.style.marginBottom = backContainer.style.height.replace("px", "") - matrixContainer.style.height.replace("px", "") + "px";
+			matrixContainer.style.position = "absolute";
+		}
+		
+		// retreiving of the position in the matrix for the influence and attitude
+		function getIntValue(strValue) {
+			var intValue = 0;
+			if(strValue == "" || strValue == null) return -1;
+			if("Weak" == strValue || "Positive" == strValue)  
+				intValue = matrixContainer.style.width.replace("px", "") * (1 / 4);
+			else if ("Medium" == strValue || "Neutral" == strValue)
+				intValue = matrixContainer.style.width.replace("px", "") * (2 / 4);
+			else if ("Strong" == strValue || "Negative" == strValue)				  
+				intValue = matrixContainer.style.width.replace("px", "") * (3 / 4);
+			return intValue;
+		}
+	
+		initContainer();
+		
+		// retreiving of SF data
+	<apex:repeat value="{!allBps}" var="bps">
+        var bps = new Object();
+        bps.Influence = getIntValue("{!bps.Influence__c}");
+        bps.Attitude  = getIntValue("{!bps.Attitude__c}");
+        bps.Name 	  =	"{!bps.ContactName__r.Name}";
+        allBps.push(bps);
+   	</apex:repeat>
+
+		buildBubbles();
+		drawBubbles();
+
+		// initialize points and textBoxes
+		function buildBubbles() {
+			for(var i = 0; i < allBps.length; i++) {
+				var requieredPoint = new Point(allBps[i].Influence, allBps[i].Attitude);
+				// check if the x and y positions are valid, if not the bubble is not drawn
+				if(requieredPoint.x == -1 || requieredPoint.y == -1)
+					continue;
+				
+				var foundedPoint = getSamePoint(requieredPoint); 
+				
+				if(!foundedPoint) { // we create a new Bubble on the Matrix
+					var newBubble = new BubbleElement(requieredPoint);
+					appendText(newBubble.textBlock, allBps[i].Name);
+					bubbles.push(newBubble);
+				}
+				else { // we fill the TextBoxElement of the existing Bubble
+					appendText(foundedPoint.textBlock, allBps[i].Name);
+				}
+			}
+		}
+		
+		function drawBubbles() {
+			for(bubble in bubbles) {
+				drawBubble(bubbles[bubble]);
+			}
+		}
+		
+		// bubble drawing
+		function drawBubble(bubble) {
+			var bubbleElement = document.createElement("DIV", "point");
+			bubbleElement.style.position	= "absolute";
+			bubbleElement.style.height		= bubble.dim.height + "px";
+			bubbleElement.style.width		= bubble.dim.width + "px";
+			bubbleElement.style.top		= bubble.pos.y - bubble.dim.height / 2 + "px";
+			bubbleElement.style.left		= bubble.pos.x - bubble.dim.width / 2 + "px";
+			bubbleElement.style.background = "transparent url('{!URLFOR($Resource.VFP16_LIB, 'img/point.png')}') no-repeat 0 0";
+			matrixContainer.appendChild(bubbleElement);
+			
+			matrixContainer.appendChild(bubble.textBlock.element);
+		}
+	</script>
+</apex:page>

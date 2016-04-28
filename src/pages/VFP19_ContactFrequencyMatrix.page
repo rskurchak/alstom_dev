@@ -1,0 +1,46 @@
+<apex:page id="thePage" controller="VFC19_ContactFrequencyMatrix">
+	<apex:form id="theForm">
+		<apex:sectionHeader title="Contact Frequency matrix report" subtitle="Opportunity : {!opp.Name}" />
+		<apex:outputPanel id="retUrl">
+			<apex:outputLink style="color:#015ba7;text-decoration:none"	value="/{!oppId}"  >« Back to : {!opp.Name}</apex:outputLink>
+		</apex:outputPanel>
+		<br />
+		<br />
+		<apex:pageMessages />
+		<apex:pageblock tabStyle="Opportunity" id="pgBlock">
+			<apex:pageMessage summary="There is no Alstom Relationship for this Opportunity." severity="Info" strength="2" rendered="{!!showTabel}"/>
+
+			<apex:outputPanel layout="block" rendered="{!showTabel}">
+				<table width="100%" border="0" id="theMatrix">
+					<tr>
+					  	<td style="border-top:none; border-left:none"/>
+					    <td colspan="4"  align="center" bgcolor="#0099FF" style="font-weight:bold;">Alstom Contact</td>
+					</tr>
+					
+					<tr>
+						<th scope="col" bgcolor="#0099FF" style="text-align:center;">Stakeholder</th>
+						<apex:repeat value="{!alstomContacts}" var="ac">
+							<td style="text-align:center;" bgcolor="#999999">
+								<a href="/{!ac}">{!alstomContactsIdName[ac]}</a>
+							</td>
+						</apex:repeat> 
+					</tr>
+					
+					<apex:repeat value="{!stakeHolders}" var="sh">
+						<tr>
+							<td bgcolor="#999999" style="text-align:right;">
+								<a href="/{!sh}">{!stakeHoldersIdName[sh]}</a>
+							</td>
+					 	 	<apex:repeat value="{!alstomContacts}" var="ac">
+					 	 		<apex:variable var="v" value="{!sh}{!ac}"/>
+								<td style="text-align:center; background-color:#DCDCD8;">
+									<apex:outputText value="{!stackHolderWithValue[v]}" escape="false"/>
+								</td>
+							</apex:repeat>
+						</tr>
+					</apex:repeat>
+				</table>
+			</apex:outputPanel>
+		</apex:pageblock>
+	</apex:form>
+</apex:page>

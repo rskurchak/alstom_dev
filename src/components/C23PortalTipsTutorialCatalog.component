@@ -1,0 +1,17 @@
+<!--
+ C23PortalTipsTutorialCatalog
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the link to open the Alstom Catalog Document.
+-->
+<apex:component controller="VFC64_PortalHome">
+	<div class="widget_inner">
+		<apex:image value="{!URLFOR($Resource.ComIMG,'ComIMG/private_training_img-encart.png')}" style="width:100%"/>
+		<div class="widget_body">
+			<apex:outputlabel value="{!$Label.LBL0182}" style="margin-bottom:10px;"/>
+			<p class="btnCatalog">
+				<a href="{!strDoc}" target="_blank">{!$Label.LBL0183}</a>
+			</p>
+		</div>
+	</div>
+</apex:component>

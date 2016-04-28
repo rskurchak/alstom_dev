@@ -1,0 +1,119 @@
+<apex:page standardController="Opportunity">
+    <style>
+        .nowarpTD { 
+            white-space: nowrap;
+        }    
+        .apexp .bPageBlock.apexDefaultPageBlock .pbBody .pbSubheader h3 {
+            font-size: 1.1em;
+            color:#000000;
+        }
+        body .bPageBlock .pbBody .labelCol, body .bPageBlock .pbBody .dataCol, body .bPageBlock .pbBody .data2Col {
+            padding-top: 5px;
+            padding-bottom: 5px;
+            text-align:left;
+        }
+        .colorLink {
+            color: blue;
+        }
+        .bPageBlock .detailList .dataCol {
+            width: 50%;
+        }
+    </style>
+    <apex:form id="theForm">
+        <apex:pageMessages id="pgMSG" />
+        <apex:sectionHeader title="{!Opportunity.Name}" />
+        <apex:outputLink styleClass="colorLink" value="/{!Opportunity.Id}" >{!Opportunity.Name}</apex:outputLink><br/><br/>
+        <b><apex:pageMessage summary="These fields are not used anymore in wall.C v3. They will be definitely removed after ePT decommissioning." severity="Info" strength="1" escape="false" /></b><br/><br/>
+        <apex:pageBlock id="pgBlock" mode="view">
+            <apex:outputPanel styleClass="grey" layout="block">
+                <apex:pageBlockSection columns="2">
+                    <apex:pageBlockSection title="Schedule" columns="1" collapsible="false" id="pgbSchedule">
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.WinNoGo__c.Label}" style="display:block;width:180px;align:left" />
+                            <apex:outputField value="{!Opportunity.WinNoGo__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.TRM__c.Label}" />
+                            <apex:outputField value="{!Opportunity.TRM__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.OfferValidityExpiryDate__c.Label}" style="display:block;width:200px;align:left"/>
+                            <apex:outputField value="{!Opportunity.OfferValidityExpiryDate__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection title="Users" columns="1" collapsible="false" id="pgbUsers">
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.LeadingBidManager__c.Label}" style="display:block;width:200px;align:left"/>
+                            <apex:outputField value="{!Opportunity.LeadingBidManager__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.LeadingPlatformDirector__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.LeadingPlatformDirector__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+            
+            <apex:outputPanel styleClass="grey" layout="block">
+                <apex:pageBlockSection columns="2">
+                    <apex:pageBlockSection title="Win-Loss Analysis" columns="1" collapsible="false" id="pgbWinLossAnalysis">
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.Reason__c.Label}" style="display:block;width:180px;align:left" />
+                            <apex:outputField value="{!Opportunity.Reason__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.WinnerName__c.Label}" />
+                            <apex:outputField value="{!Opportunity.WinnerName__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.Feedback__c.Label}" style="display:block;width:180px;align:left"/>
+                            <apex:outputField value="{!Opportunity.Feedback__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.WinnerPrice__c.Label}" style="display:block;width:180px;align:left"/>
+                            <apex:outputText id="WinnerPrice" value="{!FLOOR(Opportunity.WinnerPrice__c)}"/>
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.CurrencyIsoCode.Label}" style="display:block;width:180px;align:left"/>
+                            <apex:outputField value="{!Opportunity.CurrencyIsoCode}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                    <apex:pageBlockSection title="Amounts for Alstom" columns="1" collapsible="false" id="pgbAmountsForAlstom">
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.TenderBudget__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.TenderBudget__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.GrossMarginAdjusted__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.GrossMarginAdjusted__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.NetMargin__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.NetMargin__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.Contingencies__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.Contingencies__c}" />
+                        </apex:pageBlockSectionItem>
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.DownPayment__c.Label}" style="display:block;width:220px;align:left"/>
+                            <apex:outputField value="{!Opportunity.DownPayment__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                </apex:pageBlockSection>
+            </apex:outputPanel>  
+            
+            <!-- THIS PART SHOULD BE REACTIVATED FOR VERSION 3.2
+            <apex:outputPanel styleClass="grey" layout="block">
+                <apex:pageBlockSection columns="2">
+                    <apex:pageBlockSection title="Reference ID" columns="1" collapsible="false" id="pgbWinLossAnalysis">
+                        <apex:pageBlockSectionItem labelStyleClass="nowarpTD">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.OppNumber__c.Label}" style="display:block;width:180px;align:left" />
+                            <apex:outputField value="{!Opportunity.OppNumber__c}" />
+                        </apex:pageBlockSectionItem>
+                    </apex:pageBlockSection>
+                </apex:pageBlockSection>
+            </apex:outputPanel>   -->
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

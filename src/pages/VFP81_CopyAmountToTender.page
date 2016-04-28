@@ -1,0 +1,22 @@
+<apex:page standardController="Amounts__c" extensions="VFC81_CopyAmountToTender" action="{!copyAmountToTender}">
+	<apex:form >
+        <apex:pageBlock >
+            <apex:pageBlockButtons location="bottom">
+            	<apex:commandButton action="{!cancel}" value="{!$Label.site.cancel}"/>
+            </apex:pageBlockButtons>
+        	<apex:pageMessages />
+    		<apex:inputHidden value="{!Amounts__c.Tender__c}"/>
+    		<apex:inputHidden value="{!Amounts__c.Option__c}"/>
+    		<apex:inputHidden value="{!Amounts__c.MinimumSellingPriceMEUR__c}"/>
+            <apex:inputHidden value="{!Amounts__c.GrossMargin__c}"/>
+            <apex:inputHidden value="{!Amounts__c.GrossMarginAdjusted__c}"/>
+            <apex:inputHidden value="{!Amounts__c.OperatingMargin__c}"/>
+            <apex:inputHidden value="{!Amounts__c.NetMargin__c}"/>
+            <apex:inputHidden value="{!Amounts__c.Contingencies__c}"/>
+            <apex:inputHidden value="{!Amounts__c.Ambition__c}"/>
+            <apex:inputHidden value="{!Amounts__c.DownPayment__c}"/>
+            <apex:inputHidden value="{!Amounts__c.OnwardPayment__c}"/>
+            <apex:inputHidden value="{!Amounts__c.ExchangeRate__c}"/>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

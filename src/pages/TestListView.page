@@ -1,0 +1,105 @@
+<apex:page showHeader="true" sidebar="true">
+	<style>
+		.topNav .topNavTab {
+			display: none;
+		}
+		.subNav .piped li {
+			border: 0 !important; 
+		}
+		.subNav .refreshListButton {
+			height: 32px;
+			width: 26px;
+			background-position: 4px -14px;
+		}
+		.subNav .refreshListButton:hover {
+			background-position: 4px -14px;	
+		}
+		.subNav input[name="assign"] {
+			display: none !important;
+		}
+		.subNav input[name="newCase"] {
+			padding: 4px 3px !important;
+		    color: white !important;
+		    background: #334d8c !important;
+		    border: 0 !important;
+		    height: 32px !important;
+		    font-size: 12px !important;
+		    font-weight: normal !important;
+		    padding: 0 10px !important;
+		}
+		.subNav input[name="newCase"]:hover {
+		    background: #4d649b !important;
+		}
+		.listBody .x-grid3-header {
+			background:  #334d8c !important;
+			border: 0 !important;
+		}
+		.listBody .x-grid3-header-inner,
+		.listBody table {
+			width: 100% !important;
+		}
+		.listBody table thead .x-grid3-hd {
+			background: #334d8c !important; 
+			color: #fff !important;
+			padding: 0 10px !important;
+			border: 0 !important;
+			text-transform: uppercase;
+			width: auto !important;
+			font-weight: 500 !important;
+			height: 1px;
+		}
+		.listBody table thead .x-grid3-hd:first-child {
+			width: 25px !important;
+		}
+		.listBody table thead .x-grid3-hd-inner {
+			height: 100%;
+			padding: 12px !important;
+			white-space: normal;
+		}
+		.listBody table thead .x-grid3-hd-inner:hover {
+			background: #4d649b !important;	
+		}
+		.listBody table thead .x-grid3-sort-icon {
+			position: absolute;
+			top: 40%;
+			right: 0;
+		}
+		.select-wrapper {
+			height: 32px;
+		    width: 240px;
+		    position: relative;
+		    right: 0;
+		}
+		.select-request {
+			width: 240px;
+		    height: 32px;
+		    padding: 0 10px;
+		    border: 1px solid #c3c7c6;
+		    -webkit-appearance: none;
+		    -moz-appearance: none;
+		    appearance: none;
+		    background: #fff;
+		    border-right: 0;
+		    cursor: pointer;
+		}
+		.select-wrapper i {
+			height: 32px;
+		    width: 32px;
+		    background: url(http://i62.tinypic.com/15xvbd5.png) no-repeat -1px 0;
+		    background-color: #334d8c !important;
+		    position: absolute;
+		    right: 0px;
+		    top: 0;
+		    pointer-events: none;
+		    cursor: pointer;
+		}
+	</style>
+	<div class="select-wrapper">
+		<select class="select-request" name="" id="">
+			<option value="">New List View</option>
+		</select>
+		<i></i>
+	</div>
+
+	<apex:enhancedList listId="00B57000008PLMqEAO" height="600" customizable="false" rowsPerPage="25"/>
+</apex:page>

@@ -1,0 +1,20 @@
+<!--
+ C10PortalHomeContactUs
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component for the Portal Home dialog box Contact Us.
+-->
+<apex:component controller="VFC64_PortalHome">
+  <div class="widget_inner">
+    <div class="bordure">
+      <div class="widget_header_ContactUs">
+        <div>{!UPPER($Label.LBL0172)}</div>
+      </div>
+      <div class="widget_body AlstomMedium"> 
+        <p>{!$Label.LBL0173}<br/>
+        <a class="btn-contactUs" title="{!$Label.LBL0172}" href="/apex/VFP73_PortalCaseNew?retURL=VFP64_PortalHome">{!$Label.LBL0172}</a></p>
+        <p>{!$Label.LBL0174}&nbsp;<a title="{!$Label.LBL0176}" href="/apex/VFP67_PortalMyFleetSupport">{!$Label.LBL0176}</a></p>
+      </div>
+    </div>
+  </div>
+</apex:component>

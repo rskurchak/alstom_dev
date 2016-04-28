@@ -1,0 +1,11 @@
+<!--
+ VFP75_PortalCaseClose
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 09/07/2014 
+    ~ Description     : VisualForce Page to show/hide Close Case button according to Case Status.
+-->
+<apex:page standardController="Case" >
+    <apex:form style="text-align:center;">
+        <apex:commandButton value="{!$Label.LBL0235}" rendered="{!!Case.IsClosed}" oncomplete="window.top.location='/{!Case.Id}/s?retURL=%2F{!Case.Id}';"/>
+    </apex:form>
+</apex:page>

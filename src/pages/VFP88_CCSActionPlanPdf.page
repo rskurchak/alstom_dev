@@ -1,0 +1,203 @@
+<apex:page standardController="CSSActionPlan__c" renderAs="pdf"   extensions="VFC88_CCSActionPlanPdf" 
+        tabStyle="CSSActionPlan__c" applyBodyTag="false" standardStylesheets="true" sidebar="false" action="{!postAttachmentToChatter}" >
+
+<apex:variable value="{!CSSActionPlan__c.Project__c}" var="proj" />
+<apex:variable value="{!CSSActionPlan__c.Project__r.Account__c }" var="cust" />
+<apex:variable value="{!CSSActionPlan__c.Project__r.ProjectManager__c }" var="projManag" />
+<apex:variable value="{!CSSActionPlan__c.Project__r.Account__r.Owner }" var="custDir" />
+<apex:variable value="{!CSSActionPlan__c.ActionPlanOwner__c }" var="actPlanOwner" />
+<head>
+
+<link class="user" href="/sCSS/25.0/sprites/1344358478000/Theme3/default/gc/zen-componentsCompatible.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1344358478000/Theme3/default/gc/elements.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1344358478000/Theme3/default/gc/common.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1343420890000/Theme3/gc/dStandard.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1345062068000/Theme3/{!$Organization.ID}/{!$User.Id}/gc/dCustom0.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1344358478000/Theme3/default/gc/extended.css" rel="stylesheet" type="text/css"/>
+<link class="user" href="/sCSS/25.0/sprites/1344358478000/Theme3/default/gc/setup.css" rel="stylesheet" type="text/css"/>
+
+<style> 
+@page { 
+    size: landscape;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 90px;   
+    margin-top: 80px;
+    width: 100%;
+    color: black;
+    @bottom-left { content: element(footerLeft); }
+    @bottom-center { content: element(footerCenter); }
+    @top-right { content: element(topRight); }
+    @top-left { content: element(topLeft); }
+    @bottom-right { 
+        content: counter(page) "/" counter(pages); 
+        padding-right: 40px;
+        font-family: sans-serif;
+        font-size: 8pt;
+        color: #777;
+        font-weight: bold;        
+    }
+}
+
+div.topRight { 
+    position: running(topRight);
+    display: block;
+    text-align: right;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+} 
+
+div.topLeft { 
+    position: running(topLeft);
+    display: block;
+    text-align: left;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    color:#365F91;;
+    font-weight: bold;
+    font-family: Alstom, Arial;
+    font-size: 16pt;   
+}  
+
+div.footerRight { 
+    position: running(footerRight);
+    display: block;
+    text-align: right;
+    margin-left: 20px;
+    margin-right: 20px;
+}  
+
+div.footerLeft { 
+    position: running(footerLeft);
+    color: #777;
+    font-weight: bold;
+    font-size: 8pt;    
+    text-align: justify;
+}
+
+div.footerCenter { 
+    position: running(footerCenter);
+    color: #777;
+    font-weight: bold;
+    font-size: 8pt;    
+    text-align: center;
+}
+
+<!--
+th.headerRow {
+    background-color: #365F91 !important;
+    background-image: none !important;
+    color: white !important;
+    
+}
+-->
+
+
+
+
+.sectionTitle{
+    color: #034694;
+    font-size: 1.6em;
+    margin-bottom:2px;
+}
+
+
+.pdfMinTitle {
+    color:black; 
+    font-size:12pt; 
+    font-weight:bold;
+}
+
+.titleHeader {
+    color: #034694;
+    font-size: 2.8em;
+}
+
+.GridActionPlan{
+    width:100%;
+}
+
+.headerRow {
+font-size: 10px;
+}
+
+.GridActionPlanTd{
+font-size: 10px;
+}
+
+</style>
+</head>
+
+<div class="footerLeft" style="width:260px;">
+        <apex:outputText value="CCS Action Plan - {0,date,dd MMM yyyy}" >
+            <apex:param value="{!TODAY()}" /> 
+        </apex:outputText>
+    </div>
+
+<div class="footerCenter" style="width:280px;">
+        Company Internal document. Do not distribute.
+    </div>
+    
+<!-- Page 1 --> 
+    <div style="margin-top:0px;">
+        <apex:pageBlock mode="maindetail">
+            <apex:outputText styleClass="sectionTitle" value="CSS Action Plan Worksheet: General info" />
+            <apex:pageBlockSection columns="2" collapsible="false" title=" ">
+                <apex:outputField value="{!CSSActionPlan__c.Name}" label="Action Plan Name" />
+                <apex:outputField value="{!CSSActionPlan__c.CreatedDate}" label="Date on which this Action Plan was created" />
+                <apex:outputField value="{!CSSActionPlan__c.Project__r.Account__r.Name }" label="The Customer" />
+                <apex:outputField value="{!CSSActionPlan__c.Project__r.ProjectManager__r.Name}" label="Name of the Project Manager" />
+                <apex:outputField value="{!CSSActionPlan__c.Project__r.Name }" label="The Project" />
+                <apex:outputField value="{!CSSActionPlan__c.Project__r.Account__r.Owner.Name}" label="Name of the Customer Director" />
+                <apex:outputField value="{!CSSActionPlan__c.Action_Plan_Status__c}" label="Action Plan Status" />  
+                <apex:outputField value="{!CSSActionPlan__c.ActionPlanOwner__r.Name}" label="Name of the Action Plan owner" />            
+                <apex:outputField value="{!CSSActionPlan__c.ActionPlanFiscalYear__c}" label="Action Plan Fiscal Year" />
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        <div style="margin-top:20px;">
+            <apex:pageBlock mode="maindetail">
+            <apex:outputText styleClass="sectionTitle" value="Relevant Surveys" />
+            <apex:pageBlockSection columns="1" collapsible="false" title=" ">
+                <apex:pageBlockTable value="{!ListSurveyActionPlan}" var="surv"  >
+                        <apex:column value="{!Surv.Name}"/>
+                <apex:column value="{!Surv.Status__c}"/>
+                <apex:column value="{!Surv.Survey__c}"/>
+                <apex:column value="{!Surv.ResponseDate__c}"/>      
+                <apex:column value="{!Surv.InterviewDate__c}" headerValue="Interview Date" styleClass="GridActionPlanTd" />
+                <apex:column value="{!Surv.SatisfactionTowardsAT__c}" headerValue="Overall satisfaction" styleClass="GridActionPlanTd" />
+                <apex:column value="{!Surv.NetPromoterScore__c}" headerValue="Net Promoter Score" styleClass="GridActionPlanTd" />       
+                </apex:pageBlockTable>
+                <br/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+        </div>
+        
+    </div>
+    
+    
+
+    <div style="margin-top:20px;">
+        <apex:pageBlock mode="maindetail">
+        <apex:outputText styleClass="sectionTitle" value="CSS Action Plan Worksheet" />
+        <apex:pageBlockSection columns="1" collapsible="false" title=" ">
+            <apex:pageBlockTable value="{!ListSurveyAction}" var="act" styleClass="GridActionPlan">
+                    <apex:column value="{!act.Name}" headerValue="CSS Action Name" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Description__c}" headerValue="Description" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.AssignedTo__c}" headerValue="Action assigned to" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Type__c}" headerValue="Type" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Priority__c}" headerValue="Prio." styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.DueDate__c}" headerValue="Due Date" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Status__c}" headerValue="Status" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Contact__c}" headerValue="Related to" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.Comments__c}" headerValue="Comments" styleClass="GridActionPlanTd" />
+                    <apex:column value="{!act.ProjectSurvey__r.Name}" headerValue="Relevant Survey" styleClass="GridActionPlanTd" />
+                   </apex:pageBlockTable>
+            <br/>
+        </apex:pageBlockSection>
+    </apex:pageBlock>
+    </div>
+    
+
+</apex:page>

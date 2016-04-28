@@ -1,0 +1,114 @@
+<!--
+ VFP64_PortalHome
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Page as the Private Portal Home Page.
+--> 
+<apex:page controller="VFC64_PortalHome" sidebar="false" standardStylesheets="false">
+    <apex:includeScript value="{!URLFOR($Resource.SDO_jqueryui192, '/js/jquery-1.8.3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SDO_bootstrap, '/js/bootstrap.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SDO_bootstrap, '/css/bootstrap.css')}"/>
+    <apex:stylesheet value="{!$Resource.ComCSS}"/>
+
+        <style type="text/css">
+            body{
+                min-width:1024px;
+                margin:auto;
+                background:none;
+            }
+            
+            body .bPageBlock, body #bodyCell .bResource .secondaryPalette, body .secondaryPalette.bPageBlock, body .individualPalette .secondaryPalette.bPageBlock, body .bodyDiv .genericTable, body .genericPageBlockTable, body .bodyDiv .bSubBlock, body .bComponentBlock .bPageBlock, body .bMyDashboard .bPageBlock, body.rlHoverFrame .bPageBlock, body.subjectSelectionPopup div.choicesBox, body.lookupTab .secondaryPalette.bPageBlock, body.popupTab .secondaryPalette.bPageBlock, body.UserTagStatsPage .secondaryPalette.bPageBlock {
+                border-radius: 0px;
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+                border-top-color: #FFFFFF !important;
+                background-color: #FFFFFF !important;
+            }
+            body .bRelatedList .pbBody table.list, body .apexp .pbBody table.list {
+                border: 1px solid #FFFFFF;
+            }    
+        
+            html body .bPageBlock.brandSecondaryBrd, html body .linkBar.brandSecondaryBrd, html body .bSubBlock.brandSecondaryBrd, html body #stt.brandSecondaryBrd, html body .genericTable.brandSecondaryBrd, html body .choicesBox.brandSecondaryBrd, html body .action-panel.brandSecondaryBrd, html body .zen-data.brandSecondaryBrd {
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+            }   
+            body .pbBody table.list tr.headerRow th:first-child, body .pbBody table.list tr.dataRow td:first-child {
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+                border-bottom-color: #FFFFFF !important;
+            }
+        
+            body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th {
+                padding: 0px 0px 0px 0px;
+            }
+
+            .noSidebarCell{
+                background:#E4E4E4;
+            }
+            
+            body .btnDisabled, .btn, .btn:hover, .btn:focus, .btn:active, body .x-btn-pressed {
+                border-color:#FFFFFF !important;
+                cursor: pointer;
+            }
+            .apexp .bPageBlock.apexDefaultPageBlock .pbBody {
+                margin: 0px 0px 0px 0px !important;                
+            }
+            
+            #newsImage .sfdc_richtext img {
+                width: 800px;
+            }
+            .mainTitleStyle{
+                color: white;
+                font-size: 30px;
+                padding: 0px 10px 0px;
+                display: block;
+                font-family: AlstomMedium, sans-serif;
+                text-shadow: 1px 1px black;
+                position: absolute;
+                top: 265px;
+            }
+            .container-fluid{
+                padding-left: 55px !important;
+                padding-left: 55px !important;
+            }
+            .span9{
+                width: 77% !important;
+            }
+            #mainIMGFromAccount .sfdc_richtext img {
+               width: 100% !important;
+               height: 300px !important;
+               margin-bottom: 20px;
+            }
+            .span3{
+                width: 20.8% !important;
+            }
+        </style>
+
+    <div class="container-fluid"> 
+        <div class="row-fluid">  
+            <div class="span9">
+                <div id="mainIMGFromAccount" style="{!IF(or(accWithImg == null, accWithImg.Portal_Home_Page_Img__c == null), 'display: none;','')}">
+                    <apex:outputField value=" {!accWithImg.Portal_Home_Page_Img__c}">
+                        <span class="mainTitleStyle"> {!accWithImg.Portal_Home_Page_Text__c}</span>
+                    </apex:outputField>
+                </div>
+
+                <div style="{!IF(or(accWithImg == null, accWithImg.Portal_Home_Page_Img__c == null), 'width: 100%; height: 100px;margin-bottom: 20px; background-color: gainsboro;','display: none;')}">
+                    <div class="mainTitleStyle" style="top: 65px !important;">{!IF(or(accWithImg == null, accWithImg.Portal_Home_Page_Text__c == null), '', accWithImg.Portal_Home_Page_Text__c)}</div>
+                </div>
+
+                <c:PortalHomeAppLauncher ></c:PortalHomeAppLauncher> 
+                <c:C11PortalHomeChatterFeed ></c:C11PortalHomeChatterFeed> 
+            </div> 
+            <div class="span3"> 
+                <c:C16PortalHomeMyAlerts objectType="Alert" listo="{!alertList}" listofield="{!FieldList}" listoheader="Alerts" listopagesize="1" listorelatedlistname="Read_Receipts__r" rendered="{!isBulletinAvailable}"/> 
+                <c:C16PortalHomeMyAlerts objectType="Bulletin" listo="{!bulletinList}" listofield="{!FieldList}" listoheader="Bulletins" listopagesize="1" listorelatedlistname="Read_Receipts__r" rendered="{!isBulletinAvailable}"/>
+                <c:C12PortalHomeMyCases listo="{!requestList}" listofield="{!FieldList}" listoheader="My Requests" listopagesize="2" listorelatedlistname="" rendered="{!isCaseAvailable}"/> 
+                <c:C15PortalHomeMyContacts technical="false"/>
+                <c:C14PortalHomeNews listo="{!newsList}" listofield="{!FieldList}" listopagesize="1" listorelatedlistname="" listoNewsListViewURL="{!MyNewsListViewURL}" showPortalHome="true"/> 
+            </div>
+        </div>
+    </div>
+</apex:page>

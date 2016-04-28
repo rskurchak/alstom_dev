@@ -1,0 +1,3 @@
+<apex:page controller="VFC83_eCatalogue" sidebar="false">
+	<apex:iframe src="{!eCatalogueUrl}" scrolling="false" id="eCatalogueIframe"/>
+</apex:page>

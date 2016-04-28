@@ -1,0 +1,20 @@
+<!--
+ VFP62_OpportunityRealignForecastValues
+   ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 26/03/2014 
+    ~ Description     : VisualForce Page to override Forecast Values from Opportunity Values.
+-->
+<apex:page standardController="Opportunity" extensions="VFC62_OpportunityRealignForecastValues" >
+    <script type="text/javascript">
+        function ConfirmRealignForecastData() { 
+        {!IF(Authorised, 
+            'if (confirm("You are about to overwrite Forecast fields with values from the Opportunity: Estimated Selling Price and Fiscal Period. Please confirm.")) OppRealignForecastData(); else  window.top.location="/'+Opportunity.Id+'";','')}
+        } 
+    </script>
+    <apex:form style="text-align:center;" >
+        <apex:actionFunction name="OppRealignForecastData" action="{!OppRealignForecastData}" reRender="x"/>
+        <apex:commandButton onclick="ConfirmRealignForecastData()" rerender="x" value="Realign Forecast Data" oncomplete="window.top.location='/{!Opportunity.Id}';" rendered="{!Authorised}"/>
+        <apex:outputpanel id="x">
+        </apex:outputpanel>
+    </apex:form> 
+</apex:page>

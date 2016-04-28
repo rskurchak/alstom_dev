@@ -1,0 +1,144 @@
+<!--
+ VFP79_PortalTrainingSessionDetail
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 02/07/2014 
+    ~ Description     : VisualForce Page to show Training Session detail to Customer Portal User.
+-->
+
+<apex:page standardController="TrainingSession__c" sidebar="false" extensions="VFC79_PortalTrainingSessionDetail" action="{!redirectView}" >
+    <apex:includeScript value="{!URLFOR($Resource.SDO_jqueryui192, '/js/jquery-1.8.3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SDO_bootstrap, '/js/bootstrap.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SDO_bootstrap, '/css/bootstrap.css')}"/>
+
+        <style type="text/css">
+            body{
+                min-width:0px;
+                margin:auto;
+                background:none;
+                /*padding-top:10px;*/
+            }
+            
+            body .bPageBlock, body #bodyCell .bResource .secondaryPalette, body .secondaryPalette.bPageBlock, body .individualPalette .secondaryPalette.bPageBlock, body .bodyDiv .genericTable, body .genericPageBlockTable, body .bodyDiv .bSubBlock, body .bComponentBlock .bPageBlock, body .bMyDashboard .bPageBlock, body.rlHoverFrame .bPageBlock, body.subjectSelectionPopup div.choicesBox, body.lookupTab .secondaryPalette.bPageBlock, body.popupTab .secondaryPalette.bPageBlock, body.UserTagStatsPage .secondaryPalette.bPageBlock {
+                border-radius: 0px;
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+            }
+            body .bRelatedList .pbBody table.list, body .apexp .pbBody table.list {
+                border: 1px solid #FFFFFF;
+            }    
+        
+            html body .bPageBlock.brandSecondaryBrd, html body .linkBar.brandSecondaryBrd, html body .bSubBlock.brandSecondaryBrd, html body #stt.brandSecondaryBrd, html body .genericTable.brandSecondaryBrd, html body .choicesBox.brandSecondaryBrd, html body .action-panel.brandSecondaryBrd, html body .zen-data.brandSecondaryBrd {
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+            }   
+            body .pbBody table.list tr.headerRow th:first-child, body .pbBody table.list tr.dataRow td:first-child {
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+            }
+        
+            body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th {
+                padding: 0px 0px 0px 0px;
+            }
+
+            .noSidebarCell{
+                background:#E4E4E4;
+            }
+            
+            body .btnDisabled, .btn, .btn:hover, .btn:focus, .btn:active, body .x-btn-pressed {
+                border-color:#FFFFFF !important;
+                cursor: pointer;
+            }
+            #newsImage .sfdc_richtext img {
+                width: 800px;
+            }
+
+            input[name=newNote] {
+                display: none;
+            }
+            input[name=attachFile] {
+                display: none;
+            }
+            input[name=viewAll] {
+                display: none;
+            }
+            .actionColumn{
+                display: none !important;
+            }
+            .pShowMore{
+                display: none !important;
+            }
+            .bRelatedList, .dataCell{
+                color: #464646 !important;
+                font-family: AlstomRegular,sans-serif !important;
+                font-size: 14px !important;         
+            }
+            .infosTech .btn {
+                background: #8AB529 !important;
+                border: 1px solid #6C8049 !important;
+                border-radius: 2px !important;
+                box-shadow: 0 1px 2px 0 #ADADAD !important;
+                color: #FFFFFF !important;
+                display: inline-block !important;
+                font-family: Arial !important;
+                font-size: 1.08em !important;
+                height: 30px !important;
+                margin: 0 !important;
+                padding: 0 10px 1px !important;
+            }
+            body .widget_feed {
+                background: none repeat scroll 0 0 #FFFFFF;
+                margin-bottom: 20px !important;
+                padding: 10px 20px 10px 20px !important;
+                margin-top: 0;
+            }
+            body .dataCol, body .data2Col, body .labelCol {
+                color: #464646 !important;
+                font-family: AlstomRegular,sans-serif !important;
+                font-size: 16px !important;         
+            }
+            label {
+                font-weight: bold !important; 
+                font-size: 16px !important;         
+            }
+        </style>
+    <div class="widget_feed">
+        <chatter:feed entityId="{!TrainingSession__c.Id}"/>
+       <apex:form >
+            <apex:outputPanel layout="block" styleClass="widget_inner">
+              <div class="infosTech">
+                <h2 style="background: url('/img/icon/custom51_100/presenter32.png') no-repeat scroll 1px 1px rgba(0, 0, 0, 0) !important;"><strong>{!TrainingSession__c.Name}</strong></h2>
+                <apex:outputPanel >
+                    <div class="widget_body">
+                            <div class="clearfix">
+                                <apex:pageBlock >
+                                    <apex:pageBlockSection columns="2" showHeader="false" collapsible="false">
+                                        <apex:outputtext value="{!TrainingSession__c.Account__r.Name}" escape="false"/>
+                                        <apex:outputtext />
+                                        <apex:outputtext value="{!TrainingSession__c.Duration__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.Street__c}" escape="false"/>
+                                        <apex:outputfield value="{!TrainingSession__c.Date__c}"/>
+                                        <apex:outputtext value="{!TrainingSession__c.City__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.ProductLine__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.ZipPostalCode__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.Platform__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.StateProvince__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.Product__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.Country__c}" escape="false"/>
+                                        <apex:outputtext value="{!TrainingSession__c.Prerequisites__c}" escape="false"/>
+                                        <apex:outputfield value="{!TrainingSession__c.GoogleMapsLink__c}"/>
+                                    </apex:pageBlockSection> 
+                                    <apex:pageBlockSection columns="1" Title="{!$ObjectType.TrainingSession__c.fields.Description__c.label}" collapsible="false">
+                                        <apex:outputtext value="{!trainingsessionDescription}" escape="false" label=""/>
+                                    </apex:pageBlockSection>
+                                </apex:pageBlock>
+                            </div>
+                      </div>
+                </apex:outputPanel>
+             </div>
+            </apex:outputPanel>
+       </apex:form>
+       <apex:relatedList list="CombinedAttachments" rendered="{!shownotesattachments}" pagesize="{!notesattachmentspagesize}"/>
+    </div>
+</apex:page>

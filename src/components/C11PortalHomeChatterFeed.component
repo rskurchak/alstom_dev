@@ -1,0 +1,22 @@
+<!--
+ C11PortalHomeChatterFeed
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the Portal Home Chatter feed dialog box.
+-->
+<apex:component controller="VFC64_PortalHome">
+   <div class="widget_outer">
+        <div class="widget_inner">
+            <div class="imgContain centerContent" id="thumbs">
+                <div class="community">
+                    <h2><strong>{!UPPER($Label.LBL0177)}</strong></h2>
+                    <hr/>
+                    <p>{!$Label.LBL0219}&nbsp;<a title="{!$Label.LBL0220}" style="color: #4D649B !important; text-decoration: underline !important;" href="/_ui/core/chatter/ui/ChatterPage">{!$Label.LBL0220}</a></p><br/>              
+                </div>
+                <div class="widget_body" style="margin-left:30px;">
+                    <chatter:newsfeed /> 
+                </div>
+            </div>
+        </div>
+    </div>       
+</apex:component>

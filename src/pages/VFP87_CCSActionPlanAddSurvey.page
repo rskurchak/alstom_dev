@@ -1,0 +1,25 @@
+<apex:page standardController="CSSActionPlan__c" extensions="VFC87_CCSActionPlanAddSurvey" id="page">
+<apex:sectionHeader title="{!CSSActionPlan__c.Name} {!$Label.LBL0319}" subtitle="{!$Label.LBL0320}"/>
+<apex:variable value="{!CSSActionPlan__c.Project__c}" var="v" />
+<apex:form id="form">
+		<apex:pageBlock title="" id="pageBlock">
+			<apex:pageMessages />
+			<apex:pageBlockButtons >
+				<apex:commandButton action="{!AddRemoveSurvey}" value="{!$Label.site.save}" />
+                <apex:commandButton action="{!cancel}" value="{!$Label.site.cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >
+            	<apex:outputField value="{!CSSActionPlan__c.Project__r.Name}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockTable value="{!ListSurveyProject}" var="Surv" rendered="{!ListSurveyProject.size > 0 && curActionPlan != null}">
+            	<apex:column headerValue="{!$Label.LBL0306}"> 
+            		<apex:inputCheckbox value="{!mapSurveyCheck[Surv.Id]}"/>
+				</apex:column>
+            	<apex:column value="{!Surv.Name}"/>
+            	<apex:column value="{!Surv.Status__c}"/>
+            	<apex:column value="{!Surv.Survey__c}"/>
+            	<apex:column value="{!Surv.ResponseDate__c}"/>
+            </apex:pageBlockTable>
+		</apex:pageBlock>
+	</apex:form>
+</apex:page>

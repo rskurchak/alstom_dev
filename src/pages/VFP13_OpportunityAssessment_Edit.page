@@ -1,0 +1,8 @@
+<!-- VFP03_Opportunity_New
+		~ Author		: Mohamed EL MOUSSAOUI mohamed.el-moussaoui@axoa.fr 
+		~ Date Created  : 05/07/2012
+		~ Description   : Custom list button on Opportunity related list to access the Opportunity Assessment 	
+-->
+<apex:page standardController="OpportunityAssessment__c" recordSetVar="as" extensions="VFC13_OpportunityAssessment_Edit"  action="{!init}">
+	<apex:pageMessages />
+</apex:page>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StaticResource xmlns="http://soap.sforce.com/2006/04/metadata">
+    <cacheControl>Private</cacheControl>
+    <contentType>application/pdf</contentType>
+    <description>PDF file displayed when clicking on a custom link from the left sidebar. Since the file is &gt; 5 Mb, we have moved it from Documents to Static Resource</description>
+</StaticResource>

@@ -1,0 +1,19 @@
+<apex:page standardController="Opportunity" extensions="VFC40_OpportunityCockpit" showHeader="true" sidebar="true">
+<style type="text/css">
+	ul {
+		margin-bottom:0px;
+	}
+	.messageCell {
+    	padding-top: 6px;
+	}
+</style>
+<apex:sectionHeader title="{!$ObjectType.Opportunity.Label}" subtitle="{!Opportunity.Name}"/>
+<apex:form >
+	<apex:pageBlock >
+		<apex:pageBlockButtons >
+           <apex:commandButton id="cancel" value="Back" action="{!cancel}"/>
+	    </apex:pageBlockButtons>
+		<apex:pageMessage summary="{!$Label.LBL0344}{!htmlErrorMessage}" severity="error" strength="2" escape="false"/>
+	</apex:pageBlock>
+</apex:form>
+</apex:page>

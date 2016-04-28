@@ -1,0 +1,6 @@
+<apex:page standardController="PxOStandard__c" extensions="VFC86_NewPxOStandardLine" action="{!createPxOStandardLine}">
+	<apex:form >
+		<apex:inputHidden value="{!PxOStandard__c.RecordType.DeveloperName}" />
+		<apex:inputHidden value="{!PxOStandard__c.Name}" />
+	</apex:form>
+</apex:page>

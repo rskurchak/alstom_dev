@@ -1,0 +1,100 @@
+<!--
+ VFP76_PortalNewsDetail
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 26/06/2014 
+    ~ Description     : VisualForce Page to show News detail to Customer Portal User.
+-->
+<apex:page standardController="News__c" sidebar="false" extensions="VFC76_PortalNewsDetail" action="{!redirectView}" >
+    <apex:includeScript value="{!URLFOR($Resource.SDO_jqueryui192, '/js/jquery-1.8.3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SDO_bootstrap, '/js/bootstrap.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SDO_bootstrap, '/css/bootstrap.css')}"/>
+
+        <style type="text/css">
+            body{
+                min-width:0px;
+                margin:auto;
+                background:none;
+                /*padding-top:10px;*/
+            }
+            
+			body .bPageBlock, body #bodyCell .bResource .secondaryPalette, body .secondaryPalette.bPageBlock, body .individualPalette .secondaryPalette.bPageBlock, body .bodyDiv .genericTable, body .genericPageBlockTable, body .bodyDiv .bSubBlock, body .bComponentBlock .bPageBlock, body .bMyDashboard .bPageBlock, body.rlHoverFrame .bPageBlock, body.subjectSelectionPopup div.choicesBox, body.lookupTab .secondaryPalette.bPageBlock, body.popupTab .secondaryPalette.bPageBlock, body.UserTagStatsPage .secondaryPalette.bPageBlock {
+				border-radius: 0px;
+				border-bottom-color: #FFFFFF !important;
+				border-left-color: #FFFFFF !important;
+				border-right-color: #FFFFFF !important;	
+			}
+			body .bRelatedList .pbBody table.list, body .apexp .pbBody table.list {
+				border: 1px solid #FFFFFF;
+			}    
+		
+			html body .bPageBlock.brandSecondaryBrd, html body .linkBar.brandSecondaryBrd, html body .bSubBlock.brandSecondaryBrd, html body #stt.brandSecondaryBrd, html body .genericTable.brandSecondaryBrd, html body .choicesBox.brandSecondaryBrd, html body .action-panel.brandSecondaryBrd, html body .zen-data.brandSecondaryBrd {
+				border-bottom-color: #FFFFFF !important;
+				border-left-color: #FFFFFF !important;
+				border-right-color: #FFFFFF !important;	
+			}	
+			body .pbBody table.list tr.headerRow th:first-child, body .pbBody table.list tr.dataRow td:first-child {
+				border-left-color: #FFFFFF !important;
+				border-right-color: #FFFFFF !important;	
+			}
+		
+			body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th {
+				padding: 0px 0px 0px 0px;
+			}
+
+            .noSidebarCell{
+            	background:#E4E4E4;
+            }
+			
+			body .btnDisabled, .btn, .btn:hover, .btn:focus, .btn:active, body .x-btn-pressed {
+				border-color:#FFFFFF !important;
+				cursor: pointer;
+			}
+            #newsImage .sfdc_richtext img {
+                width: 800px;
+            }
+
+			input[name=newNote] {
+			    display: none;
+			}
+			input[name=attachFile] {
+			    display: none;
+			}
+			input[name=viewAll] {
+			    display: none;
+			}
+			.actionColumn{
+			    display: none !important;
+			}
+			.pShowMore{
+			    display: none !important;
+			}
+			.bRelatedList, .dataCell{
+				color: #464646 !important;
+				font-family: AlstomRegular,sans-serif !important;
+				font-size: 14px !important;			
+			}
+		</style>
+   <apex:form >
+    	<apex:outputPanel layout="block" styleClass="widget_inner">
+	      <div class="infosTech">
+	        <h2 style="background: url('/img/icon/radarDish32.png') no-repeat scroll 1px 1px rgba(0, 0, 0, 0) !important;"><strong>{!News__c.Name}</strong></h2>
+			<apex:outputPanel >
+		        <div class="widget_body">
+		                <div class="clearfix">
+		                    <apex:outputText styleClass="pull-left" escape="false" value="{!News__c.Image__c}"/>
+                            <span style="color:grey;"> (
+                                <apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+                                    <apex:param value="{!News__c.PublicationDate__c}" /> 
+                                </apex:outputText>)
+                            </span>
+		                    <p class="titreInfosTech"><strong><apex:outputtext value="{!News__c.Name}" escape="false"/></strong></p>
+		                    <p><apex:outputtext value="{!News__c.Summary__c}" escape="false"/></p><br/>
+		                    <p><apex:outputtext value="{!News__c.Text__c}" escape="false"/></p><br/>
+		                </div>
+		          </div>
+			</apex:outputPanel>
+         </div>
+		</apex:outputPanel>
+   </apex:form>
+   <apex:relatedList list="CombinedAttachments" rendered="{!shownotesattachments}" pagesize="{!notesattachmentspagesize}"/>
+</apex:page>

@@ -1,0 +1,13 @@
+<!--
+ * VFP47_Schedule_Warning_Banner Visualforce page
+ * Jawad GHOULAM ~ jawad.ghoulam@cgi.com
+ * 25/09/2013
+ * FEAT#0424: Display warning banner on opportunity page layout when dates are not consistent. The message itself is calculated via
+ *            a formula field.
+-->
+
+<apex:page standardController="Opportunity">
+
+<apex:pageMessage summary="<b>Warning:</b> {!Opportunity.TECH_ScheduleBannerMessage__c}" severity="error" strength="1" rendered="{!Opportunity.TECH_ScheduleBannerMessage__c != ''}" escape="false" />
+
+</apex:page>

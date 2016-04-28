@@ -1,0 +1,90 @@
+<apex:page standardController="ReadReceipt__c" extensions="VFC74_BulletinSurveyCreateReadReceipt" sidebar="false">
+	<style type="text/css">
+		.formStyle{
+		    color: #7c7c7c;
+		    font-family: Arial, sans-serif;
+		    line-height: 14px;
+		    font-size: 16px;
+		}
+		.headerStyle{
+			color: #3c3c3c;
+			font-size: 24px;
+		}
+		.btnStyle{
+			display: block !important;
+			margin-left: auto !important;
+    		margin-right: auto !important;
+    		height: 40px !important;
+    		padding-left: 24px !important;
+    		padding-right: 24px !important;
+    		background: #334d8c !important;
+    		color: white !important;
+    		border: 0px !important;
+		    font-size: 14px !important;
+    		font-weight: normal !important;
+    		line-height: 20px !important;
+    		cursor: pointer !important;
+    		outline: none !important;    		
+		}
+		.btnStyle:hover{
+			background: #000000 !important;
+			opacity: 0.35 !important;
+		}
+		.cellStyle{
+			width: 50%;
+			margin-top: 10px;
+			margin-bottom: 10px;
+			display: inline-block;
+		}
+		.LineStyle{
+			background: #334d8c;
+			width: 100%;
+    		display: block;
+    		padding: 5px;
+    		color: #d6dbe8;
+		}
+	</style>
+
+	<apex:form styleClass="formStyle">
+		<apex:pageMessages />
+		<apex:outputPanel style="padding: 10px 90px 10px 90px; display: block;">
+			<apex:outputLabel value="{!$Label.LBL0381} {!ReadReceipt__c.BulletinName__c}" styleClass="headerStyle"/>
+			<br/><br/><br/><br/>
+			<apex:outputLabel value="{!$Label.LBL0380}" styleClass="LineStyle"/>
+			<br/><br/>
+			<apex:outputLabel value="{!$Label.LBL0370}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentNumber__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0373}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentStock__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0374}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.ReplacementDate__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0368}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentConfiguration__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0369}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentModification__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0371}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentReliability__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0372}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.EquipmentScrapRate__c}" styleClass="cellStyle"/>
+			<br/>
+			<apex:outputLabel value="{!$Label.LBL0375}" styleClass="cellStyle"/>
+			<br/>
+			<apex:inputField value="{!ReadReceipt__c.SpecificInformation__c}" styleClass="cellStyle" style="height: 50px;"/>
+			<br/>
+			<apex:commandButton value="{!$Label.LBL0382}" action="{!save}" styleClass="btnStyle"/>
+		</apex:outputPanel>
+	</apex:form>
+</apex:page>

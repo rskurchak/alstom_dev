@@ -1,0 +1,36 @@
+<!--
+ C15PortalHomeMyContacts 
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to present the Alstom Sales/Technical Contacts associated to the user.
+-->
+<apex:component controller="VFC75_PortalComponentMyContacts">
+  <apex:attribute name="technical" description="technical Contact?." type="boolean" required="false"/>     
+
+  <div id="widgetContact" class="widget_inner">
+      <div class="widget_header_Contact">
+        <div>{!IF(technical,$Label.LBL0158,$Label.LBL0155)}</div>
+      </div>
+		<apex:outputPanel rendered="{!IF(technical,AlstomTechnicalContacts.size > 0,AlstomSalesContacts.size > 0)}">
+	      <div class="widget_body">
+            <apex:repeat value="{!IF(technical,AlstomTechnicalContacts,AlstomSalesContacts)}" var="ac">
+              <div class="contactTech"> <img class="pull-left" alt="nom du portrait" src="{!ac.AlstomContact__r.SmallPhotoUrl}"/>
+                <p><a href="/{!ac.id}"><strong class="nom"><apex:outputtext value="{!ac.UserName__c}" escape="false"/></strong><br/>
+                  <strong><apex:outputtext value="{!ac.Title__c}" escape="false"/></strong></a><br/>
+                  <a class="email" href="mailto:{!ac.Email__c}"><span>{!ac.Email__c}</span></a><br/>
+                  <span>{!ac.Phone__c}</span></p>
+                <hr/>
+              </div>
+            </apex:repeat>
+			<div class="knowMore">
+				<a href="{!IF(technical, $Label.LBL0218, $Label.LBL0217)}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more25_blue1_Contact.png')}" alt="{!IF(technical,$Label.LBL0158,$Label.LBL0155)}"/></a>
+			</div>
+	      </div>
+		</apex:outputPanel>
+		<apex:outputPanel rendered="{!IF(technical,AlstomTechnicalContacts.size = 0,AlstomSalesContacts.size = 0)}">
+			<div class="widget_body  AlstomMedium">
+				<p>{!$Label.LBL0199}</p>
+			</div>
+		</apex:outputPanel>
+    </div>
+</apex:component>

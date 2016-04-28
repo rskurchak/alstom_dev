@@ -1,0 +1,39 @@
+<!--
+ VFP73_PortalCaseNew
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 27/06/2014 
+    ~ Description     : VisualForce Page to create new request from Community Portal.
+    ~ Modified        : martin.kona@bluewolfgroup.com, 12.2.2016
+-->
+<apex:page standardController="Case" extensions="VFC73_PortalCaseNew" action="{!redirect}">
+    <apex:pageMessages />
+    <apex:sectionHeader title="{!$Label.LBL0227}"/>                      
+    <apex:form >
+        <apex:pageBlock mode="edit">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!doSave}" value="{!$Label.LBL0225}"/>
+                <apex:commandButton action="{!Cancel}" value="{!$Label.LBL0226}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="1" title="{!$Label.LBL0228}" collapsible="false">
+                <apex:inputField value="{!PortalCase.Subject}" required="true"/>
+                <apex:inputField value="{!PortalCase.Priority}" />
+                <apex:inputField value="{!PortalCase.Equipment__c}" required="true" 
+                                 rendered="{! citadisTypeId == CASESAFEID($CurrentPage.parameters.RecordType) }"/>
+                <apex:inputField value="{!PortalCase.Additional_Contact__c}" />
+                <apex:inputField value="{!PortalCase.Second_Additional_Contact__c}" />
+                <apex:inputField value="{!PortalCase.Third_Additional_Contact__c}" />
+                <apex:pageBlockSectionItem />
+            </apex:pageBlockSection> 
+            
+            <apex:pageBlockSection columns="1" showHeader="true" collapsible="false" title="{!issueFieldDescription}">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Case.fields.Description.label}" />
+                    <apex:outputPanel layout="block" styleClass="requiredInput">
+                        <apex:outputPanel layout="block" styleClass="requiredBlock"/>
+                        <apex:inputTextarea value="{!PortalCase.Description}" cols="100" rows="4" required="true" id="mainlocation"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>  
+</apex:page>

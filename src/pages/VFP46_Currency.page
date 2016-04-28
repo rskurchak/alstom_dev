@@ -1,0 +1,15 @@
+<apex:page standardController="Amounts__c" extensions="VFC46_Currency">
+    <apex:form >
+                <apex:pageBlock id="pgbBackground" mode="maindetail">
+                    <!-- actions buttons/links shown only when the Opportunity Assessment status = Open  -->
+                    <apex:pageBlockButtons location="top">
+                        <apex:commandButton value="Next" action="{!NextStep}"/>
+                        <apex:commandButton value="Cancel" action="{!CancelCurrency}"/>
+                    </apex:pageBlockButtons>
+                    
+                    <apex:pageBlockSection columns="1" title="Currency" collapsible="false">
+                        <apex:inputField value="{!amount.CurrencyIsoCode}" label="Currency"/>
+                    </apex:pageBlockSection>
+                </apex:pageBlock>
+    </apex:form>
+</apex:page>

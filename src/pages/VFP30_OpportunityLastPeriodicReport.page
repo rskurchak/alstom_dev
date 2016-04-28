@@ -1,0 +1,8 @@
+<apex:page standardController="Opportunity" extensions="VFC30_OpportunityLastPeriodicReport" >
+	<apex:pageMessages />
+	<apex:outputPanel rendered="{!periodicReport != null}" >
+		<apex:outputText value="Last Report Date: " style="font-weight: bold;" />
+		<apex:outputField value="{!periodicReport.ReportDate__c}" /><br/>
+		<apex:outputField value="{!periodicReport.LastInformation__c}" />
+	</apex:outputPanel>
+</apex:page>

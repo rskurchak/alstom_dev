@@ -1,0 +1,65 @@
+<apex:page controller="WebPortalLoginController" language="{!$CurrentPage.parameters.language}" showHeader="false" standardStyleSheets="false" id="page">
+<apex:stylesheet value="{!URLFOR($Resource.ComBootstrap, '/css/bootstrap.css')}"/>
+<apex:stylesheet value="{!$Resource.AlstomCustomCSS}"/>
+	
+<style type="text/css">
+	body {
+ 		background: #334d8c;
+	}
+	form {
+		padding-top:  1px;
+		padding-bottom: 0px;
+	}
+	a,
+	a:hover {
+		font-family: AlstomRegular,Sans-serif;
+		color: #ffffff;
+		font-size: 12px
+	}
+	input[type=text],
+	input[type=password] {
+		line-height: 2.3;
+		height: 26px;
+		padding-left: 8px;
+		border-radius: 4px;
+		border: 0;
+		margin-top: 10px;
+		margin-bottom: 0px;
+		font-size: 14px;
+		font-family: AlstomMedium,Sans-serif;
+		color: #333333;
+		width: 187px;
+	}
+	.btn {
+		background-image: none;
+		text-shadow: none;
+		box-shadow: none;
+		border: 1px;
+		padding: 6px 12px;
+		text-transform: uppercase;
+	}
+</style>
+
+<apex:form forceSSL="true" id="form">
+	<apex:inputText id="username" value="{!username}" size="31" html-placeholder="{!$Label.site.username}"/>
+	<br/>
+	<apex:inputSecret id="password" value="{!password}" size="31" html-placeholder="{!$Label.site.password}"/>
+	<div class="nav-myportal-formtext">
+		<a href="#" onclick="window.top.location.href='{!homeURL}/secur/forgotpassword.jsp?locale={!LOWER(RIGHT($CurrentPage.parameters.language, 2))}';"> {!$Label.site.forgot_your_password_q}</a>		
+		<br/>
+		<apex:commandButton action="{!login}" onclick="this.form.target='_top';" value="{!$Label.site.login_button}" id="loginAction" styleClass="btn btn-large btn-primary btn-darkblue" />
+	</div>
+</apex:form>
+
+<script type="text/javascript">
+    // launching 
+	document.getElementById('page:form:password').onkeypress = function(e){
+    	if (!e) e = window.event;
+    	var keyCode = e.keyCode || e.which;
+    	if (keyCode == '13'){
+        	// Enter pressed
+        	document.getElementById('page:form:loginAction').click()
+    	}
+	}
+</script>
+</apex:page>

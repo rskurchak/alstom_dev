@@ -1,0 +1,139 @@
+<!--
+ VFP40_Cockpit_FindWin 
+    ~ Author            : jawad.ghoulam@cgi.com
+    ~ Modification Date : 27/08/2013
+    ~ Description       : VF Component for Opportunity cockpit
+    
+    FEAT#0555 (27/03/2014 - C. Averseng) : remove test on empty BOID
+    CR-0828 (27/11/2015) - F. Taillon : Alerts: Dates/Status/Fields/Forecast/
+-->
+<apex:page standardController="Opportunity" extensions="VFC40_OpportunityCockpit" showHeader="false" applyHtmlTag="false" applyBodyTag="false" docType="html-5.0">
+
+<html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<style type="text/css">
+    .slds-theme--error .slds-text-body--small {
+      color: inherit;
+    }
+</style>
+<apex:stylesheet value="{!URLFOR($Resource.slds0120, 'assets/styles/salesforce-lightning-design-system-vf.css')}" />
+<apex:includeScript value="/soap/ajax/22.0/connection.js"/>
+<apex:includeScript value="/soap/ajax/22.0/apex.js"/>
+<apex:includeScript value="{!URLFOR($Resource.svg4everybody, '/svg4everybody.js')}"/>
+
+ <script type="text/javascript">
+        sforce.connection.sessionId = '{!$Api.Session_ID}';
+        // Create Tender
+        function openWindow(vURL,lblConfirm) {
+            
+            var conf = confirm(lblConfirm);
+            if(conf == true){
+                try
+                {
+                    var tend = new sforce.SObject('Tender__c');
+                    tend.Opportunity__c = vURL;
+
+                    var resultCreate = sforce.connection.create([tend]);
+                  if (resultCreate[0].getBoolean("success")) {
+                    window.open('/'+resultCreate[0].id,'_parent');
+                  } else {
+                    alert("Failed to create Tender " + resultCreate[0]);
+                  }
+                } catch (e) {
+                    log(e);
+                }
+            }
+        }
+        // Create WinLossAnalysis
+        function createWinLossAnalysis(vOpp, lblConfirm) {
+            var conf = confirm(lblConfirm);
+            if(conf == true){
+                try
+                {
+                    var winLoss = new sforce.SObject('WinLossAnalysis__c');
+                    winLoss.Opportunity__c = vOpp;
+            
+                    var resultCreate = sforce.connection.create([winLoss]);
+                  if (resultCreate[0].getBoolean("success")) {
+                    window.open('/'+resultCreate[0].id+'/e?retURL=%2F'+resultCreate[0].id,'_parent');
+                  } else {
+                    alert("failed to create WinLoss Analysis " + resultCreate[0]);
+                  }
+                } catch (e) {
+                    log(e);
+                }
+            }
+        }
+        
+        // CF
+        function NewPeriodicReport() {      
+            // window.top.location.href = "/a0R/e?nooverride=1&CF00ND00000052yYC={!Opportunity.Name}&CF00ND00000052yYC_lkid={!Opportunity.Id}&retURL={!Opportunity.Id}";
+        }
+        
+        // svg support for IE11
+        svg4everybody();
+    </script>
+
+    <apex:variable var="TenderID" value="{!Opportunity.Tender__c}"/>
+    <body style="width:100%;display:inline-flex;">
+        <apex:form style="width:{!IF(listAlerts.size > 0, '50%', '100%')};">
+           <center> <table>
+                <tr>
+                    <td align="center">
+                        <apex:image id="findFull" url="{!URLFOR($Resource.FindFull)}" height="70" width="135" rendered="{!IF(statusOpp=='Win' || statusOpp=='',false,true)}" />
+                        <apex:image id="findEmpty" url="{!URLFOR($Resource.FindEmpty)}" height="70" width="135" rendered="{!IF(statusOpp=='Find',false,true)}" />
+                    </td>
+                    <td align="center">
+                        <apex:image id="winFull" url="{!URLFOR($Resource.WinFull)}" height="70" width="135" rendered="{!IF(statusOpp=='Find' || statusOpp=='',false,true)}" />
+                        <apex:image id="winEmpty" url="{!URLFOR($Resource.WinEmpty)}" height="70" width="135" rendered="{!IF(statusOpp=='Win',false,true)}" />
+                    </td><td></td>
+                    <td align="center">
+                        <apex:image id="wlaFull" url="{!URLFOR($Resource.WLAFull)}" height="70" width="135" rendered="{!IF(oppWLA=='Full',true,false)}" />
+                        <apex:image id="wlaEmpty" url="{!URLFOR($Resource.WLAEmpty)}" height="70" width="135" rendered="{!IF(oppWLA=='Empty',true,false)}" />
+                    </td>
+                </tr>
+                <tr>
+                    <td align="center">
+                        <apex:commandButton onClick="window.open('/apex/VFP13_OpportunityAssessment_Edit?id={!oppId}','_parent');" value="Create Find Plan" id="bCreateFindPlan"  rendered="{!IF(isFindPlan,false,true)}" />
+                        <apex:commandLink onClick="window.open('/apex/VFP12_OpportunityAssessment?id={!findPlanId}','_parent');" value="Go to FindPlan" id="lnkCreateFindPlan" style="color:blue;text-decoration:none" rendered="{!IF(isFindPlan,true,false)}" />
+                    </td>
+                    <td align="center">
+                        <apex:commandButton onClick="openWindow('{!oppId}', '{!$Label.LBL0063}');" value="Create Tender" id="bCreateTender"  rendered="{!IF(ISBLANK(TenderId),true,false)}" />
+                        <apex:commandLink onClick="window.open('/{!TenderId}','_parent');" value="Go to Tender" id="lnkCreateTender" style="color:blue;text-decoration:none" rendered="{!IF(ISBLANK(TenderId),false,true)}" />
+                    </td>
+                    <td>&nbsp;</td>
+                    <td align="center">
+                        <apex:commandButton onClick="createWinLossAnalysis('{!oppId}', '{!$Label.LBL0118}');" value="Create Win/Loss Analysis" id="bCreateWinLoss"  rendered="{!IF(isWinLoss,false,true)}" />
+                        <apex:commandLink onClick="window.open('/{!winLossId}','_parent');" value="Go to WinLoss" id="lnkWinLoss" style="color:blue;text-decoration:none" rendered="{!IF(isWinLoss,true,false)}" />
+                    </td>
+                </tr>
+            </table></center>
+        </apex:form>
+
+        <!-- Display Alerts -->
+        <apex:outputPanel layout="none" rendered="{!listAlerts.size > 0}">
+            <div class="slds" style="width:50%;">
+                <div class="slds-box slds-theme--error" style="min-height:66px;">
+                    <span>
+                      <svg aria-hidden="true" class="slds-icon slds-float--left">
+                        <use xlink:href="{!URLFOR($Resource.slds0120, '/assets/icons/utility-sprite/svg/symbols.svg#warning')}"></use>
+                      </svg>
+                      <span class="slds-assistive-text">Warning Icon</span>
+                    </span>
+                    <!-- Displaying the list of Alerts: 4 rows max, if more only 3 rows + a View more link -->
+                    <ul class="slds-list--dotted slds-text-body--small" style="margin-left:64px;color:inherit;{!IF(listAlerts.size==1,'padding-top:7px;','')}">
+                      <apex:repeat value="{!listAlerts}" var="alert" rows="{!IF(listAlerts.size > 3, 2, 3)}">
+                        <li>{!alert}</li>
+                      </apex:repeat>
+                      <apex:outputPanel layout="none" rendered="{!listAlerts.size > 3}">
+                        <li><apex:outputLink value="{!$Page.VFP40_Cockpit_AlertDetails}?id={!Opportunity.Id}" target="_top">{!$Label.LBL0343}</apex:outputLink></li>
+                      </apex:outputPanel>
+                    </ul>
+                </div>
+            </div>
+        </apex:outputPanel>
+    </body>
+
+    
+</html>
+</apex:page>

@@ -1,0 +1,10 @@
+<!--
+ * VFP49_BudgetLine_Date_Banner Visualforce page
+ * Christophe AVERSENG ~ christophe.averseng@sfr.fr
+ * 26/11/2013
+-->
+<apex:page standardController="BudgetLine__c">
+
+<apex:pageMessage summary="<b>Warning:</b> {!BudgetLine__c.TECH_DateWarning__c}" severity="error" strength="1" rendered="{!BudgetLine__c.TECH_DateWarning__c != ''}" escape="false" />
+
+</apex:page>

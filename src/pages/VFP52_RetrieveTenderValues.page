@@ -1,0 +1,7 @@
+<apex:page standardController="TenderSubmission__c" extensions="VFC52_RetrieveTenderValues" action="{!retrieveTenderValues}">
+	<apex:pageMessages />
+	<apex:variable var="tender" value="{!TenderSubmission__c.Tender__c}"/>
+	<apex:form >
+		<apex:commandButton action="{!back}" value="Back" />
+	</apex:form>
+</apex:page>

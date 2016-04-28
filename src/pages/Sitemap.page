@@ -1,0 +1,67 @@
+<apex:page contentType="text/xml" controller="SitemapController">
+
+<urlset
+      xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+      http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+	<url>
+		<loc>{!$label.LBL0318}/s/home.html</loc>
+		<link 
+			rel="alternate"
+			hreflang="en"
+			href="{!$label.LBL0318}/s/home.html?language=en_US" />
+		<link
+			rel="alternate"
+			hreflang="fr"
+			href="{!$label.LBL0318}/s/home.html?language=fr_FR" />
+	</url>
+	<url>
+		<loc>{!$label.LBL0318}/s/training.html</loc>
+		<link 
+			rel="alternate"
+			hreflang="en"
+			href="{!$label.LBL0318}/s/training.html?language=en_US" />
+		<link
+			rel="alternate"
+			hreflang="fr"
+			href="{!$label.LBL0318}/s/training.html?language=fr_FR" />
+	</url>
+	<url>
+		<loc>{!$label.LBL0318}/s/spareparts.html</loc>
+		<link 
+			rel="alternate"
+			hreflang="en"
+			href="{!$label.LBL0318}/s/spareparts.html?language=en_US" />
+		<link
+			rel="alternate"
+			hreflang="fr"
+			href="{!$label.LBL0318}/s/spareparts.html?language=fr_FR" />
+	</url>
+	<url>
+		<loc>{!$label.LBL0318}/s/spareparts_categorie_list.html</loc>
+		<link 
+			rel="alternate"
+			hreflang="en"
+			href="{!$label.LBL0318}/s/spareparts_categorie_list.html?language=en_US" />
+		<link
+			rel="alternate"
+			hreflang="fr"
+			href="{!$label.LBL0318}/s/spareparts_categorie_list.html?language=fr_FR" />
+	</url>
+	<apex:repeat value="{!listParts}" var="partId">
+	<url>
+		<loc>{!$label.LBL0318}/s/spareparts_categorie_list.html?partId={!partId}</loc>
+		<link 
+			rel="alternate"
+			hreflang="en"
+			href="{!$label.LBL0318}/s/spareparts_categorie_list.html?partId={!partId}&language=en_US" />
+		<link
+			rel="alternate"
+			hreflang="fr"
+			href="{!$label.LBL0318}/s/spareparts_categorie_list.html?partId={!partId}&language=fr_FR" />
+	</url>
+	</apex:repeat>
+</urlset>
+</apex:page>

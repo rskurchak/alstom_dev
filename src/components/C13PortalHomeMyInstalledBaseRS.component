@@ -1,0 +1,53 @@
+<!--
+ C13PortalHomeMyInstalledBase
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the My Fleet Support Installed Base dialog box containing Installed Base associated to his Account.
+--> 
+<apex:component controller="VFC70_PortalComponentPagination">
+  <apex:attribute name="listo" description="Objecttype" type="InstalledBaseRS__c[]" required="false" assignTo="{!idList}"/>
+  <apex:attribute name="listofield" description="fieldlist." type="string[]" required="false" assignTo="{!SobjFieldList}"/>     
+  <apex:attribute name="listoheader" description="Header bulletin or alert." type="string" required="false"/>     
+  <apex:attribute name="listopagesize" description="page size." type="Integer" required="false" assignTo="{!pagesize}"/>       
+  <apex:attribute name="listorelatedlistname" description="Name of related list to count." type="string" required="false" assignTo="{!relatedlistname}"/> 
+  <apex:attribute name="listomyinstalledbaseRSListViewURL" description="Link to My Installed Base RS List View." type="string" required="false"/> 
+    <apex:form >
+    	<apex:outputPanel layout="block" styleClass="widget_inner" id="widgetPanel">
+		      <div class="installedBase">
+		        <h2><strong>{!UPPER($Label.LBL0154)}</strong></h2>
+				<apex:outputPanel rendered="{!SObjectRecs.size > 0}">
+			        <div class="widget_body">
+			               <apex:repeat value="{!SObjectRecs}" var="rec">
+			                <hr/>
+			                <div class="clearfix">
+			                    <a title="{!rec.sObjectRec['name']}" href="/apex/InstalledBaseRSEditor?Id={!rec.sObjectRec['id']}"><apex:outputText styleClass="pull-left IBImageContent" escape="false" value="{!rec.imageurl}"/></a>
+			                    <p class="titreInfosTech"><a title="{!rec.sObjectRec['name']}" href="/apex/InstalledBaseRSEditor?Id={!rec.sObjectRec['id']}"><strong>{!rec.sObjectRec['name']}</strong></a></p>
+			                    <p>{!rec.sObjectRec['NetworkLineCity__c']}<br/>
+			                    {!rec.sObjectRec['AlstomProductName__c']}<br/>
+			                    {!rec.sObjectRec['TechSupplierCurrentName__c']}<br/></p>
+			                </div>
+			                </apex:repeat>
+							<table align="center"><tbody><tr>
+							<td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_pressed.png';" status="fetchStatus" reRender="widgetPanel" action="{!setRecords.first}" disabled="{!!setRecords.HasPrevious}" /></td>
+							<td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_pressed.png';" status="fetchStatus" reRender="widgetPanel" action="{!setRecords.previous}" disabled="{!!setRecords.HasPrevious}" /></td>
+							<td class="pagination"><apex:outputText value="{!setRecords.pageNumber}/{!ceiling(setRecords.resultSize/setRecords.pageSize)}"/></td>
+							<td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_next_pressed.png';" status="fetchStatus" reRender="widgetPanel" action="{!setRecords.next}" disabled="{!!setRecords.HasNext}" /></td>
+							<td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_next_pressed.png';" status="fetchStatus" reRender="widgetPanel" action="{!setRecords.last}" disabled="{!!setRecords.HasNext}" /></td>
+							<td><apex:actionStatus id="fetchStatus">
+								<apex:facet name="start"><apex:image url="{!URLFOR($Resource.ComIMG, 'ComIMG/ajax_spin.gif')}" style="height:19px;width=19px;"/></apex:facet>
+							</apex:actionStatus></td>
+							</tr></tbody></table>
+			             <div class="knowMore">
+			             	<a href="{!listomyinstalledbaseRSListViewURL}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more31_grey_enable.png')}" alt="{!$Label.LBL0197}"/></a>
+			             </div>
+			          </div>
+				</apex:outputPanel>
+				<apex:outputPanel rendered="{!SObjectRecs.size = 0}">
+					<div class="widget_body  AlstomMedium">
+						<p>{!$Label.LBL0199}</p>
+					</div>
+				</apex:outputPanel>
+	          </div>
+      </apex:outputPanel>
+    </apex:form>
+</apex:component>

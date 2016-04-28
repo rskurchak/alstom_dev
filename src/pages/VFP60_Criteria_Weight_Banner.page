@@ -1,0 +1,10 @@
+<!--
+ * VFP60_Criteria_Wieght_Banner Visualforce page
+ * Christophe AVERSENG ~ christophe.averseng@sfr.fr
+ * 21/11/2013
+-->
+<apex:page standardController="WinLossAnalysis__c" extensions="VFC60_Criteria_Weight_Banner">
+
+<apex:pageMessage summary="<b>Warning:</b> {!wlaTECHCriteriaBannerMessage }" severity="error" strength="1" rendered="{!isEmptyTECHCriteriaBannerMessage != true}" escape="false" />
+
+</apex:page>

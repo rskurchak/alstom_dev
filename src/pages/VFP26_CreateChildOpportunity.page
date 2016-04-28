@@ -1,0 +1,11 @@
+<apex:page standardController="Opportunity">
+	<script type="text/javascript">
+		// CF
+		function newChildOpportunity() {
+			window.top.location.href = "/006/e?nooverride=1&opp4_lkid={!Opportunity.AccountId}&{!$label.LBL0045}={!Opportunity.Country__c}&opp16={!Opportunity.CurrencyIsoCode}&CF{!$label.LBL0046}={!Opportunity.Name}&CF{!$label.LBL0046}_lkid={!Opportunity.Id}&retURL={!Opportunity.Id}";		
+		}
+	</script>
+	<apex:form style="text-align:center;" >
+		<apex:commandButton onclick="newChildOpportunity()" value="Create Child Opportunity" rendered="{!Opportunity.IsAGlobalOpportunity__c}"/>
+	</apex:form>
+</apex:page>

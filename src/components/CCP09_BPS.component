@@ -1,0 +1,221 @@
+<apex:component controller="CCC09_BPS" allowDML="true" >
+    <!-- 
+        CCP09_BPS - Custom component to display a WCS BPS block in edit mode
+            ~ Author            :   Damian Hercun  ~ damian.hercun@axoa.fr
+            ~ Date Created      :   20/12/2011
+    -->
+
+    <!-- ATTRIBUTES -->
+    <apex:attribute name="oppId" assignTo="{!oppId}" type="String" required="true" description="Id of the current opportunity"/> 
+
+    <!-- RESOURCES (css, js) -->
+    <apex:includeScript value="{!URLFOR($Resource.JQuery_LIB, 'js/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQuery_LIB, 'js/jquery-ui.min.js')}"/>
+    <apex:styleSheet value="{!URLFOR($Resource.JQuery_LIB,'css/jquery-ui.css')}"/>  
+    <style type="text/css">
+        .columnClasses{ min-width:180px; }
+        .columnClasses6 { /*width:12%;*/ }
+        .columnLabel { font-weight:bold; font-size:91%; color:#4A4A56; }
+        .lrigth { margin-left:15px;}
+        /*.bPageBlock .detailList th, .bPageBlock .detailList td { white-space:nowrap; }*/
+        .pbSubheader {/*!standard sfdc css*/ margin-top:0;}
+        .helpText{z-index:1200;}
+        .detailPage .bPageBlock, .editPage .bPageBlock { /*!standard sfdc css*/ border-top-width:4px; }
+    </style>
+    
+    <script type="text/javascript">
+        // Loading component using jQuery library
+        var jsId = [];
+        var thisElementId, thisBlockId, thisPersonId, thisIsCollapse;
+        var componentBPSlanEdit = jQuery.noConflict(); 
+        componentBPSlanEdit(document).ready(function() {
+            componentBPSlanEdit("#BPSlanEdit").dialog({ 
+                modal:                  true,
+                zIndex:                 1010,
+                iframe:                 true,  
+                autoOpen:               false,
+                width:                  800,
+                height:                 'auto', 
+                maxHeight:              650,
+                resizable:              false, 
+                closeOnEscape:          false, 
+                dialogClass:            'flora' 
+            }); // fold, 
+            /*componentBPSlanEdit('.flora.ui-dialog').css({position:"fixed"});
+            componentBPSlanEdit(".ui-resizable").stop(function() {
+                componentBPSlanEdit(".flora.ui-dialog").css({position:"fixed"});
+            });*/
+            componentBPSlanEdit('.ui-dialog-titlebar').hide(); 
+        });
+        
+
+        
+    </script>
+        
+    <div id="BPSlanEdit" style="display:none;">
+        <div style="text-align:left;">
+            <apex:form > 
+            <!-- STATUS -->
+            <apex:actionStatus id="status" onstart="componentLoading('#loadingDialog').dialog('open');" onstop="componentLoading('#loadingDialog').dialog('close');"/>
+            
+            <apex:pageBlock id="bpsEdit" mode="edit" tabStyle="Contact">
+                
+                <!-- hidden fields -->
+                <apex:inputHidden value="{!bpsId}" id="bpsId"/>
+                <script>jsId["bpsId"] = "{!$Component.bpsId}";</script>
+                <apex:inputHidden value="{!oppId}" id="oppId"/>
+                <apex:inputHidden value="{!jsCallBack}" id="jsCallBack"/>
+                <script>jsId["jsCallBack"] = "{!$Component.jsCallBack}";</script>
+
+                <!-- MESSAGE & JavaScript Callback -->
+                <apex:pageMessages id="pageMessages"/>
+                            
+                <!-- RADION BUTTONS SECTION -->
+                <apex:pageBlockSection columns="2" id="pbs">
+                    <apex:outputPanel >
+                        <apex:selectRadio layout="pageDirection" value="{!actionType}" id="actionType" onclick="switchRadio()">
+                            <apex:selectOption itemValue="createEXC" itemLabel="Save as anonymous Contact"/>
+                            <apex:selectOption itemValue="createBPS" itemLabel="Create new Buying Center Stakeholder"/>
+                        </apex:selectRadio>
+                        <script>jsId["actionType"] = "{!$Component.actionType}";</script>
+                    </apex:outputPanel>
+                    <apex:outputPanel layout="block" style="text-align:right; vertical-align:center;">
+                        <!-- BUTTONS -->
+                        <apex:commandButton value="Save" action="{!saveBPS}" status="status" rerender="bpsEdit" onclick="setDefaultJsCallBack()" oncomplete="doCallBack()"/>
+                        <apex:commandButton value="Cancel" action="{!cancel}" status="status" rerender="bpsEdit" onclick="resetForm()" oncomplete="doCallBack()"/>
+                    </apex:outputPanel>
+                    
+                </apex:pageBlockSection>
+
+                
+                <!-- INFORMATION SECTION -->
+                <apex:pageBlockSection columns="2" title="INFORMATION" id="bpsMain">
+                    <!-- CONTACT +++ ALSTOM USER -->
+                    <apex:pageBlockSectionItem id="pbsitem">
+                        <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.ContactName__c.Label}"/>
+                        <apex:panelGrid columns="2" columnClasses="columnClasses">
+                            <apex:outputPanel >
+                                <apex:outputPanel id="contactSection">
+                                    <apex:inputField value="{!bps.ContactName__c}" id="contact">
+	                                    <apex:actionSupport event="onchange" status="status" rerender="contactTitle, contactStr"/>
+                                    </apex:inputField>
+                                    <br />
+                                    <script>jsId["contact"] = "{!$Component.contact}";</script>
+                                    <apex:inputHidden value="{!contactTitle}" id="contactTitle"/>
+                                    <script>jsId["contactTitle"] = "{!$Component.contactTitle}";</script>
+                                </apex:outputPanel>
+                                <script>jsId["contactSection"] = "{!$Component.contactSection}";</script>
+                                <apex:inputText value="{!extContactName}" id="externalContact"/>
+                                <script>jsId["externalContact"] = "{!$Component.externalContact}";</script>
+                            </apex:outputPanel>
+                        </apex:panelGrid>
+                    </apex:pageBlockSectionItem>
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.AlstomUser__c.Label}"/>
+                        <apex:panelGrid columns="2" columnClasses="columnClasses">
+                            <apex:outputPanel >
+                                <apex:outputPanel id="alstomUserSection">
+                                <apex:inputField value="{!bps.AlstomUser__c}" id="alstomUser"/>
+                                    <script>jsId["alstomUser"] = "{!$Component.alstomUser}";</script>
+                                </apex:outputPanel>
+                            </apex:outputPanel>
+                        </apex:panelGrid>
+                    </apex:pageBlockSectionItem>
+                </apex:pageBlockSection>
+
+                <!-- Detail SECTION -->
+                <apex:pageBlockSection columns="1" title="ROLE" id="bpsRole">
+                    <apex:panelGrid columns="2" columnClasses="" style="width:100%;">
+                    
+                    	 <apex:panelGrid columns="2" columnClasses="columnClasses6" style="width:100%;">
+                    	 
+                         <!-- Role section -->
+                            <apex:outputLabel value="Role" styleClass="columnLabel lrigth"/>
+                            <apex:pageBlockSection columns="1">
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputPanel >
+                                        <apex:inputField value="{!bps.User__c}" id="user"/>
+                                        <script>jsId["user"] = "{!$Component.user}";</script>
+                                    </apex:outputPanel>
+                                    <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.User__c.Label}" styleClass="columnLabel"/>            
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputPanel >
+                                        <apex:inputField value="{!bps.DecisionMaker__c}" id="decisionMaker"/>
+                                        <script>jsId["decisionMaker"] = "{!$Component.decisionMaker}";</script>
+                                    </apex:outputPanel>
+                                    <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.DecisionMaker__c.Label}" styleClass="columnLabel"/>               
+                                </apex:pageBlockSectionItem>
+                                <apex:pageBlockSectionItem >
+                                    <apex:outputPanel >
+                                        <apex:inputField value="{!bps.Consultant__c}" id="consultant"/>
+                                        <script>jsId["consultant"] = "{!$Component.consultant}";</script>
+                                    </apex:outputPanel>
+                                    <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.Consultant__c.Label}" styleClass="columnLabel"/>              
+                                </apex:pageBlockSectionItem>
+<!--                                 <c:CCP08_IconPicklist picklistId="pickBPSRole" picklistValues="{!WCSIcons}"/>    -->
+                            </apex:pageBlockSection>    
+                        </apex:panelGrid>
+                        
+                        <apex:panelGrid columns="4" columnClasses="columnClasses6" style="width:100%;">
+                           
+                           <!-- Attitude -->
+                            <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.Attitude__c.Label}" styleClass="columnLabel lrigth"/>
+                            <apex:outputPanel >
+                                <apex:inputField value="{!bps.Attitude__c}" id="attitude"/>
+                                <script>jsId["attitude"] = "{!$Component.attitude}";</script>
+<!--                                 <c:CCP08_IconPicklist picklistId="pickBPSAttitude" picklistValues="{!WCSIcons}"/> -->
+                            </apex:outputPanel>
+    
+    						<!-- Promotor Type -->
+                            <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.PromotorType__c.Label}" styleClass="columnLabel lrigth"/>
+                            <apex:outputPanel >
+                                <apex:inputField value="{!bps.PromotorType__c}" id="promotorType"/>
+                                <script>jsId["promotorType"] = "{!$Component.promotorType}";</script>
+<!--                                 <c:CCP08_IconPicklist picklistId="pickBPSPromotorType" picklistValues="{!WCSIcons}"/> -->
+                            </apex:outputPanel>
+    
+                            <!-- Influence -->
+                            <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.Influence__c.Label}" styleClass="columnLabel lrigth"/>
+                            <apex:outputPanel >
+                                <apex:inputField value="{!bps.Influence__c}" id="influence"/>
+                                <script>jsId["influence"] = "{!$Component.influence}";</script>
+<!--                                 <c:CCP08_IconPicklist picklistId="pickBPSInfluence" picklistValues="{!WCSIcons}"/> -->
+                            </apex:outputPanel>
+    
+                            <!-- Typology -->
+                            <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.Typology__c.Label}" styleClass="columnLabel lrigth"/>
+                            <apex:outputPanel >
+                                <apex:inputField value="{!bps.Typology__c}" id="typology"/>
+                                <script>jsId["typology"] = "{!$Component.typology}";</script>
+                            </apex:outputPanel>
+                        </apex:panelGrid>
+                        
+                    </apex:panelGrid>
+                </apex:pageBlockSection>
+                
+                <!-- CUSTOMER NEEDS SECTION -->
+                <apex:pageBlockSection columns="1" title="CUSTOMER NEEDS" id="bpsCustNeeds">
+                    
+                    <!-- Comments -->
+                    <apex:pageBlockSectionItem >
+                        <apex:outputLabel value="{!$ObjectType.BuyingProcessStakeholder__c.fields.Comments__c.Label}"/>
+                        <apex:panelGrid columns="2" columnClasses="columnClasses">
+                            <apex:outputPanel >
+                                <apex:inputField value="{!bps.Comments__c}" style="width:350px; height:30px;" id="comments"/>
+                                <script>jsId["comments"] = "{!$Component.comments}";</script>   
+                            </apex:outputPanel>
+<!--                             <c:CCP08_IconPicklist picklistId="pickBPSComments" picklistValues="{!WCSIcons}"/> -->
+                        </apex:panelGrid>
+                    </apex:pageBlockSectionItem>
+        
+                </apex:pageBlockSection>
+                
+                <apex:outputPanel layout="block" style="margin-top:25px;">&nbsp;</apex:outputPanel>         
+            </apex:pageBlock>
+            
+            </apex:form>
+        </div>
+    </div>
+    
+</apex:component>

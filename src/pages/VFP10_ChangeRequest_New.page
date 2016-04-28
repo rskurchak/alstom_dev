@@ -1,0 +1,6 @@
+<!-- 
+    ~ Author            : Mohamed El Moussaoui
+    ~ Date Created      : 2012
+    ~ Description       : Overrides Button New
+-->
+<apex:page standardController="ChangeRequest__c" action="{!URLFOR('/a00/e', null, [CF00ND0000004F6T5_lkid=$User.Id, CF00ND00000052xRd_lkid=$Label.LBL0010, CF00ND00000052xRd=$Label.LBL0009, retURL=$CurrentPage.parameters.retURL], true)}&CF00ND0000004F6T5={!$User.FirstName} {!$User.LastName}"/>

@@ -1,0 +1,25 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   Verification of permission to delete should be done in Apex Trigger.
+ Remove this box once modification done.
+*********************************************************************-->
+
+<apex:page standardController="BudgetLine__c" extensions="VFC50_BudgetLine_ApprovalStatus" action="{!IF(NOT(fi15.ApprovalStatus__c == $Label.LBL0106), URLFOR($Action.BudgetLine__c.Delete, BudgetLine__c.id, [id=BudgetLine__c.id, retURL=$CurrentPage.parameters.retURL], true),'')}">
+    <apex:pageMessages />                       
+    <apex:form >
+        <apex:inputHidden value="{!BudgetLine__c.CreatedById}"/>
+        <apex:inputHidden value="{!BudgetLine__c.Name}"/>
+        <apex:inputHidden value="{!BudgetLine__c.FI15__c}"/>
+        <apex:sectionHeader title="Budget Line" subtitle="Delete : {!BudgetLine__c.Name} related to {!fi15.Name}"/>
+        <!-- Info msg shown to the user to explain why he has been redirected to this page-->
+        <apex:pageMessage summary="{!$Label.LBL0108}" severity="info" strength="1"> <!--Delete error msg -->
+            <apex:outputLink style="color:#015ba7;" value="/{!BudgetLine__c.Id}">Back to Budget Line: {!BudgetLine__c.Name}</apex:outputLink>
+        </apex:pageMessage>
+    </apex:form>  
+</apex:page>

@@ -1,0 +1,29 @@
+<!-- 
+        VFP54_InstalledBaseRS_Clone
+            ~ Author            : Jawad GHOULAM ~ jawad.ghoulam@cgi.com 
+            ~ Date Created      : 05/11/2013
+     		~ Description       : Controlled by VFC54_InstalledBaseRS_Clone
+    		~ Description       : Clone Installed Base RS Object and all related children Subsystem Rolling Stock 
+-->
+<apex:page standardController="InstalledBaseRS__c" extensions="VFC54_InstalledBaseRS_Clone" >
+	<apex:form >
+	    <apex:actionFunction action="{!doClone}" name="JSDoInit" rerender="out" status="myStatus" />
+	    <apex:actionFunction action="{!CancelClone}" name="CancelClone" status="myStatus2" />
+	    
+		<apex:pageMessage summary="This action will clone the Installed Base RS and related Subsystem Rolling Stock. <br/> Please confirm the creation of a copy of this Installed Base RS." severity="confirm" strength="3" escape="false" />
+<center>
+				<apex:commandButton value="Clone" onclick="JSDoInit(); return false; "/>
+				<apex:commandButton value="Cancel" onclick="CancelClone(); return false;"/>
+</center>
+
+    </apex:form>
+<apex:outputPanel id="out">
+       <apex:actionStatus startText="Cloning... {InstalledBaseRS__c.Id}" id="myStatus">
+           <apex:facet name="start" >Processing... 
+           </apex:facet>
+       </apex:actionStatus>
+	<apex:messages rendered="false"/>
+	<apex:pageMessages />
+</apex:outputPanel>
+
+</apex:page>

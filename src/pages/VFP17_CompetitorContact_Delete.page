@@ -1,0 +1,32 @@
+<!--*********************************************************************
+ SANITY CHECK Feb. 2014 - CODE MODIFICATION REQUIRED
+ Modify code following instructions below.
+ Remove this box once modifications done.
+*********************************************************************-->
+
+<!--*********************************************************************
+ SANITY CHECK INSTRUCTION: 
+   It is best practice to verify delete permissions in Apex Trigger so 
+   it is enforced every there in the application.
+ Remove this box once modification done.
+*********************************************************************-->
+
+<!-- VFP17_CompetitorContact_Delete
+        ~ Author        : Mohamed EL MOUSSAOUI mohamed.el-moussaoui@axoa.fr 
+        ~ Date Created  : 25/07/2012
+        ~ Description   : Overrides Delete button to allow delete only if the current user is the owner of the Competitor Contact
+-->
+
+<apex:page standardController="CompetitorsContact__c" action="{!IF(NOT(CompetitorsContact__c.OwnerId != $User.Id), URLFOR($Action.CompetitorsContact__c.Delete, CompetitorsContact__c.id, [id=CompetitorsContact__c.id, retURL=$CurrentPage.parameters.retURL], true),'')}">
+    <apex:pageMessages />                       
+    <!-- DO NOT REMOVE THESE VARIABLES -->
+    <apex:form >
+        <apex:inputHidden value="{!CompetitorsContact__c.OwnerId}"/>
+        <apex:inputHidden value="{!CompetitorsContact__c.Name}"/>
+        <apex:sectionHeader title="Competitors Contact" subtitle="Delete : {!CompetitorsContact__c.Name}"/>
+        <!-- Info msg shown to the user to explain why he has been redirected to this page-->
+        <apex:pageMessage summary="{!$Label.LBL0030}" severity="info" strength="1"> <!--delete error msg -->
+            <apex:outputLink style="color:#015ba7;" value="/{!CompetitorsContact__c.Id}">Back to Competitors Contact: {!CompetitorsContact__c.Name}</apex:outputLink>
+        </apex:pageMessage>
+    </apex:form>    
+</apex:page>

@@ -1,0 +1,6 @@
+<!-- VFP03_Opportunity_New
+		~ Author		: Mohamed EL MOUSSAOUI mohamed.el-moussaoui@axoa.fr 
+		~ Date Created  : 22/12/2011
+		~ Description   : Overrides Button New to initialize StageName and Country__c and Account
+-->
+<apex:page standardController="Opportunity" action="{!URLFOR('/006/e', null, [opp4_lkid=Opportunity.AccountId, opp11=$Label.LBL0001, retURL=$CurrentPage.parameters.retURL], true)}&00ND0000003R51w={!$User.Country}"/>

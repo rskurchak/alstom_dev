@@ -1,0 +1,131 @@
+<!--
+ C14PortalHomeNews
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to present the General and Tips & Tutorial News.
+-->
+<apex:component controller="VFC70_PortalComponentPagination">
+<apex:attribute name="listo" description="Objecttype" type="News__c[]" required="false" assignTo="{!idList}"/>
+<apex:attribute name="listofield" description="fieldlist." type="string[]" required="false" assignTo="{!SobjFieldList}"/>     
+<apex:attribute name="listopagesize" description="page size." type="Integer" required="false" assignTo="{!pagesize}"/>     
+<apex:attribute name="listoheader" description="Header bulletin or alert." type="string" required="false"/>     
+<apex:attribute name="listorelatedlistname" description="Name of related list to count." type="string" required="false" assignTo="{!relatedlistname}"/> 
+<apex:attribute name="listoNewsListViewURL" description="Link to News List View." type="string" required="false"/> 
+<apex:attribute name="showPortalHome" description="Show PortalHome." type="Boolean" required="false"/> 
+
+    <style type="text/css">
+        .htmlDetailElementTable td {
+            padding: 0px;
+        }
+        .pagination {
+            font-size: 11px;
+            color: #9f9f9f;
+        }
+        .newsPagination {
+            margin-left:30px;
+        }
+        .pgPrevNext {
+            border: 0px !important;
+            padding: 0px !important;
+            background: none !important;
+            box-shadow: none !important;
+            outline: none !important;
+            -moz-border-radius: 0px !important;
+            -webkit-border-radius: 0px !important;
+            border-radius: 0px !important;
+        }
+        .btnDisabled {
+            cursor: default !important;
+        }
+        .photoBanner h1 {
+            top: 180px !important;
+            left: 30px !important;
+        }
+        .photoBanner h1 a {
+            color: #fff;
+        }    
+        .widget_header_News {
+            background: #427cb5 !important;
+            border: none !important;
+            border-spacing: 50px;
+            box-shadow: none !important;
+            color: #FFFFFF;
+            font-weight: bold;
+            padding-bottom: 3px;
+            padding-left: 3px;
+            padding-top: 3px;
+        }        
+        .widget_header_News div {
+            padding: 5px 10px 5px 47px;
+            background : url("/resource/ComIMG/ComIMG/my_news_btn.png") 7px 1px no-repeat !important;
+            text-transform: uppercase;
+            font-family: AlstomLight, sans-serif;
+            font-weight: normal;
+            font-size: 16px;
+        }    
+    </style>
+    
+    <apex:form >
+        <apex:outputPanel layout="block" styleclass="widget_inner" style="" id="newsPanel"> 
+            <apex:outputPanel rendered="{!showPortalHome}"> 
+                <div class="widget_header_News">
+                    <div>{!$Label.News}</div>
+                </div>
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!SObjectRecs.size > 0}">
+                <apex:outputPanel rendered="{!!showPortalHome}">
+                    <apex:repeat value="{!SObjectRecs}" var="rec">
+                        <div class="imgContain centerContent" id="thumbs">          
+                            <div class="photoBanner" id="banner" style="background: url('{!rec.imageurl}') no-repeat scroll left top / 100% auto rgba(0, 0, 0, 0);filter: progid:DXImageTransform.Microsoft.AlphaImageLoader(src='{!rec.imageurl}',sizingMethod='scale');">
+                            <h1>
+                                <a href="/apex/VFP76_PortalNewsDetail?id={!rec.sObjectRec['id']}">
+                                    <apex:outputtext value="{!rec.sObjectRec['Name']}" escape="false"/>
+                                </a>
+                            </h1>
+                        </div><p class="contenuHome clearfix"><apex:outputtext value="{!rec.sObjectRec['Summary__c']}" escape="fase"/></p>
+                    </div>      
+                    </apex:repeat>
+                </apex:outputPanel>
+                <apex:outputPanel rendered="{!showPortalHome}"> 
+                    <div class="widget_body">
+                        <apex:repeat value="{!SObjectRecs}" var="rec">
+                            <div class="readStatus pull-right" style="border-color: #e6e6e6 #e6e6e6 #bfbfbf !important;">
+                                <apex:outputText value="{!$Label.LBL0379}">
+                                    <apex:param value="{!rec.sObjectRec['PublicationDate__c']}"/>
+                                </apex:outputText>
+                            </div>
+                            <p><a href="/apex/VFP76_PortalNewsDetail?id={!rec.sObjectRec['id']}"><strong>{!rec.sObjectRec['Name']}</strong><br/>
+                            {!rec.sObjectRec['Summary__c']}</a></p>
+                        </apex:repeat>
+                    </div>
+                </apex:outputPanel>
+                <table align="center"><tbody><tr>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_pressed.png';" status="fetchStatus" reRender="newsPanel" action="{!setRecords.first}" disabled="{!!setRecords.HasPrevious}" /></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_pressed.png';" status="fetchStatus" reRender="newsPanel" action="{!setRecords.previous}" disabled="{!!setRecords.HasPrevious}" /></td>
+                <td class="pagination"><apex:outputText value="{!setRecords.pageNumber}/{!ceiling(setRecords.resultSize/setRecords.pageSize)}"/></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_next_pressed.png';" status="fetchStatus" reRender="newsPanel" action="{!setRecords.next}" disabled="{!!setRecords.HasNext}" /></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_next_pressed.png';" status="fetchStatus" reRender="newsPanel" action="{!setRecords.last}" disabled="{!!setRecords.HasNext}" /></td>
+                <td><apex:actionStatus id="fetchStatus">
+                    <apex:facet name="start"><apex:image url="{!URLFOR($Resource.ComIMG, 'ComIMG/ajax_spin.gif')}" style="height:19px;width=19px;"/></apex:facet>
+                </apex:actionStatus></td>
+                </tr></tbody></table>
+                
+                <apex:outputPanel rendered="{!!showPortalHome}" styleClass="btnPlus" style="display: block; bottom: 30px;"> 
+                    <a href="{!listoNewsListViewURL}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more31_grey_enable.png')}"/></a>
+                </apex:outputPanel> 
+
+                <apex:outputPanel rendered="{!showPortalHome}" styleClass="widget_body" style="display: block;">  
+                  <div class="knowMore">
+                    <a href="{!listoNewsListViewURL}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more25_blue1_enable.png')}"/></a>
+                  </div>
+                </apex:outputPanel>   
+            </apex:outputPanel>
+            <apex:outputPanel rendered="{!SObjectRecs.size = 0}">
+                <div class="widget_body AlstomMedium">
+                    <p>{!$Label.LBL0199}</p>
+                </div>
+            </apex:outputPanel> 
+        </apex:outputPanel>
+       
+    </apex:form>
+</apex:component>

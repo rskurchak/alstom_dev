@@ -1,0 +1,36 @@
+<!--
+ VFP74_BulletinCreateReadReceipt
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Page to show button to confirm the bulletin/alert read action.
+-->
+<apex:page standardController="Bulletin__c" extensions="VFC74_BulletinCreateReadReceipt" sidebar="false" >
+    <apex:stylesheet value="{!$Resource.ComCSS}"/>
+    <style>
+	    html .brandQuaternaryBgr {
+	    background: none repeat scroll 0 0 #FFFFFF !important;
+	}
+    	body .btn {
+	    background: #8AB529 !important;
+	    border: 1px solid #6C8049 !important;
+	    border-radius: 2px !important;
+	    box-shadow: 0 1px 2px 0 #ADADAD !important;
+	    color: #FFFFFF !important;
+	    display: inline-block !important;
+	    font-family: Arial !important; 
+	    font-size: 1.08em !important;
+	    height: 30px !important;
+	    margin: 0 !important;
+	    padding: 0 10px 1px !important;
+	}
+    </style>
+    
+    <apex:form style="text-align:center;" >
+    	<div class="widget_inner">
+	        <apex:actionFunction name="BulletinCreateReadReceipt" action="{!createReadReceipt}" reRender="x"/>
+	        <apex:commandButton rerender="x" value="{!$Label.LBL0202}" action="{!createReadReceipt}" oncomplete="if({!!isAlert}) window.top.location='/apex/VFP64_PortalHome';"  rendered="{!NotRead}"/>
+	        <apex:outputpanel id="x"> 
+	        </apex:outputpanel>
+    	</div>
+    </apex:form> 
+</apex:page>

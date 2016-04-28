@@ -1,0 +1,40 @@
+<apex:component >
+	<!-- 
+		Loading component using jQuery library
+			~ Author			: 	Adrian Modolea ~ adrian.modolea@axoa.fr
+									Damian Hercun  ~ damian.hercun@axoa.fr
+			~ Date Created		: 	02/12/2011
+	-->
+	<apex:includeScript value="{!URLFOR($Resource.JQuery_LIB, 'js/jquery.min.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.JQuery_LIB, 'js/jquery-ui.min.js')}"/>
+    <apex:styleSheet value="{!URLFOR($Resource.JQuery_LIB,'css/jquery-ui.css')}"/>
+	<style type="text/css">.helpText{z-index:1200;}</style>
+	
+    <apex:attribute name="displayMessage" type="String" required="false" description=""/>
+    
+    <script type="text/javascript">
+    	var componentLoading = jQuery.noConflict(); 
+        componentLoading(document).ready(function() {
+            componentLoading("#loadingDialog").dialog({ 
+                modal:                  true, 
+                autoOpen:               false,
+                width:                  150,
+                height:					55, 
+                resizable:              false, 
+                closeOnEscape:          false, 
+                dialogClass:            'flora' 
+            }); // fold, 
+            componentLoading('.flora.ui-dialog').css({position:"fixed"});
+            componentLoading(".ui-resizable").stop(function() {
+                $(".flora.ui-dialog").css({position:"fixed"});
+            });
+            componentLoading('.ui-dialog-titlebar').hide(); 
+        });
+        
+    </script>
+        
+    <div id="loadingDialog" style="display:none;background-color:#fff; border:3px solid #0099DB;text-align:center;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;">
+		<div><img src="{!URLFOR($Resource.JQuery_LIB,'img/LoadingIcon.gif')}" align="absmiddle"/>&nbsp;&nbsp;<span id="statusMessage">{!displayMessage}</span></div>
+	</div>
+	
+</apex:component>

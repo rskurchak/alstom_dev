@@ -1,0 +1,497 @@
+<!-- VFP08_Opportunity_BOExecutiveSummary
+        ~ Author        : Mohamed EL MOUSSAOUI mohamed.el-moussaoui@axoa.fr 
+        ~ Date Created  : 09/08/2012
+        ~ Description   : Custom list button on Opportunity to access the BO Executive Summary  
+        ~ Feature Id    : FEAT#0388 
+-->
+<apex:page id="page" standardController="Opportunity" extensions="VFC08_Opportunity_BOExecutiveSummary" renderas="pdf" sidebar="false" showHeader="false" >
+    <head>
+        <style type="text/css">
+            @page 
+            { 
+                size:34,5cm 27cm;
+                margin-top: 0in;
+                margin-left: 0.15in; 
+                margin-right: 0.15in;
+                size: landscape;  /* Landscape orientation */
+                @bottom-left { content: element(footerLeft);}
+                @bottom-right {content: element(headerleft);}
+            }
+            .titre {text-decoration:underline; color:#1F497D; font-weight:bold;}
+            .cadrage {border:solid 2px #1F497D;}
+            div.headerLeft { position: running(headerLeft); } 
+            div.footerLeft { position: running(footerLeft); }
+            .coutourGris {border-bottom-color: #DCCFE9;border-bottom-style:solid;border-top-color: #DCCFE9;border-top-style:solid;border-right-color: #DCCFE9;border-right-style:solid;border-left-color: #DCCFE9;border-left-style:solid;}
+            .coutour {border-bottom-color: black;border-bottom-style:solid;border-top-color: black;border-top-style:solid;border-right-color: black;border-right-style:solid;border-left-color: black;border-left-style:solid;}
+            .coutourContextReminder {border-bottom-color: #F00FE9;border-bottom-style:solid;border-top-color: #F00FE9;border-top-style:solid;border-right-color: #F00FE9;border-right-style:solid;border-left-color: #F00FE9;border-left-style:solid;}
+            .coutourSchedule {border-bottom-color: #34DCE9;border-bottom-style:solid;border-top-color: #34DCE9;border-top-style:solid;border-right-color: #34DCE9;border-right-style:solid;border-left-color: #34DCE9;border-left-style:solid;}
+            .coutourAmountsForAlstom {border-bottom-color: #F6B2A4;border-bottom-style:solid;border-top-color: #F6B2A4;border-top-style:solid;border-right-color: #F6B2A4;border-right-style:solid;border-left-color: #F6B2A4;border-left-style:solid;}
+            .smallPolice { font-size: small; }
+            .mediumPolice { font-size: medium; }
+            .firstHeaderTR
+            {
+                background-color:#0070C0; 
+                color:white; 
+                font-weight:bold; 
+                font-size:25px;
+            }
+            .dataTR
+            {
+                background-color:#EBEBEB;
+                vertical-align:top;
+            }
+            .secondHeaderTR
+            {
+                background-color:#069; 
+                font-weight:bold;
+                font-size:15px;
+                color:white;
+            }
+            h1 span { display: block; }
+            
+            img { 
+              vertical-align:middle;
+            }
+        </style>
+    </head>
+    <div class="headerLeft" align="right" width="100%">
+        <apex:image url="{!URLFOR($Resource.Logo_AT_CRM)}"/>
+    </div>
+    <div class="footerLeft" align="left">
+         {!$User.FirstName} {!$User.LastName} : {!currentDateTime}
+    </div>
+    <table width="100%" border="0" cellspacing="2" style="font-family:arial,sans-serif;"  class="smallPolice">
+        <tr >
+            <td width="70%">
+                <table width="100%"  border="0" class="firstHeaderTR">
+                    <tr >
+                        <td width="75%" >
+                            {!$Label.LBL0079}:&nbsp;<apex:outputText value="{!Opportunity.Name}" />
+                        </td>
+                        <td width="15%" align="right">
+                            <apex:outputText value="{!Opportunity.BOid__c}" />
+                        </td>
+                    </tr>
+                </table>
+                <table width="100%" border="0" class="dataTR">
+                    <tr class="smallPolice">
+                        <td width="20%">
+                            <apex:outputLabel value="{!$ObjectType.Tender__c.fields.ManagementAttention__c.label}"/>:
+                        </td>
+                        <td width="8%" class="smallPolice" style="font-weight:bold;">
+                            {!ManagementAttention}
+                        </td>
+                        <td width="20%">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.AdjustedForecastCategory__c.label}"/>:
+                        </td>
+                        <td width="15%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!Opportunity.AdjustedForecastCategory__c}" />
+                        </td>
+                        <td width="15%">
+                            {!$Label.LBL0084} 
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!TenderLeaderName}"/>
+                        </td>
+                    </tr>
+                    <tr style="font-size: small;">
+                        <td>
+                                <apex:outputLabel value="{!$ObjectType.Opportunity.fields.StageName.label}"/>: 
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                                <apex:outputText value=" {!Opportunity.StageName}" />
+                        </td>
+                        <td>
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.ForecastedFiscalPeriod__c.label}"/>:  
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!Opportunity.ForecastedFiscalPeriod__c}" />
+                        </td>
+                        <td>
+                            {!$Label.LBL0085} 
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!BidManagerName}"/>
+                        </td>
+                    </tr>
+                    <tr class="smallPolice">
+                        <td valign="middle">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.Grading__c.label}"/>:
+                        </td>
+                        <td valign="middle">
+                            <apex:image id="Grading0" url="{!URLFOR($Resource.Grading_0)}" height="25" width="25" rendered="{!IF(Opportunity.Grading__c=='0',true,false)}" />
+                            <apex:image id="Grading1" url="{!URLFOR($Resource.Grading_1)}" height="25" width="25" rendered="{!IF(Opportunity.Grading__c=='1',true,false)}" />
+                            <apex:image id="Grading2" url="{!URLFOR($Resource.Grading_2)}" height="25" width="25" rendered="{!IF(Opportunity.Grading__c=='2',true,false)}" />
+                            <apex:image id="Grading3" url="{!URLFOR($Resource.Grading_3)}" height="25" width="25" rendered="{!IF(Opportunity.Grading__c=='3',true,false)}" />
+                            <apex:image id="Grading4" url="{!URLFOR($Resource.Grading_4)}" height="25" width="25" rendered="{!IF(Opportunity.Grading__c=='4',true,false)}" />
+                        </td>
+                        <td>
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.ProbP1OfImplementation__c.label}"/>:  
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!Opportunity.ProbP1OfImplementation__c}" />
+                            </apex:outputText>
+                        </td>
+                        <td>
+                            {!$Label.LBL0086} 
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!CustomerDirectorName}"/>
+                        </td>
+                    </tr>
+                    <tr class="smallPolice">
+                        <td>
+                            <apex:outputLabel value="{!$ObjectType.Tender__c.fields.ProjectCategory__c.label}"/>: 
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!ProjectCategory}"/>
+                        </td>
+                        <td>
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.ProbP2OfWin__c.label}"/>:
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!Opportunity.ProbP2OfWin__c}" />
+                            </apex:outputText>
+                        </td>
+                        <td>
+                            {!$Label.LBL0087}
+                        </td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value=" {!PlatformDirectorName}"/>
+                        </td>
+                    </tr>
+                </table>
+            </td>            
+        </tr>
+    </table>
+
+    <table border="0" width="100%" cellspacing="2" style="font-family:arial,sans-serif;" >
+        <tr class="smallPolice">
+            <td width="74%" height="100%" align="left" valign="top" class="dataTR">
+                <table border="0" width="100%" class="secondHeaderTR">
+                    <tr>
+                        <td valign="top" align="center" style="font-weight:bold;">{!$Label.LBL0088}</td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" class="dataTR" >
+                    <tr>
+                        <td width="25%">{!$Label.LBL0089}&nbsp;</td>
+                        <td class="smallPolice" style="font-weight:bold;"><apex:outputText value="{!Opportunity.ATRegion__c}"/>/<apex:outputText value="{!Opportunity.Country__c}"/></td>
+                    </tr>
+                    <tr>
+                        <td>{!$Label.LBL0090}&nbsp;</td>
+                        <td class="smallPolice" style="font-weight:bold;"><apex:outputField value="{!Opportunity.Account.Name}"/>/<apex:outputField value="{!Opportunity.AccountCountry__c}"/></td>
+                    </tr>
+                    <tr>
+                        <td>{!$Label.LBL0091}&nbsp;</td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!Opportunity.LeadingProductLine__c}"/>/<apex:outputField value="{!Opportunity.Platform__c}"/>
+                        </td>
+                    </tr>
+                </table>
+                <table border="0" width="100%"  class="dataTR">
+                    <tr>
+                        <td valign="top" style="border:1px solid #EBEBEB;border-top-color: #069;">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.ScopeOfWork__c.label}"/>:
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <span  class="smallPolice" style="font-weight:bold;"> <apex:outputText value="{!ScopeOfWork}" escape="false"/></span>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td width="1%" height="100%" rowspan="3"  style="background-color: #FFFFFF;border-bottom-color: #FFFFFF;border-top-color: #FFFFFF"> </td>
+            <td valign="top" class="dataTR"> 
+                <table width="100%" class="secondHeaderTR">
+                    <tr>
+                        <td valign="top" align="center" style="font-weight:bold;">{!$Label.LBL0092}</td>
+                        <td/>
+                    </tr>
+                </table>
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td width="30%"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.BOR__c.label}"/>:</td>
+                        <td width="20%" align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!Opportunity.BOR__c}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{!$Label.LBL0093}</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!LatestWinNoGo}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{!$Label.LBL0094}</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!LatestTRM}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>{!$Label.LBL0095}</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!LatestOfferValidity}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30%" style="border:1px solid #EBEBEB;border-top-color: #069;">
+                            <apex:outputLabel value="{!$ObjectType.Opportunity.fields.RFP__c.label}"/>:
+                        </td>
+                        <td width="20%" align="right" class="smallPolice" style="font-weight:bold;border:1px solid #EBEBEB;border-top-color: #069;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!Opportunity.RFP__c}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><apex:outputLabel value="{!$ObjectType.Opportunity.fields.SubmittalDate__c.label}"/>:</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!Opportunity.SubmittalDate__c}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><apex:outputLabel value="{!$ObjectType.Opportunity.fields.AwardDate__c.label}"/>:</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!Opportunity.AwardDate__c}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><apex:outputLabel value="{!$ObjectType.Opportunity.fields.CloseDate.label}"/>:</td>
+                        <td align="right" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{0,date, d MMM yyyy}">
+                                <apex:param value="{!Opportunity.CloseDate}"/>
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                     </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table><tr><td></td></tr></table>
+    <table border="0" width="100%" height="100%" cellspacing="2" style="font-family:arial,sans-serif;">
+        <tr class="smallPolice">
+            <td width="44%" height="100%" align="left" valign="top" >
+                <table border="0" width="100%" class="secondHeaderTR">
+                    <tr>
+                        <td valign="top"  align="center" style="font-weight:bold;">{!$Label.LBL0096}</td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" class="dataTR">
+                    <tr>
+                        <td>{!$Label.LBL0097} 
+                            <span class="smallPolice" style="font-weight:bold;">
+                                <apex:outputText value="{0,Date, d MMM yyyy}">
+                                    <apex:param value="{!periodicReportDate}"/>
+                                </apex:outputText>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice" style="font-weight:bold;border:1px solid #EBEBEB;border-top-color: #069;"><apex:outputText value="{!lastInformation}" escape="false"/></td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice" style="font-weight:bold;"><apex:outputText value="{!issuesRisks}<" escape="false"/></td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" style="background-color: #FFFFFF;"><tr><td></td></tr></table>
+                <table border="0" width="100%" class="secondHeaderTR">
+                    <tr>
+                        <td valign="top"  align="center" style="font-weight:bold;">{!$Label.LBL0098}</td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" class="dataTR">
+                    <tr>
+                        <td>{!$Label.LBL0083} - 
+                            <span class="smallPolice" style="font-weight:bold;">
+                                <apex:outputText value="{0,Date, d MMM yyyy}">
+                                    <!-- apex:param value="{!Opportunity.LastTenderReportDate__c}"/-->
+                                    <apex:param value="{!ReportDate}"/>
+                                </apex:outputText>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td  colspan="3" class="smallPolice" style="font-weight:bold;border:1px solid #EBEBEB;border-top-color: #069;"><apex:outputText value="{!TenderReport}" escape="false"/></td>
+                    </tr>
+                </table>
+            </td>
+            <td width="1%" height="100%" style="background-color: #FFFFFF;"> </td>
+            <td width="32%" height="100%" valign="top" class="dataTR"> 
+                <table width="100%" class="secondHeaderTR">
+                    <tr>
+                        <td valign="top" align="center" style="font-weight:bold;">{!$Label.LBL0099}</td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"></td>
+                        <td width="20%" align="center" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;color:#1F497D; font-weight:bold;">{!$Label.LBL0100}</td>
+                        <td width="20%" align="center" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;color:#1F497D;border-left-color: #DCCFE9;border-left-style:dotted;color:#1F497D; font-weight:bold;">{!$Label.LBL0101}</td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Tender__c.fields.SellingPrice__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,#,000}" style="color:red" rendered="{!diffMarketPriceSellingPrice}">
+                                <apex:param value="{!FLOOR(SellingPrice)}" />
+                            </apex:outputText>
+                            <apex:outputText value="{0,number,#,000}" style="color:black" rendered="{!NOT(diffMarketPriceSellingPrice)}">
+                                <apex:param value="{!FLOOR(SellingPrice)}" />
+                            </apex:outputText>
+                            &nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,#,000}">
+                                <apex:param value="{!FLOOR(OptionsSellingPrice)}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Tender__c.fields.Gross_Margin__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!GrossMargin}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsGrossMargin}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.GrossMarginAdjusted__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!GrossMarginAdjusted}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsGrossMarginAdjusted}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Tender__c.fields.OperatingMargin__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OperatingMargin}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsOperatingMargin}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.NetMargin__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!NetMargin}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsNetMargin}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.Contingencies__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!Contingencies}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsContingencies}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Tender__c.fields.Ambitions__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!Ambitions}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OptionsAmbitions}" />
+                            </apex:outputText>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.Sum_of_Global_Child_Opp_Selling_Price__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!FLOOR(globalSellingPrice)}" />
+                            </apex:outputText>
+                            &nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right"></td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.DownPayment__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!DownPayment}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right"></td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.OnwardPayment__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,0.00}">
+                                <apex:param value="{!OnwardPayment}" />
+                            </apex:outputText>&nbsp;&nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right"></td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Tender__c.fields.MarketPrice__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,#,000}" style="color:red" rendered="{!diffMarketPriceSellingPrice}">
+                                <apex:param value="{!FLOOR(MarketPrice)}" />
+                            </apex:outputText>
+                            <apex:outputText value="{0,number,#,000}" style="color:black" rendered="{!NOT(diffMarketPriceSellingPrice)}">
+                                <apex:param value="{!FLOOR(MarketPrice)}" />
+                            </apex:outputText>
+                            &nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right"></td>
+                    </tr>
+                    <tr>
+                        <td width="60%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.GlobalContractPrice__c.label}"/>:</td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;font-weight:bold;" align="right">
+                            <apex:outputText value="{0,number,#,000}">
+                                <apex:param value="{!FLOOR(Opportunity.GlobalContractPrice__c)}" />
+                            </apex:outputText>
+                            &nbsp;
+                        </td>
+                        <td width="20%" style="border-bottom-color: #DCCFE9;border-bottom-style:dotted;border-left-color: #DCCFE9;border-left-style:dotted;font-weight:bold;" align="right"></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</apex:page>

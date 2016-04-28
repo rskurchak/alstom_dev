@@ -1,0 +1,100 @@
+<apex:page controller="WebPortalPartsListController" language="{!$CurrentPage.parameters.language}" standardStylesheets="false" showHeader="false" sidebar="false" id="page">
+<apex:stylesheet value="{!URLFOR($Resource.ComPublicBootstrap, '/css/bootstrap.css')}"/>
+<apex:stylesheet value="{!$Resource.WebPortalPartsListCSS}"/>
+<apex:stylesheet value="{!$Resource.AlstomCustomCSS}"/>
+
+<div class="spareparts-fiche-maincontainer">
+    <apex:form id="form">
+        <div class="spareparts-fiche-colg" style="width:25%;">
+            <h1><apex:commandLink onclick="window.top.location.href='http://{!$CurrentPage.parameters.parentURL}/spareparts_categorie_list.html';" value="{!$Label.LBL0234}" style="color:#334d8c;"/></h1>
+            <div class="list-group" style="clear:both">
+                <apex:repeat value="{!categoryList}" var="cat">
+                    <apex:outputPanel layout="block" styleClass="list-group-item {!IF(cat['value']==categoryFilter,'active','')}">
+                        <apex:outputText value="{!cat['label']}" />
+                        <apex:actionSupport event="onclick" action="{!filter}" rerender="form">
+                            <apex:param name="categoryFilterParam" assignTo="{!categoryFilter}" value="{!cat['value']}" />
+                            <apex:param name="partId" assignTo="{!partId}" value="" />
+                        </apex:actionSupport>
+                    </apex:outputPanel>
+                </apex:repeat>
+            </div>
+        </div>
+
+        <div class="spareparts-fiche-cold pull-right" style="width:70%;text-align:center;">
+            <apex:outputPanel layout="block" styleClass="spareparts-catlist-content" id="searchResultPanel" rendered="{!partId == ''}">
+                <div style="text-align:left;padding-bottom:36px;">
+                    <span class="training-title1bold">{!categoryLabel}</span>
+                </div>
+                <div class="spareparts-table table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th style="width:194px">{!$Label.LBL0240}</th>
+                                <th>{!$ObjectType.PartAndRepair__c.fields.PartRepairNumber__c.label}</th>
+                                <th>{!$ObjectType.PartAndRepair__c.fields.OtherReference__c.label}</th>
+                                <th>{!$ObjectType.PartAndRepair__c.fields.Type__c.label}</th>
+                                <th>{!$Label.LBL0236}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                            <apex:variable value="{!1}" var="lineNumber"/> 
+                            <apex:repeat value="{!listPR}" var="pr">
+                                <tr class="{!IF(MOD(lineNumber,2)==1,'','spareparts-table-bgcolor')}">
+                                    <td class="spareparts-table-separator" colspan="5">&nbsp;</td></tr>
+                                <tr class="{!IF(MOD(lineNumber,2)==1,'','spareparts-table-bgcolor')}">
+                                    <td>{!IF($CurrentPage.parameters.language=='fr_FR',pr.partAndRepair.Name,pr.partAndRepair.DesignationEN__c)}</td>
+                                    <td>{!pr.partAndRepair.PartRepairNumber__c}</td>
+                                    <td>{!pr.partAndRepair.OtherReference__c}</td>
+                                    <td style="min-width:200px">
+										<apex:repeat value="{!pr.typeIconLinks}"  var="iconKey" >                                             
+                                            <apex:image url="{!pr.typeIconLinks[iconKey]}" 
+                                  				width="40" height="40"/>&nbsp;
+                                            <apex:outputText >{!iconKey}</apex:outputText>  
+                                            <br/>
+                                        </apex:repeat>
+                                    </td>
+                                                                     <td>
+                                        <!-- DETAIL PAGE -->
+                                        <!-- USING DIRECT LINK INSTEAD OF RERENDER TO HAVE THE CORRECT URL FOR GOOGLE ANALYTICS
+                                        <apex:commandLink action="{!showPartDetailContact}" value="{!$Label.LBL0237}" reRender="form" rendered="{!!pr.DisplayContactLink__c}">
+                                            <apex:param name="partId" assignTo="{!partId}" value="{!pr.Id}" />
+                                        </apex:commandLink>
+                                        -->
+                                        <apex:commandLink onclick="window.top.location.href='http://{!$CurrentPage.parameters.parentURL}/spareparts_categorie_list.html?partId={!pr.partAndRepair.Id}';" value="{!$Label.LBL0237}" reRender="form" rendered="{!!pr.partAndRepair.DisplayContactLink__c}" />
+                                        <!-- CONTACT US -->
+										<apex:commandLink onclick="window.top.location.href='http://{!$CurrentPage.parameters.parentURL}/contact_sp.html?id={!listPR[0].partAndRepair.Id}&NamePart={!IF($CurrentPage.parameters.language=='fr_FR',pr.partAndRepair.Name,pr.partAndRepair.DesignationEN__c)}&TypePart={!pr.partAndRepair.Type__c}';" value="{!$Label.LBL0172}" reRender="form" rendered="{!pr.partAndRepair.DisplayContactLink__c}" />
+                                    </td>
+                                </tr>
+                                <tr class="{!IF(MOD(lineNumber,2)==1,'','spareparts-table-bgcolor')}">
+                                    <td class="spareparts-table-separator" colspan="5">&nbsp;</td>
+                                </tr>
+                                <apex:variable var="lineNumber" value="{!lineNumber+1}"/>
+                            </apex:repeat>
+
+                        </tbody>
+                    </table>
+                </div>
+                
+                <table class="resultsPagination"><tbody><tr class="rowPagination">
+                    <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setCtrl.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_pressed.png';" status="fetchStatus" reRender="searchResultPanel" action="{!setCtrl.first}" disabled="{!!setCtrl.HasPrevious}" /></td>
+                    <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setCtrl.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_pressed.png';" status="fetchStatus" reRender="searchResultPanel" action="{!setCtrl.previous}" disabled="{!!setCtrl.HasPrevious}" /></td>
+                    <td class="pagination"><div class="paginationInner"><apex:outputText value="{!setCtrl.pageNumber}/{!ceiling(setCtrl.resultSize/setCtrl.pageSize)}"/></div></td>
+                    <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setCtrl.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_next_pressed.png';" status="fetchStatus" reRender="searchResultPanel" action="{!setCtrl.next}" disabled="{!!setCtrl.HasNext}" /></td>
+                    <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setCtrl.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_next_pressed.png';" status="fetchStatus" reRender="searchResultPanel" action="{!setCtrl.last}" disabled="{!!setCtrl.HasNext}" /></td>
+                    <td><apex:actionStatus id="fetchStatus">
+                        <apex:facet name="start"><apex:image url="{!URLFOR($Resource.ComIMG, 'ComIMG/ajax_spin.gif')}" style="height:19px;width=19px;"/></apex:facet>
+                    </apex:actionStatus></td>
+                    </tr></tbody>
+                </table>
+            </apex:outputPanel>
+
+            <apex:outputPanel id="PartDetails">
+                <c:C25PublicPortalSparePartsDetail attrSparePartId="{!partId}" rendered="{!partId != ''}" />
+            </apex:outputPanel>
+        </div>
+        <div style="height:25px;clear:both;float:left">&nbsp;</div>
+    </apex:form>
+
+</div>
+</apex:page>

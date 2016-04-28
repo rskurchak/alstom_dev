@@ -1,0 +1,51 @@
+<!--
+ C25PublicPortalSparePartsDetail
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 09/07/2014 
+    ~ Description     : VisualForce Component to show Spare Parts Detail according to language.
+-->
+<apex:component controller="CCC25PublicPortalSparePartsDetail" language="{!$CurrentPage.parameters.language}">
+	<apex:attribute name="attrcategory" description="Spare Part Category" type="string" required="false" assignTo="{!Category}"/>
+	<apex:attribute name="attrSparePartId" description="Spare Part Id" type="string" required="false" assignTo="{!SparePartId}"/>
+ 	
+    <style>
+		img {
+		    border: 0 none !important;
+		    height: auto !important;
+		    max-width: 100% !important;
+		    vertical-align: middle !important;
+		}        
+    </style>
+ 
+	<div class="spareparts-fiche-cold pull-right" style="width:100%;padding:0px;">
+		<h1><apex:outputText value="{!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].Name,listPR[0].DesignationEN__c)}"/></h1>
+		<div class="spareparts-fiche-imgcontainer"> 
+			<div id="spareparts-fiche-imgdisplay">
+				<apex:outputText escape="false" value="{!listPR[0].Picture__c}"/>
+			</div>
+		</div>
+        <!--
+		<h2>{!$Label.LBL0240}</h2>
+        <apex:outputText value="{!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].Name,listPR[0].DesignationEN__c)}" escape="false"/>
+		-->
+		<h2>{!$Label.LBL0241}</h2>
+		<apex:outputText value="{!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].FeaturesFR__c,listPR[0].FeaturesEN__c)}" escape="false"/>
+		<h2>{!$Label.LBL0238}</h2>
+		<apex:outputText value="{!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].ApplicationsFR__c,listPR[0].ApplicationsEN__c)}" escape="false"/>
+		<h2>{!$Label.LBL0239}</h2> 
+		<span class="spareparts-litext"><apex:outputText value="{!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].BenefitsFR__c,listPR[0].BenefitsEN__c)}" escape="false"/></span>
+		<h2>{!$Label.LBL0242}</h2> 
+		<apex:outputText value="{!listPR[0].PartRepairNumber__c}" escape="false"/>
+		<h2>{!$Label.Spare_parts_attachments }</h2> 
+        <apex:repeat value="{!listAttachment}" var="attch">
+            <apex:outputLink value="{!URLFOR($Action.Attachment.Download, attch.id)}" target="_blank">{!attch.name}</apex:outputLink>
+            <br/>
+        </apex:repeat>
+                         
+        
+		<div style="margin-top:40px;width:100%;text-align:center">
+			<a href="#" onclick="window.top.location.href='http://{!$CurrentPage.parameters.parentURL}/contact_sp.html?id={!listPR[0].Id}&NamePart={!IF($CurrentPage.parameters.language=='fr_FR',listPR[0].Name,listPR[0].DesignationEN__c)}&TypePart={!listPR[0].Type__c}';" class="btn btn-large blue">&nbsp;&nbsp;&nbsp;{!$Label.LBL0172}&nbsp;&nbsp;&nbsp;</a>
+		</div>
+	</div>
+
+</apex:component>

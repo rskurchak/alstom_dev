@@ -1,0 +1,78 @@
+<apex:component >
+	<!-- 
+		CCP08_IconPicklist - Custom component to display a custom picklist with icon+text as values
+			~ Author			: 	Adrian Modolea ~ adrian.modolea@axoa.fr
+			~ Date Created		: 	14/12/2011
+			~ source : http://www.jankoatwarpspeed.com/post/2009/07/28/reinventing-drop-down-with-css-jquery.aspx
+	-->
+	 
+	<!-- ATTRIBUTES -->
+	<apex:attribute name="picklistId" type="String" required="true" description="Unique id associated with this icon picklist"/>
+	<apex:attribute name="picklistValues" type="IconPicklistValue[]" required="true" description="Values for this icon picklist"/>
+	<apex:attribute name="currentValue" type="String" required="false" description="Current value for this icon picklist"/>
+	<apex:attribute name="returnInInputId" type="String" required="false" description="Id of input in which the value will be saved"/>
+	
+	<!-- DEPENDENCIES (css, js) -->
+	<apex:styleSheet value="{!URLFOR($Resource.IconPicklist,'css/iconPicklist.css')}"/>
+	<apex:includeScript value="{!URLFOR($Resource.JQuery_LIB, 'js/jquery.min.js')}"/>
+
+    <script type="text/javascript">
+    	// jQuery init
+    	//if(iconPicklist == null)
+    	var iconPicklist = jQuery.noConflict();     	
+		iconPicklist(document).ready(function() {
+			iconPicklist("#{!picklistId} dt a").click(function() {
+				/*iconPicklist("#{!picklistId} dd ul").toggle();
+				if(iconPicklist("#{!picklistId} dd ul").is(":visible"));
+					iconPicklist("#{!picklistId} dd ul").hide();
+				else*/
+					iconPicklist("#{!picklistId} dd ul").show();
+			});
+						
+			iconPicklist("#{!picklistId} dd ul li a").click(function() {
+				var text = iconPicklist(this).html();
+				iconPicklist("#{!picklistId} dt a span").html(text);
+				if("{!returnInInputId}" != "")
+					document.getElementById("{!returnInInputId}").value = getIconPicklistValue("{!picklistId}");				
+				iconPicklist("#{!picklistId} dd ul").hide();
+			});
+									
+			iconPicklist(document).bind('click', function(e) {
+				var $clicked = iconPicklist(e.target);
+				if (! $clicked.parents().hasClass("dropdown"))
+					iconPicklist("#{!picklistId} dd ul").hide();
+			});		
+		});
+		
+		// set value for this picklist
+		function setIconPicklistValue(id, value) {
+			if(!value || value == "")
+				value = "none";
+			iconPicklist("#" + id + " dt a span").html(iconPicklist("#" + id).find("dd ul li #" + value).html());
+		}
+		
+		// get the selected value for this picklist
+		function getIconPicklistValue(id) {
+			return iconPicklist("#" + id).find("dt a span.value").html();
+		}
+    </script>	
+	
+    <dl id="{!picklistId}" class="dropdown">
+        <dt><a href="javascript:void(0)" id="none"><span><img class="flag" src="{!URLFOR($Resource.IconPicklist,'img/none_16.png')}"/>--None--<span class="value"></span></span></a></dt>
+        <dd>
+            <ul>
+				<li><a href="javascript:void(0)" id="none"><img class="flag" src="{!URLFOR($Resource.IconPicklist,'img/none_16.png')}"/>--None--<span class="value"></span></a></li>
+				<apex:repeat value="{!picklistValues}" var="picklistValue">
+					<li><a href="javascript:void(0)" id="{!SUBSTITUTE(picklistValue.value, ' ', '')}"><img class="flag" src="{!URLFOR($Resource.IconPicklist,picklistValue.url)}"/>{!picklistValue.label}<span class="value">{!picklistValue.value}</span></a></li>
+				</apex:repeat>
+            </ul>
+        </dd>
+    </dl>
+    
+    <script>
+  		// set current value (or default value) 
+  		if("{!SUBSTITUTE(currentValue, ' ', '')}".length > 0)
+  			setIconPicklistValue("{!picklistId}", "{!SUBSTITUTE(currentValue, ' ', '')}");
+    </script>
+    	
+</apex:component>

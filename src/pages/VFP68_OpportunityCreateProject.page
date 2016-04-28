@@ -1,0 +1,19 @@
+<!--
+ VFP68_OpportunityCreateProject 
+    ~ Author            : Christophe AVERSENG
+    ~ Modification Date : 06/05/2014
+    ~ Description       : VF component to display the "Create Project" button in Opportunity layout
+-->
+<apex:page standardController="Opportunity" extensions="VFC68_OpportunityCreateProject">
+    <script type="text/javascript">
+        function openCreatePage() {
+            window.top.location.href = "/apex/VFP69_Project_New?id={!Opportunity.Id}&retURL={!Opportunity.Id}";       
+        }
+    </script>    <apex:form >
+        <apex:inputHidden value="{!Opportunity.StageName}"/>
+        <center><table>
+            <apex:commandButton value="Create Project" OnClick="openCreatePage();" id="bCreateProject" rendered="{!IsRenderCreateButton}"/>
+            <apex:commandLink value="Go to Project List" OnClick="window.open('/{!Opportunity.Id}#{!left(Opportunity.Id,15)}_{!$Label.LBL0139}_target','_parent');" rendered="{!IsRenderProjectList}"/>
+        </table></center>
+    </apex:form>
+</apex:page>

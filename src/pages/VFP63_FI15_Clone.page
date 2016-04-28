@@ -1,0 +1,8 @@
+<!--
+ VFP63_FI15_Clone
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 26/03/2014 
+    ~ Description     : VisualForce Page to override FI15 Clone Action.
+-->
+<apex:page standardController="FI15__c" extensions="VFC63_FI15_Clone" action="{!doClone}">
+</apex:page>

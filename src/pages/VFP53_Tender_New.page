@@ -1,0 +1,15 @@
+<apex:page standardController="Tender__c">
+    <apex:pageMessages />
+    <apex:sectionHeader title="Tender Edit" subtitle="New Tender"/>                      
+    <apex:form >
+        <apex:pageBlock mode="edit" title="Tender Edit">
+            <apex:pageBlockButtons location="top">
+                <apex:commandButton action="{!Save}" value="Save"/>
+                <apex:commandButton action="{!Cancel}" value="Cancel"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection title="Tender Detail">
+                <apex:inputField value="{!Tender__c.Opportunity__c}"/>
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>  
+</apex:page>

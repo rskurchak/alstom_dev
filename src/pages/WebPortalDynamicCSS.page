@@ -1,0 +1,14 @@
+<apex:page standardStylesheets="false" contentType="text/css">
+#siteMapDiv:after
+{
+	content: '{!$Label.LBL0178}';
+}
+#legalNoticeDiv:after
+{
+	content: '{!$Label.LBL0179}';
+}
+#placeholderText
+{
+	content: '{!$Label.LBL0180}';
+}
+</apex:page>

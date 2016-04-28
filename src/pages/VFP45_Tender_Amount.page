@@ -1,0 +1,268 @@
+<!-- VFP45_Tender_Amount
+        ~ Author        : Jawad GHOULAM ~ jawad.ghoulam@cgi.com 
+        ~ Date Created  : 05/09/2013
+        ~ Description   : Generate a PDF   
+-->
+<apex:page id="page" standardController="Tender__c" extensions="VFC45_Tender_Amount" renderAs="pdf" sidebar="false" showHeader="false" applyHtmlTag="false">
+    <head>
+        <style type="text/css">
+            @page 
+            { 
+                size:34,5cm 27cm;
+                margin-top: 0.15in;
+                margin-left: 0.15in; 
+                margin-right: 0.15in;
+                size: landscape;  /* Landscape orientation */
+                @bottom-left { content: element(footerLeft);}
+                @bottom-right {content: element(headerleft);}
+                @bottom-center { content: "Page " counter(page) " / " counter(pages);}
+            }
+            .titre {text-decoration:underline; color:#1F497D; font-weight:bold;}
+            .cadrage {border:solid 2px #1F497D;}
+            div.headerLeft { position: running(headerLeft); } 
+            div.footerLeft { position: running(footerLeft); }
+        </style>
+    </head>
+    <div class="headerLeft" align="right" width="100%">
+        <apex:image url="{!URLFOR($Resource.Logo_AT_CRM)}"/>
+    </div>
+    <div class="footerLeft" align="left">
+         {!$User.FirstName} {!$User.LastName} : {!currentDateTime}
+    </div>
+    <apex:repeat value="{!lstAmounts}" var="amount" rendered="{!lstAmounts.size>0}">
+    <div id="2nd" style="page-break-after:always;">
+    <table width="100%" border="0" cellspacing="1" style="font-family:arial,sans-serif;font-size:15px;">
+        <tr>
+            <td colspan="3" style="background-image: url('/resource/1344599106000/VFP08_LIB/img/header.jpg'); background-repeat:no-repeat; background-size: 100%; color:white; font-size:150%;border-bottom: thin #DCCFE9">
+                Amounts Detail
+            </td>
+        </tr>
+    </table>
+    <table width="100%" border="0" cellspacing="1" style="font-family:arial,sans-serif;font-size:15px;">
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#B1ACDF">
+                   <tr>
+                       <td class="titre"  width="20%">Overall Information</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Amounts Type : &nbsp;<apex:outputText value="{!amount.Name}"/></td>
+                       <td width="40%">Opportunity : &nbsp;<apex:outputText value="{!oppName}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%"><apex:outputField value="{!amount.Option__c}"/>&nbsp;Option</td>
+                       <td width="40%"></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Created by : &nbsp;<apex:outputText value="{!amount.TECH_Amount_Created_By__c}"/></td>
+                       <td width="40%">Last modified by : &nbsp;<apex:outputText value="{!amount.TECH_Amount_Last_Modified_By__c} {0,date,MM'/'dd'/'yyyy}">
+                       <apex:param value="{!amount.LastModifiedDate}" />
+                       </apex:outputText>
+                       </td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#DBE5F1">
+                   <tr>
+                       <td class="titre"  width="20%">Selling Price</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Currency : &nbsp;<apex:outputText value="{!amount.CurrencyIsoCode}"/></td>
+                       <td width="40%">Minimum Selling Price : &nbsp;<apex:outputText value="{!amount.MinimumSellingPrice__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Exchange Rate : &nbsp;<apex:outputText value="{!amount.ExchangeRate__c}"/></td>
+                       <td width="40%">Minimum Selling Price (M€) : &nbsp;<apex:outputText value="{!amount.MinimumSellingPriceMEUR__c}"/></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#B1ACDF">
+                   <tr>
+                       <td class="titre"  width="20%">Percentages</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Gross Margin (%) : &nbsp;<apex:outputText value="{!amount.GrossMargin__c}"/></td>
+                       <td width="40%">Net Margin (%) : &nbsp;<apex:outputText value="{!amount.NetMargin__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Gross Margin Adjusted (%) : &nbsp;<apex:outputText value="{!amount.GrossMarginAdjusted__c}"/></td>
+                       <td width="40%">Contingencies (%) : &nbsp;<apex:outputText value="{!amount.Contingencies__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Down Payment (%) : &nbsp;<apex:outputText value="{!amount.DownPayment__c}"/></td>
+                       <td width="40%">Onward Payment (%) : &nbsp;<apex:outputText value="{!amount.OnwardPayment__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Ambition (%) : &nbsp;<apex:outputText value="{!amount.Ambition__c}"/></td>
+                       <td width="40%"></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#DBE5F1">
+                   <tr>
+                       <td class="titre"  width="20%">Comments</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Comments : </td>
+                       <td width="40%"></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%" style="color:red"><apex:outputText value="{!amount.Comments__c}"/></td>
+                       <td width="40%"></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+    </table>
+    </div>
+    </apex:repeat>
+    <apex:repeat value="{!lastAmount}" var="amount" rendered="{!lastAmount.size>0}">
+    <div id="2nd">
+    <table width="100%" border="0" cellspacing="1" style="font-family:arial,sans-serif;font-size:15px;">
+        <tr>
+            <td colspan="3" style="background-image: url('/resource/1344599106000/VFP08_LIB/img/header.jpg'); background-repeat:no-repeat; background-size: 100%; color:white; font-size:150%;border-bottom: thin #DCCFE9">
+                Amounts Detail
+            </td>
+        </tr>
+    </table>
+    <table width="100%" border="0" cellspacing="1" style="font-family:arial,sans-serif;font-size:15px;">
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#B1ACDF">
+                   <tr>
+                       <td class="titre"  width="20%">Overall Information</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Amounts Type : &nbsp;<apex:outputText value="{!amount.Name}"/></td>
+                       <td width="40%">Opportunity : &nbsp;<apex:outputText value="{!oppName}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%"><apex:outputField value="{!amount.Option__c}"/>&nbsp;Option</td>
+                       <td width="40%"></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Created by : &nbsp;<apex:outputText value="{!amount.TECH_Amount_Created_By__c}"/></td>
+                       <td width="40%">Last modified by : &nbsp;<apex:outputText value="{!amount.TECH_Amount_Last_Modified_By__c} {0,date,MM'/'dd'/'yyyy}">
+                       <apex:param value="{!amount.LastModifiedDate}" />
+                       </apex:outputText>
+                       </td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#DBE5F1">
+                   <tr>
+                       <td class="titre"  width="20%">Selling Price</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Currency : &nbsp;<apex:outputText value="{!amount.CurrencyIsoCode}"/></td>
+                       <td width="40%">Minimum Selling Price : &nbsp;<apex:outputText value="{!amount.MinimumSellingPrice__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Exchange Rate : &nbsp;<apex:outputText value="{!amount.ExchangeRate__c}"/></td>
+                       <td width="40%">Minimum Selling Price (M€) : &nbsp;<apex:outputText value="{!amount.MinimumSellingPriceMEUR__c}"/></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#B1ACDF">
+                   <tr>
+                       <td class="titre"  width="20%">Percentages</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Gross Margin (%) : &nbsp;<apex:outputText value="{!amount.GrossMargin__c}"/></td>
+                       <td width="40%">Net Margin (%) : &nbsp;<apex:outputText value="{!amount.NetMargin__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Gross Margin Adjusted (%) : &nbsp;<apex:outputText value="{!amount.GrossMarginAdjusted__c}"/></td>
+                       <td width="40%">Contingencies (%) : &nbsp;<apex:outputText value="{!amount.Contingencies__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Down Payment (%) : &nbsp;<apex:outputText value="{!amount.DownPayment__c}"/></td>
+                       <td width="40%">Onward Payment (%) : &nbsp;<apex:outputText value="{!amount.OnwardPayment__c}"/></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Ambition (%) : &nbsp;<apex:outputText value="{!amount.Ambition__c}"/></td>
+                       <td width="40%"></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+        
+        <tr>
+            <td style="border-bottom: thin #DCCFE9">
+               <table width="100%" border="0" bgcolor="#DBE5F1">
+                   <tr>
+                       <td class="titre"  width="20%">Comments</td>
+                       <th width="40%"></th>
+                       <th width="40%"></th>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%">Comments : </td>
+                       <td width="40%"></td>
+                   </tr>
+                   <tr>
+                       <td width="20%"></td>
+                       <td width="40%" style="color:red"><apex:outputText value="{!amount.Comments__c}"/></td>
+                       <td width="40%"></td>
+                   </tr>
+               </table>
+           </td>
+        </tr>
+    </table>
+    </div>
+    </apex:repeat>
+</apex:page>

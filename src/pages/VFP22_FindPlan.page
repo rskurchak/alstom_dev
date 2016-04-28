@@ -1,0 +1,896 @@
+<apex:page id="thePage" showHeader="false" renderAs="pdf" standardController="OpportunityAssessment__c" extensions="VFC12_OpportunityAssessment" sidebar="false" standardStylesheets="false">
+    <apex:variable var="oppAssessment" value="{!OpportunityAssessment__c}" />
+      <head>  
+            <link href="/sCSS/22.0/sprites/Theme3/default/common.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+            <link href="/sCSS/22.0/sprites/Theme3/dStandard.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>
+            <link href="/sCSS/22.0/sprites/Theme3/default/extended.css" media="handheld,print,projection,screen,tty,tv" rel="stylesheet" type="text/css"/>  
+
+            <apex:styleSheet value="{!URLFOR($Resource.VFP11_LIB,'css/dCustom0.css')}"/>
+            <apex:styleSheet value="{!URLFOR($Resource.VFP11_LIB, 'css/styles_jalava.css')}"/>
+        <style type="text/css">
+        
+           .Person *{background-repeat: no-repeat;}
+           .bodyPDF {
+               font-size:100%;
+               text-decoration:none;
+               font-family: Arial Unicode MS;
+           }
+            .bodyPDF * {
+               margin:0 auto;
+               padding:0;  
+           }
+           
+           .bodyPDF .personSectionBusiness {
+               /*vertical-align:middle;*/  
+           }
+           
+            .bodyPDF .personSectionBusiness,
+            .bodyPDF .personSectionPersonal,
+            .bodyPDF .personSectionDecision {
+               /*font-size:60%;*/
+            }
+        
+            @page 
+            { 
+                size:34,5cm 27cm;
+                margin-top: 0.25in;
+                margin-left: 0.25in; 
+                margin-right: 0.25in;
+                size: landscape;  /* Landscape orientation */
+                @bottom-left { content: "{!relatedOpp.Name} -&nbsp;<apex:outputtext value="{0,date,dd/MM/yyyy}"><apex:param value="{!now()}"/></apex:outputtext> - Page " counter(page)  "/" counter(pages);}
+                @bottom-right {content: element(headerleft);}
+                @bottom-center {content: element(footerCenter);}
+                
+            }
+            .titre {text-decoration:underline; color:#1F497D; font-weight:bold;}
+            .cadrage {border:solid 2px #1F497D;}
+            div.headerLeft { position: running(headerLeft); } 
+            div.footerLeft { position: running(footerLeft); }
+            div.footerCenter { position: running(footerCenter); }
+            .coutourGris {border-bottom-color: #DCCFE9;border-bottom-style:solid;border-top-color: #DCCFE9;border-top-style:solid;border-right-color: #DCCFE9;border-right-style:solid;border-left-color: #DCCFE9;border-left-style:solid;}
+            .coutour {border-bottom-color: black;border-bottom-style:solid;border-top-color: black;border-top-style:solid;border-right-color: black;border-right-style:solid;border-left-color: black;border-left-style:solid;}
+            .coutourContextReminder {border-bottom-color: #F00FE9;border-bottom-style:solid;border-top-color: #F00FE9;border-top-style:solid;border-right-color: #F00FE9;border-right-style:solid;border-left-color: #F00FE9;border-left-style:solid;}
+            .coutourSchedule {border-bottom-color: #34DCE9;border-bottom-style:solid;border-top-color: #34DCE9;border-top-style:solid;border-right-color: #34DCE9;border-right-style:solid;border-left-color: #34DCE9;border-left-style:solid;}
+            .coutourAmountsForAlstom {border-bottom-color: #F6B2A4;border-bottom-style:solid;border-top-color: #F6B2A4;border-top-style:solid;border-right-color: #F6B2A4;border-right-style:solid;border-left-color: #F6B2A4;border-left-style:solid;}
+            .smallPolice { font-size: small; }
+            .mediumPolice { font-size: medium; }
+            
+            .firstPage
+            {
+                width:100%; 
+                height:700px; 
+                 
+                background-image: url({!$Resource.background}); 
+                background-repeat:no-repeat; 
+                background-clip:padding-box; 
+            }
+                
+            .firstHeaderTR
+            {
+                background-color:#0070C0; 
+                color:white; 
+                font-weight:bold; 
+                font-size:25px;
+            }
+            .secondHeaderTR
+            {
+                background-color:#069; 
+                font-weight:bold;
+                font-size:large;
+                color:white;
+            }
+            .thirdHeaderTR
+            {
+                background-color:#9CF;
+            }
+                
+            .dataTR
+            {
+                background-color:#EBEBEB;
+                vertical-align:top;
+            }
+            
+            .dataTR2
+            {
+                background-color:#E4E4E4;
+                vertical-align:top;
+            }
+            .secondHeaderTR
+            {
+                background-color:#069; 
+                font-weight:bold;
+                font-size:15px;
+                color:white;
+            }
+            
+            .dataTitleTR
+            {
+                background-color:#BCDEF3;
+                vertical-align:top;
+            }
+            .dataTitle2TR
+            {
+                background-color:#67A2C7;
+                vertical-align:middle;
+            }
+                
+            h1 span { display: block; }
+            
+            img { 
+              vertical-align:middle;
+            }
+
+            .dataTH
+            {
+                font-size:small;
+                text-align:center;
+                padding-top:5px;
+                padding-bottom:4px;
+                background-color:#9CF;
+                color:#ffffff;
+            }
+        </style>
+      </head>
+    <div class="headerLeft" align="right" width="100%">
+        <apex:image url="{!URLFOR($Resource.Logo_AT_CRM)}"/>
+    </div>
+    <div class="footerLeft" align="left">
+         {!relatedOpp.Name} - {!currentDateTime} - Page counter(page)  "/" counter(pages) 
+    </div>
+    <div class="footerCenter" align="center">
+         <strong>Confidential - Do Not Forward</strong> 
+    </div>
+    
+    <div style="page-break-after:always;">
+    <table width="100%" border="0" cellspacing="2" style="font-family:arial,sans-serif;"  class="smallPolice">
+        <tr >
+            <td>
+                <table width="100%"  border="0" >
+                    <tr >
+                        <td width="75%" class="firstHeaderTR" colspan="2">Find Plan Executive Summary<br/>
+                            <apex:outputText value="{!relatedOpp.Name}({!relatedOpp.BOid__c})" />
+                            <apex:outputText value="{!oppAssessment.Opportunity__c}" rendered="false" />
+                        </td>
+                    </tr>
+                </table>
+            </td>            
+        </tr>
+    </table>
+    <table border="0" width="100%" cellspacing="2" style="font-family:arial,sans-serif;" >
+        <tr class="smallPolice">
+            <td width="55%" height="100%" align="left" valign="top" class="dataTR" >
+                <table border="0" width="100%" class="dataTR" >
+                    <tr>
+                        <td width="40%">Customer Name:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;"><apex:outputText value="{!relatedOpp.Account.Name}"/></td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Region / Cluster / Country:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                        <apex:outputPanel rendered="{!relatedOpp.ATRegion__c!=null}"><apex:outputField value="{!relatedOpp.ATRegion__c}"/>&nbsp;/&nbsp;</apex:outputPanel>
+                        <apex:outputPanel rendered="{!relatedOpp.ATCluster__c!=null}"><apex:outputField value="{!relatedOpp.ATCluster__c}"/>&nbsp;/&nbsp;</apex:outputPanel>
+                        <apex:outputField value="{!relatedOpp.Country__c}"/></td>
+                    </tr>
+                    <tr><td width="40%">&nbsp;</td><td width="60%">&nbsp;</td></tr>
+                    <tr><td width="40%">&nbsp;</td><td width="60%">&nbsp;</td></tr>
+                </table>
+            </td>
+            <td width="1%" height="100%" rowspan="4"  style="background-color: #FFFFFF;border-bottom-color: #FFFFFF;border-top-color: #FFFFFF"> </td>
+            <td width="44%" height="100%" valign="top" class="dataTR"> 
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td width="40%">Opportunity Owner:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;"><apex:outputText value="{!relatedOpp.Owner.FirstName} {!relatedOpp.Owner.LastName}"/></td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Opportunity Status:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;"><apex:outputField value="{!relatedOpp.StageName}"/></td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Last Find Plan modification:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;"><apex:outputText value="{!OpportunityAssessment__c.LastModifiedBy.FirstName} {!OpportunityAssessment__c.LastModifiedBy.LastName} {!OpportunityAssessment__c.LastModifiedDate}"/></td>
+                    </tr>
+                    <tr>
+                        <td width="40%">Last Find Plan Review:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;"><apex:outputField value="{!oppAssessment.Decision__c}"/>&nbsp;-&nbsp;<apex:outputField value="{!oppAssessment.DecisionDate__c}"/></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <table><tr><td></td></tr></table>
+    <table border="0" width="100%" height="100%" cellspacing="2" style="font-family:arial,sans-serif;">
+        <tr  class="smallPolice">
+            <td width="55%" height="100%" align="left" valign="top" >
+                <table border="0" width="100%" class="dataTR">
+                    <tr>
+                        <td width="40%"><strong><u>Project description</u></strong>
+                        </td>
+                        <td width="60%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.ProjectType__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.ProjectType__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.ContractType__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.ContractType__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice" valign="top"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.ScopeOfWork__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;" valign="top">
+                            <span  class="smallPolice" style="font-weight:bold;"> <apex:outputText value="{!relatedOpp.ScopeOfWork__c}" escape="false"/></span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%">&nbsp;</td>
+                        <td width="60%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="40%">&nbsp;</td>
+                        <td width="60%">&nbsp;</td>
+                    </tr>
+                </table>
+            </td>
+            <td width="1%" height="100%" style="background-color: #FFFFFF;"> </td>
+            <td width="44%" height="100%" valign="top" class="dataTR"> 
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td width="40%"><strong><u>Amounts for Alstom</u></strong>
+                        </td>
+                        <td width="60%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice">{!$objectType.Opportunity.Fields.Amount.Label} (AT Base):&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!relatedOpp.CurrencyIsoCode}"/>&nbsp;<apex:outputText value="{!relatedOpp.Amount}"/>
+                        </td>
+                    </tr>
+                    <!-- CR-0734 - Not used anymore -->
+                    <!--
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.GrossMargin__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!relatedOpp.GrossMargin__c}"/>
+                        </td>
+                    </tr>
+                    -->
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.GlobalContractPrice__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!relatedOpp.GlobalContractPrice__c}"/>
+                        </td>
+                    </tr>
+                    <!-- CR-0741 - Not used anymore -->
+                    <!--
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.MarketPriceAT__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!relatedOpp.MarketPriceAT__c}"/>
+                        </td>
+                    </tr>
+                    -->
+                    <tr>
+                        <td width="40%" class="smallPolice">Tender Budget (total FI15):&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.TECH_FI15_Total__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.OpportunityAssessment__c.fields.SellingPriceComment__c.label}"/>: &nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!OpportunityAssessment__c.SellingPriceComment__c}"/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+    <table border="0"><tr><td></td></tr></table>
+    <table border="0" width="100%" height="100%" cellspacing="2" style="font-family:arial,sans-serif;">
+        <tr  class="smallPolice">
+            <td width="55%" height="100%" align="left" valign="top" >
+                <table border="0" width="100%" class="dataTR">
+                    <tr>
+                        <td colspan="2"><strong><u>Alstom Strategy</u></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice" valign="top">Alstom formal strategy:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;" valign="top">
+                            <!-- apex:outputText value="{!AlstomFormalStrategy}"/-->
+                            <apex:outputText value="{!SUBSTITUTE(JSENCODE(AlstomFormalStrategy), '\\n', '<br/>')}" escape="false"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice" valign="top">Comments:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;" valign="top">
+                            <!-- apex:outputText value="{!AlstomFormalStrategyComments}" escape="false"/-->
+                            <apex:outputText value="{!SUBSTITUTE(JSENCODE(AlstomFormalStrategyComments), '\\n', '<br/>')}" escape="false"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2"></td>
+                    </tr>
+                </table>
+                <table border="0" width="100%" class="dataTR"><tr><td></td></tr></table>
+            </td>
+            <td width="1%" style="background-color: #FFFFFF;"> </td>
+            <td width="44%" valign="top" class="dataTR"> 
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td width="40%"><strong><u>Schedule</u></strong>
+                        </td>
+                        <td width="60%">&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.BOR__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.BOR__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.RFP__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.RFP__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice"><apex:outputLabel value="{!$ObjectType.Opportunity.fields.SubmittalDate__c.label}"/>:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.SubmittalDate__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="40%" class="smallPolice">Coming Into Force:&nbsp;</td>
+                        <td width="60%" class="smallPolice" style="font-weight:bold;">
+                            <apex:outputField value="{!relatedOpp.CloseDate}"/>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+    <table border="0"><tr><td></td></tr></table>
+    <table border="0" width="100%" height="100%" cellspacing="2" style="font-family:arial,sans-serif;">
+        <tr class="smallPolice">
+            <td width="55%" height="100%" align="left" valign="top" >
+                <div style="height:100%;" class="dataTR" >
+                <table border="0" height="100%" width="100%" cellspacing="3" cellpadding="3" class="dataTR">
+                    <tr>
+                        <td colspan="7"><strong><u>Action plan</u></strong>
+                        </td>
+                    </tr>
+                        <tr class="thirdHeaderTR">
+                            <th width="10%" class="dataTH">Subject</th>
+                            <th width="20%" class="dataTH">Expected Results</th>
+                            <th width="30%" class="dataTH">Description</th>
+                            <th width="9%" class="dataTH">Assigned To</th>
+                            <th width="5%" class="dataTH">Priority</th>
+                            <th width="9%" class="dataTH">Status</th>
+                            <th width="7%" class="dataTH">Due Date</th>
+
+                        </tr>
+                        <apex:repeat value="{!actions}" var="action">
+                            <tr class="dataTR2">
+                                <td class="smallPolice"> {!action.task.Subject}</td>
+                                <td class="smallPolice"> {!action.task.ExpectedResults__c}</td>
+                                <td class="smallPolice"> {!action.task.Description}</td>
+                                <td class="smallPolice"> {!action.task.Owner.FirstName} {!action.task.Owner.LastName}</td>
+                                <td class="smallPolice"> {!action.task.Priority}</td>
+                                <td class="smallPolice"> {!action.task.Status}</td>
+                                <td class="smallPolice"> <apex:outputField value="{!action.task.ActivityDate}"/></td>
+                           </tr> 
+                        </apex:repeat>
+                        <tr>
+                                <td width="10%"></td>
+                                <td width="20%"></td>
+                                <td width="30%"></td>
+                                <td width="9%"></td>
+                                <td width="5%"></td>
+                                <td width="9%"></td>
+                                <td width="7%"></td>
+                        </tr>
+                    <tr>
+                            <td width="10%"></td>
+                            <td width="20%"></td>
+                            <td width="30%"></td>
+                            <td width="9%"></td>
+                            <td width="5%"></td>
+                            <td width="9%"></td>
+                            <td width="7%"></td>
+                    </tr>
+                </table>
+                <table border="0" height="100%" width="100%" class="dataTR"><tr><td colspan="7"></td></tr></table>
+                </div>
+            </td>
+            <td width="1%" style="background-color: #FFFFFF;"> </td>
+            <td width="44%" valign="top" class="dataTR">
+                <table border="0" width="100%" align="left" class="dataTR">
+                    <tr>
+                        <td colspan="2"><strong><u>Leading Business - Leading Platform / Solution:</u></strong>
+                        </td>
+                    </tr>
+                    <tr>
+                        
+                        <td class="smallPolice" colspan="2">
+                            <apex:outputField value="{!relatedOpp.LeadingProductLine__c}"/>/<apex:outputField value="{!relatedOpp.Platform__c}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong><u>Team:</u></strong>
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice">Customer Director:&nbsp;</td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!CustomerDirectorName}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice">Platform Director:&nbsp;</td>
+                        <td class="smallPolice" style="font-weight:bold;">
+                            <apex:outputText value="{!PlatformDirectorName}"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice" colspan="2">Other Sales team members:&nbsp;</td>
+                    </tr>
+                    <tr>
+                        <td class="smallPolice" style="font-weight:bold;" colspan="2">
+                            <!-- apex:outputText value="{!OtherSalesTeamName}"/-->
+                            <apex:outputText value="{!SUBSTITUTE(JSENCODE(OtherSalesTeamName), '\\n', '<br/>')}" escape="false"/>
+                        </td>
+                    </tr>
+                </table>
+             </td>
+          </tr>
+      </table>
+   </div>
+   
+   
+    
+    <div id="2nd" style="page-break-after:always;">
+        <table width="100%" cellspacing="5" cellpadding="5">
+            <tr>
+                <td colspan="5" class="firstHeaderTR">Background Information</td>
+            </tr>
+            <tr>
+                <td class="secondHeaderTR" colspan="5">Project in Customer Strategy</td>
+            </tr>
+            <tr class="dataTitleTR">
+                <td colspan="5">Customer strategy overview</td>
+            </tr>
+            <tr class="dataTR">
+                <td colspan="5">
+                    <apex:repeat value="{!customerVisions}" var="cv">
+                        <apex:outputField value="{!cv.Name}"/>&nbsp;:&nbsp;
+                        <apex:outputText value="{!cv.Description__c}"/><br/>
+                    </apex:repeat>
+                </td>
+            </tr>
+            <tr class="dataTitleTR">
+                <td colspan="5">Project fit with customer's strategy?</td>
+            </tr>
+            <tr class="dataTR">
+                <td colspan="5"><apex:outputField value="{!oppAssessment.ProjectFitWithCustomerSStrategy__c}"/></td>
+            </tr>
+            
+            <tr>
+                <td class="secondHeaderTR" colspan="5">Project Overview</td>
+            </tr>
+            <tr class="dataTitleTR">
+                <td>Customer Business Problem</td>
+                <td>Ideal Solution Scenario</td>
+                <td>Scope of Work</td>
+            </tr>
+            <tr class="dataTR">
+                <td>{!oppAssessment.CustomerBusinessObjective_problems__c}</td>
+                <td>{!oppAssessment.IdealSolutionScenario__c}</td>
+                <td>{!oppAssessment.CustomerProjectDescription__c}</td>
+            </tr>
+        </table>
+    </div>
+    
+    <div id="3rd" style="page-break-after:always;">
+        <table border="0" width="100%">
+            <tr>
+                <td class="firstHeaderTR" colspan="2">Assessment</td>
+            </tr>
+            </table>
+            <table border="0" width="100%">
+            <tr>
+                <td width="50%" valign="top">
+                    <table cellspacing="5" cellpadding="5">                         
+                        <tr>
+                            <td class="secondHeaderTR" colspan="4">Motivation: Does the customer have to buy?</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.ProjectDefined__c.Label}
+                                <apex:image value="{!IF(oppAssessment.ProjectDefined__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.FundsBudgetted__c.Label}
+                                <apex:image value="{!IF(oppAssessment.FundsBudgetted__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.BenefitROIQuantified__c.Label}
+                                <apex:image value="{!IF(oppAssessment.BenefitROIQuantified__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.CompellingReasonToBuy__c.Label}
+                                <apex:image value="{!IF(oppAssessment.CompellingReasonToBuy__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                        </tr>
+                        <tr class="thirdHeaderTR">
+                            <td colspan="4"> Description</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td colspan="4"><apex:outputField value="{!oppAssessment.Motivation__c}" /></td>
+                        </tr>
+                     </table>
+                 </td>
+                 <td width="50%" valign="top">
+                    <table cellspacing="5" cellpadding="5">
+                        <tr>
+                            <td class="secondHeaderTR" colspan="4">Differentiation: Do we have the better solution?</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.FormalDecisionCriteria__c.Label}
+                                <apex:image value="{!IF(oppAssessment.FormalDecisionCriteria__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.RequirementFulfilled__c.Label}
+                                <apex:image value="{!IF(oppAssessment.RequirementFulfilled__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">
+                                {!$ObjectType.OpportunityAssessment__c.fields.CompetitiveConditions__c.Label}
+                                <apex:image value="{!IF(oppAssessment.CompetitiveConditions__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap" width="25%">    
+                                {!$ObjectType.OpportunityAssessment__c.fields.UniqueBenefits__c.Label}
+                                <apex:image value="{!IF(oppAssessment.UniqueBenefits__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                        </tr>
+                        <tr class="thirdHeaderTR">
+                            <td colspan="4"> Description</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td  colspan="4"><apex:outputField value="{!oppAssessment.Differentiation__c}"/></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr>
+                <td valign="top">
+                    <table cellspacing="5" cellpadding="5">                         
+                        <tr class="secondHeaderTR" >
+                            <td class="secondHeaderTR" colspan="4">Politics: Can we win?</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td nowrap="nowrap">
+                                {!$ObjectType.OpportunityAssessment__c.fields.DecisionMakerKnown__c.Label}
+                                <apex:image value="{!IF(oppAssessment.DecisionMakerKnown__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">
+                                {!$ObjectType.OpportunityAssessment__c.fields.InformalDecisionCriteriaKnown__c.Label}
+                                <apex:image value="{!IF(oppAssessment.InformalDecisionCriteriaKnown__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">
+                                Unique benefit linked with goal of decision maker? 
+                                <apex:image value="{!IF(oppAssessment.LinkedWithGoalOfDecisionMaker__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">
+                                {!$ObjectType.OpportunityAssessment__c.fields.SupportedByPeopleWithInfluence__c.Label}
+                                <apex:image value="{!IF(oppAssessment.SupportedByPeopleWithInfluence__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                        </tr>
+                        <tr class="thirdHeaderTR">
+                            <td colspan="4"> Description</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td  colspan="4"><apex:outputField value="{!oppAssessment.Politics__c}" /></td>
+                        </tr>
+                    </table>
+                </td>
+                <td valign="top">
+                    <table cellspacing="5" cellpadding="5">                         
+                        <tr class="secondHeaderTR" >
+                            <td class="secondHeaderTR" colspan="4">Attractiveness: Do we want the project?</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td nowrap="nowrap">
+                                Short Term Revenue exceeds minimum threshold?
+                                <apex:image value="{!IF(oppAssessment.ShortTermRevenueMiniThreshold__c  , '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">
+                                 Strategic value fits with customer's strategy?
+                                <apex:image value="{!IF(oppAssessment.StrategicValueFitsWithAlstomStrat__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">
+                                {!$ObjectType.OpportunityAssessment__c.fields.Profitability__c.Label}
+                                <apex:image value="{!IF(oppAssessment.Profitability__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                            <td nowrap="nowrap">    
+                                {!$ObjectType.OpportunityAssessment__c.fields.ManageableRisks__c.Label}
+                                <apex:image value="{!IF(oppAssessment.ManageableRisks__c, '/img/checkbox_checked.gif', '/img/checkbox_unchecked.gif')}" />
+                            </td>
+                        </tr>
+                        <tr class="thirdHeaderTR">
+                            <td colspan="4"> Description</td>
+                        </tr>
+                        <tr class="dataTR">
+                            <td  colspan="4"><apex:outputField value="{!oppAssessment.Attractiveness__c}"/></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+        </table>                    
+    </div>
+    
+    <div id="4th" style="page-break-after:always;">
+        <table border="0" width="100%" cellspacing="5" cellpadding="5">
+            <tr>
+                <td colspan="8" class="firstHeaderTR">Decision Criteria</td>
+            </tr>
+            <tr class="dataTitleTR" >
+                <td >Customer Decision Criteria</td>
+                <td >{!$ObjectType.DecisionCriteria__c.fields.Weight__c.Label} (from the customer's perspective)</td>
+                <td >Alstom Rating (from the customer's perspective)</td>
+                <td width="60%">Comment/Reason</td>                        
+            </tr>
+            <apex:repeat value="{!decisions}" var="decisionItem">
+                <tr class="dataTR"> 
+                    <td> <apex:outputField value="{!decisionItem.dc.DecisionCriteria__c}" /> </td>
+                    <td> <apex:outputField value="{!decisionItem.dc.Weight__c}" /> </td>
+                    <td> <apex:image value="{!CASE(decisionItem.dc.Rating__c, '+', '/img/samples/light_green.gif', '-', '/img/samples/light_red.gif', '/img/samples/light_yellow.gif')}" /></td> 
+                    <td> <apex:outputField value="{!decisionItem.dc.Comment__c}" /> </td>
+                </tr>
+            </apex:repeat>
+        </table>
+    </div>
+    
+    <div id="5th" style="page-break-after:always;">
+        <table border="0" width="100%" >
+            <tr>
+                <td class="firstHeaderTR">Politics</td>
+            </tr>
+            <tr>
+                <td class="secondHeaderTR"> Buying Center Stakeholders </td>
+            </tr>
+        </table >
+        <table width="100%">
+            <tr>
+                <td width="40%"></td>
+                <td width="35%" colspan="5" align="center" class="dataTitle2TR">Qualification &amp; Role</td>
+                <td width="25%" colspan="{!nbAlstomEmployee}" align="center" class="dataTitle2TR">Alstom Network</td>
+            </tr>
+            
+            <tr class="dataTitleTR">
+                <td width="40%"><b>LasName First Name</b> - Function </td>
+                <td width="7%" align="center">Role </td>
+                <td width="7%" align="center">Power base </td>
+                <td width="7%" align="center">Influence</td>
+                <td width="7%" align="center">Typology </td>
+                <td width="7%" align="center">Attitude </td>
+                         <apex:repeat value="{!alstomContacts}" var="ac">
+                              <td style="text-align:center;" bgcolor="#999999">
+                                  {!alstomContactsIdName[ac]}
+                              </td>
+                      </apex:repeat> 
+            </tr>
+            <apex:repeat value="{!bps}" var="b">
+                <tr class="dataTR">
+                    <td><b>{!b.ContactName__r.LastName} {!b.ContactName__r.firstName}</b> - {!b.ContactName__r.Title}</td>
+                    <td style="text-align:center;"> {!IF(b.User__c, 'U', '')} {!IF(b.DecisionMaker__c, 'D', '')} {!IF(b.Consultant__c, 'C', '')} </td>
+                    <td style="text-align:center;">{!b.PromotorType__c}</td>
+                    <td style="text-align:center;">{!b.Influence__c}</td>
+                    <td style="text-align:center;">{!b.Typology__c}</td>
+                    <td style="text-align:center;">{!b.Attitude__c}</td>
+                    <apex:repeat value="{!alstomContacts}" var="ac">
+                                <apex:variable var="v" value="{!b.Id}{!ac}"/>
+                                 <td style="text-align:center;"> 
+                                     <apex:outputText value="{!IF(contains(mapKeys, ';'+v+';'), stackHolderWithValue[v], '')}" escape="false"/>
+                                 </td>
+                             </apex:repeat>
+                </tr>
+            </apex:repeat>
+            <!-- Repeat -->
+        </table>
+        <div>
+            <br/><br/><br/>
+            <u><b>*Role</b></u> : <b>'D'</b> Decision Maker; <b>'U'</b> User; <b>'C'</b> Consultant 
+        </div>
+    </div>
+    
+    <apex:repeat value="{!numberOfCompetitorPages}" var="compPageNum">
+        <div id="6th" style="page-break-after:always;">
+            <table border="0" width="100%" cellspacing="5" cellpadding="5">
+                <tr>
+                    <td colspan="8" class="firstHeaderTR">Competition</td>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <td colspan="8" class="secondHeaderTR"> Customer Perception</td>
+                </tr>
+                <tr style="{!IF(NOT(isNoCompetitions),'','display:none;')}">
+                    <td colspan="8" class="dataTR"> No Competition found.</td>
+                </tr>
+                <tr class="dataTitleTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2">
+                            <apex:outputField value="{!c.comp.Account__r.Name}" rendered="{!c.comp.Account__r.Name!=null}"/>
+                            <apex:outputField value="{!c.comp.Competitor__r.Name}" rendered="{!c.comp.Competitor__r.Name!=null}"/>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" valign="top">Product</td>
+                        <td class="dataTR" valign="top">{!c.comp.Product__c}</td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" width="10%" valign="top">Service</td>
+                        <td class="dataTR" width="15%" valign="top">{!c.comp.Service__c} </td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" valign="top">Brand Image</td>
+                        <td class="dataTR" valign="top">{!c.comp.BrandImage__c}</td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" valign="top">Relationship</td>
+                        <td class="dataTR" valign="top">{!c.comp.Relationship__c}</td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <td colspan="8" class="secondHeaderTR"> Formal Strategy</td>
+                </tr>
+                <tr class="dataTitleTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2"><apex:outputField value="{!c.comp.Competitor__r.Name}"/></td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" colspan="2">What is their strength?</td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2"><apex:outputField value="{!c.comp.Strenghts__c}"/></td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" colspan="2">What is their weakness?</td>
+                    </apex:repeat>
+                    <td></td>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2"><apex:outputField value="{!c.comp.Weaknesses__c}"/></td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" colspan="2">What is their formal strategy?</td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2">
+                            <div style="float:left; padding-left:5px;">
+                                Gorilla
+                            </div>
+                            <div style="float:left; padding-left:25px;"> 
+                                <apex:outputField value="{!c.comp.IsGorilla__c}"/>
+                            </div>
+                            <div style="float:left; padding-left:10px;">    
+                                 <apex:outputField value="{!c.comp.IsGorrillaComments__c}"/>
+                            </div>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2">
+                            <div style="float:left; padding-left:5px;">
+                                Flank
+                            </div>
+                            <div style="float:left; padding-left:30px;"> 
+                                <apex:outputField value="{!c.comp.IsFlank__c}"/>
+                            </div>
+                            <div style="float:left; padding-left:10px;">    
+                                 <apex:outputField value="{!c.comp.IsFlankComments__c}"/>
+                            </div>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2">
+                            <div style="float:left; padding-left:5px;">
+                                Fragment
+                            </div>
+                            <div style="float:left; padding-left:8px;"> 
+                                <apex:outputField value="{!c.comp.IsFragment__c}"/>
+                            </div>
+                            <div style="float:left; padding-left:10px;">    
+                                 <apex:outputField value="{!c.comp.IsFragmentComments__c}"/>
+                            </div>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2">
+                            <div style="float:left; padding-left:5px;">
+                                Delay
+                            </div>
+                            <div style="float:left; padding-left:28px;"> 
+                                <apex:outputField value="{!c.comp.IsDelay__c}"/>
+                            </div>
+                            <div style="float:left; padding-left:10px;">    
+                                 <apex:outputField value="{!c.comp.IsDelayComments__c}"/>
+                            </div>
+                        </td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <td colspan="8" class="secondHeaderTR"> Informal Strategy</td>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" colspan="2">With whom are they aligned?</td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2"><apex:outputField value="{!c.comp.AlignedWithWhow__c}"/></td>
+                    </apex:repeat>
+                </tr>
+                <tr style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td class="thirdHeaderTR" colspan="2">What is their informal strategy?</td>
+                    </apex:repeat>
+                </tr>
+                <tr class="dataTR" style="{!styleDisplay}">
+                    <apex:repeat value="{!competitions}" var="c" rows="4" first="{!compPageNum}" >
+                        <td colspan="2"><apex:outputField value="{!c.comp.InformalStrategy__c}"/></td>
+                    </apex:repeat>
+                </tr>
+            </table>
+        </div>
+    </apex:repeat>
+    
+     <div id="8th" style="page-break-after:always;">  <!-- Power Map image -->
+         <table border="0" width="100%" cellspacing="5" cellpadding="5">
+             <tr>
+                 <td class="firstHeaderTR" >Politics</td>
+             </tr>
+             <tr>
+                 <td class="secondHeaderTR" > PowerMap</td>
+             </tr>
+             <tr>
+                 <td align="center"> <br/><apex:image value="{!URLFOR($Resource.VFP11_LIB, '/img/legend.png')}" /> </td>
+             </tr>
+         </table>
+     </div> 
+</apex:page>

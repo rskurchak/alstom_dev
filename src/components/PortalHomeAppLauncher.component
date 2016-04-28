@@ -1,0 +1,168 @@
+<!--
+ PortalHomeAppLauncher
+	~ Author          : Roman Skurchak ~ rskurchak@corevalue.net 
+	~ Date Created    : 07/03/2016 
+	~ Description     : VisualForce Component to present the App Launcher with available Tiles (by permission sets).
+-->
+
+<apex:component controller="PortalHomeAppLauncherController">
+	<style>
+		.container-fluid {
+			padding-right: 90px;
+    		padding-left: 90px;
+		}
+		.widget_inner.my-services {
+			padding: 10px 48px 40px 48px;
+		}
+		.myServicesTitle {
+			display: inline-block;
+			font-family: AlstomMedium, AlstomLight;
+			font-size: 24px;
+			font-weight: 500;
+			color: #3c3c3c;
+			margin: 0;
+		}
+		.myServicesTitleIcon {
+			width: 42px;
+			height: 42px;
+			padding: 8px 0;
+    		vertical-align: sub;
+		}
+		.myServicesTitle span{
+			line-height: 58px !important;
+			padding: 10px !important;
+			vertical-align: middle !important;
+		    font-size: 30px !important;
+		    font-family: AlstomLight, sans-serif !important;
+		    display: inline-block !important;
+		    text-transform: uppercase !important;
+		    color: #464646 !important;
+		    font-weight: bold;	
+		}
+		.myServicesSubTitle {
+			font-family: AlstomRegular, sans-serif;
+			font-weight: normal;
+			font-size: 16px !important;
+			color: #464646;
+			text-transform: none !important; 
+			display: block !important; 
+			margin-top: -80px; 
+			padding: 10px;
+		}
+		.my-services hr {
+			width: 100%;
+			height: 1px;
+			color: #C0C0C0;
+			margin: 0;
+		}
+		.my-services table{
+			table-layout: fixed;
+			width: 100%;
+			height: 100%;
+		}
+		.my-services table td {
+			width: 100% !important;
+			display: inline-block;
+		}
+		.my-services tbody{
+			display: block;
+		}
+		.my-services tr{
+			display: flex;
+    		width: 100%;
+    		justify-content: space-between;
+		}
+		.my-services tr .empty{
+			display: none;
+		}
+		.titleBoxStyle{
+			padding: 10px!important;
+			text-align: center!important;
+			border: 0 !important;
+		}
+		.service-link {
+		    height: 125px;
+		    width: 100%;
+		    display: block;
+		    position: relative;
+		    margin-bottom: 25px;
+		}
+		.service-img {
+		    vertical-align: middle;
+		    line-height: 125px;
+		    position: absolute;
+		    top: 0;
+		    bottom: 0;
+		    left: 0;
+		    right: 0;
+		    margin: auto;
+		}
+		.titleLabelStyle{
+			background-color: #e4e4e4;
+			font-family: AlstomMedium, sans-serif;
+			color: #3c3c3c;
+			line-height: 14px;
+			padding: 5px 0 2px 0;
+			margin-bottom: 0px;
+			position: absolute;
+			bottom: 0;
+			width: 100%;
+			overflow: hidden;
+		}
+		.tilePanel{
+			border: 3px solid #e4e4e4;
+			border-radius: 3px;
+			display: block;
+			height: 100%;
+			position: relative;
+        	max-width: 200px;
+        	min-width: 100px;
+    		margin: 0 auto;
+		}
+		@media screen and (max-width: 1280px){
+			.container-fluid {
+				padding-right: 30px !important;
+	    		padding-left: 30px !important;
+			}
+			.tilePanel {
+        		min-width: 86px;
+			}
+			.widget_inner.my-services {
+				padding: 10px 24px 40px 24px;
+			}
+		}
+	</style>
+
+	<script type="text/javascript">
+
+	</script>
+	
+	<apex:form >
+		<apex:outputPanel layout="block" id="tolesPanel" styleClass="widget_inner my-services">
+			<h2 class="sectionTitle myServicesTitle">
+				<img class="myServicesTitleIcon" src="/resource/ComIMG/ComIMG/my-services-icon.png"/>
+				<div style="display: inline-block;">
+					<span style="display: block !important;">{!$Label.LBL0377}</span>
+					<br/>
+					<div class="myServicesSubTitle">{!$Label.LBL0378}</div>
+				</div>
+			</h2>
+			<hr/>
+			<apex:pageBlock id="pageBlock">
+				<apex:pageBlockSection columns="{!countColomuns}">
+				<apex:pageBlockSectionItem dataStyleClass="titleBoxStyle" rendered="{!showEmptyElem}" />
+				<apex:repeat value="{!availableTilesForUser}" var="tile">
+					<apex:pageBlockSectionItem dataStyleClass="titleBoxStyle">
+						<apex:outputPanel styleClass="tilePanel">           		
+							<apex:outputLink value="{!tile.Url__c}"  target="{!IF(tile.OpenInNewWindow__c, '_blank', '')}" styleClass="service-link">
+								<apex:image value="{!URLFOR($Resource.AppLauncherIcons,'images/'+tile.Image__c)}" styleClass="service-img" />
+							</apex:outputLink>
+							<apex:outputLabel styleClass="titleLabelStyle" value="{!tile.Hidden_Tile_Name__c}"/>
+						</apex:outputPanel>
+					</apex:pageBlockSectionItem>
+				</apex:repeat>
+				</apex:pageBlockSection>
+			</apex:pageBlock>
+		</apex:outputPanel>
+	</apex:form>	
+</apex:component>

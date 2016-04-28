@@ -1,0 +1,14 @@
+<apex:page id="thePage" standardController="OpportunityAssessment__c" extensions="VFC88_CloneFindPlan" sidebar="false" showheader="true">
+	<apex:pageMessages />
+	<apex:form >
+        <apex:pageBlock id="cloneFindPlan" title="{!$Label.LBL0327} {!$ObjectType.OpportunityAssessment__c.Label}">
+            <apex:pageBlockButtons id="buttons">
+                <apex:commandButton id="clone" value="{!$Label.LBL0327}" action="{!cloneFindPlan}"/>
+                <apex:commandButton id="cancel" value="{!$Label.LBL0255}" action="{!cancel}"/>
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection >            
+            	<apex:inputField id="parentOpportunity" label="{!$ObjectType.OpportunityAssessment__c.Fields.Opportunity__c.Label}" value="{!OpportunityAssessment__c.Opportunity__c}" required="true"/>            
+            </apex:pageBlockSection>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

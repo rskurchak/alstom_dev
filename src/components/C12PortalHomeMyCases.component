@@ -1,0 +1,52 @@
+<!--
+ C12PortalHomeMyCases
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the Portal Home Request dialog box containing open cases created by the user.
+-->
+<apex:component controller="VFC70_PortalComponentPagination">
+    <apex:attribute name="listo" description="This is color for the border." type="SObject[]" required="false" assignTo="{!idList}"/>
+    <apex:attribute name="listofield" description="This is color for the border." type="string[]" required="false" assignTo="{!SobjFieldList}"/>     
+    <apex:attribute name="listopagesize" description="page size." type="Integer" required="false" assignTo="{!pagesize}"/>     
+    <apex:attribute name="listoheader" description="Header Request or Technical Request." type="string" required="false"/>     
+    <apex:attribute name="listorelatedlistname" description="Name of related list to count." type="string" required="false" assignTo="{!relatedlistname}"/> 
+
+    <apex:form >
+    <apex:outputPanel layout="block" styleClass="widget_inner" id="widgetRequests">
+        <div class="widget_header_Request">
+            <div><apex:outputText value="{!IF(listoheader == 'My Technical Requests',$Label.LBL0203,$Label.LBL0153)}"/></div>
+        </div>
+        <apex:outputPanel rendered="{!SObjectRecs.size > 0}">
+            <div class="widget_body">
+                <apex:repeat value="{!SObjectRecs}" var="rec">
+                    <div class="readStatus pull-right" style="border-color: #e6e6e6 #e6e6e6 #bfbfbf !important;"><apex:outputText value="{!rec.sObjectRec['Status']}"/></div>
+                    <p><a href="/{!rec.sObjectRec['id']}"><strong>{!rec.sObjectRec['Subject']}</strong><br/>
+                    {!rec.sObjectRec['Type']}</a></p>
+                </apex:repeat>
+                <table align="center"><tbody><tr>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_previous_pressed.png';" status="fetchStatus" reRender="widgetRequests" action="{!setRecords.first}" disabled="{!!setRecords.HasPrevious}" /></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasPrevious, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_previous_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_previous_pressed.png';" status="fetchStatus" reRender="widgetRequests" action="{!setRecords.previous}" disabled="{!!setRecords.HasPrevious}" /></td>
+                <td class="pagination"><apex:outputText value="{!setRecords.pageNumber}/{!ceiling(setRecords.resultSize/setRecords.pageSize)}"/></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_single_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_single_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_single_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_single_next_pressed.png';" status="fetchStatus" reRender="widgetRequests" action="{!setRecords.next}" disabled="{!!setRecords.HasNext}" /></td>
+                <td><apex:commandButton styleClass="pgPrevNext" image="{!IF(setRecords.HasNext, URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_default.png'), URLFOR($Resource.ComIMG,'ComIMG/pagination_double_next_disable.png'))}" onmouseover="this.src='/resource/ComIMG/ComIMG/pagination_double_next_rollover.png';" onmouseout="this.src='/resource/ComIMG/ComIMG/pagination_double_next_default.png';" onmousedown="this.src='/resource/ComIMG/ComIMG/pagination_double_next_pressed.png';" status="fetchStatus" reRender="widgetRequests" action="{!setRecords.last}" disabled="{!!setRecords.HasNext}" /></td>
+                <td><apex:actionStatus id="fetchStatus">
+                    <apex:facet name="start"><apex:image url="{!URLFOR($Resource.ComIMG, 'ComIMG/ajax_spin.gif')}" style="height:19px;width=19px;"/></apex:facet>
+                </apex:actionStatus></td>
+                </tr></tbody></table>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel rendered="{!SObjectRecs.size = 0}">
+            <div class="widget_body  AlstomMedium">
+                <p>{!$Label.LBL0199}</p>
+            </div>
+        </apex:outputPanel>
+        <apex:outputPanel >
+            <div class="widget_body">
+                <div class="knowMore">
+                    <a href="{!IF(listoheader=='My Technical Requests',$Label.LBL0208,$Label.LBL0207)}"><img src="{!URLFOR($Resource.ComIMG,'ComIMG/btn_more25_grey_enable.png')}" alt="{!$Label.LBL0197}"/></a>
+                </div>
+            </div>
+        </apex:outputPanel>
+    </apex:outputPanel>
+    </apex:form>
+</apex:component>

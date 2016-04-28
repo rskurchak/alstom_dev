@@ -1,0 +1,22 @@
+<!--
+ * VFP43_CloseReopenMilestone Visualforce page
+ * Jawad GHOULAM ~ jawad.ghoulam@cgi.com
+ * 06/09/2013
+ * Description Display Close Milestone Button and Reopen Milestone Button
+-->
+<apex:page standardController="Milestone__c" extensions="VFC43_CloseReopenMilestone">
+    <apex:form >
+        <apex:actionFunction action="{!close}" name="close" />
+        <apex:actionFunction action="{!reopen}" name="reopen" />
+        <table width="110">
+            <tr>
+                <center>
+                    <td align="right">
+                        <apex:commandButton value="{!$Label.LBL0296}" onclick="return confirm('{!$Label.LBL0298}')" action="{!close}" id="bClose" rendered="{! (displayCloseButton)}" style="width : 110px;" />
+                        <apex:commandButton value="{!$Label.LBL0297}" onclick="return confirm('{!$Label.LBL0299}')" action="{!reopen}" id="bReopen" rendered="{! (displayReopenButton)}" style="width : 110px;" />
+                    </td>
+                </center>
+            </tr>
+        </table>
+    </apex:form>
+</apex:page>

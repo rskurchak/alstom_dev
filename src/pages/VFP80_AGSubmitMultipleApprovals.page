@@ -1,0 +1,105 @@
+<apex:page standardController="TenderSubmission__c" extensions="VFC80_AGSubmitMultipleApprovals" id="page">
+	<style type="text/css">
+		.approverTable {
+			border-collapse: collapse;
+			width: 100%;
+		}
+		.approverTable th {
+			background: #f2f3f3;
+			border: 1px solid #e0e3e5;
+			color: #000;
+			font-size: .9em;
+			font-weight: bold;
+			padding: 5px 2px 4px 5px;
+		}
+		.approverTable td {
+			border: 1px solid #ededed;
+			border-width: 0 0 1px 0;
+			vertical-align: middle;
+			background-color: white;
+			padding: 4px 2px 4px 5px;
+		}
+		.approverGroup {  
+			background-color: #cfeef8 !important;
+			font-weight: bold;
+		}
+		.hasError {
+			background-color: #FF4545 !important;
+		}
+		.hasError a:hover {
+			color: white;
+		}
+	</style>
+	<apex:sectionHeader title="{!$ObjectType.TenderSubmission__c.Label}" subtitle="{!TenderSubmission__c.Name}"/>
+	<apex:form id="form">
+		<apex:pageBlock title="{!$Label.LBL0249}" id="pageBlock">
+			<apex:pageMessages />
+			<apex:pageBlockButtons location="bottom">
+                <apex:commandButton action="{!submitForMultipleApprovals}" value="{!$Label.LBL0248}" rendered="{!listApproverGroup.size > 0}"/>
+				<apex:commandButton action="{!cancel}" value="{!$Label.site.cancel}"/>
+            </apex:pageBlockButtons>
+
+            <apex:outputPanel rendered="{!listApproverGroup.size > 0}" id="outputPanel">
+				<table class="approverTable">
+					<thead>
+						<tr>
+							<th><apex:inputCheckbox value="{!checkboxHeader}" onclick="checkUncheck(this);" id="headerCheckbox"/></th>
+							<th>{!$ObjectType.ApproverGroup__c.fields.Name.Label}</th>
+							<th colspan="3">{!$ObjectType.ApproverGroup__c.fields.ApproverGroupName__c.Label}</th>
+						</tr>
+					</thead>
+					<apex:repeat value="{!listApproverGroup}" var="ag" id="agList">
+						<!-- APPROVER GROUP -->
+						<tr>
+							<td class="approverGroup {!IF(ag.inError, 'hasError', '')}"><apex:inputCheckbox value="{!ag.isSelected}" onclick="checkHeaderCheckbox(this);" id="agSelector"/></td>
+							<td class="approverGroup {!IF(ag.inError, 'hasError', '')}"><a href="/{!ag.approverGroup.Id}"><apex:outputText value="{!ag.approverGroup.Name}"/></a></td>
+							<td class="approverGroup {!IF(ag.inError, 'hasError', '')}" colspan="3"><apex:outputText value="{!ag.approverGroup.ApproverGroupName__c}"/></td>
+						</tr>
+						<!-- APPROVER 1...10 -->
+						<apex:repeat value="{!listNumberOfApprovers}" var="approverNumber">
+							<apex:outputPanel rendered="{!ag.approverGroup['Approver'+approverNumber+'__c'] != null}">
+								<tr>
+									<td colspan="2" />
+									<td>
+										<apex:outputText value="{!$ObjectType.ApproverGroup__c.fields['Approver'+approverNumber+'__c'].Label}" styleClass="approver"/>
+									</td>
+									<td class="{!IF(ag.approverGroup['Approver'+approverNumber+'__r'].isActive, '', 'hasError')}">
+										<a href="/{!ag.approverGroup['Approver'+approverNumber+'__c']}"><apex:outputText value="{!ag.approverGroup['Approver'+approverNumber+'__r'].Name}"/></a>
+									</td>
+									<td>
+										<apex:outputText value="{!ag.approverGroup['Approver'+approverNumber+'Title__c']}"/>
+									</td>
+								</tr>
+							</apex:outputPanel>
+						</apex:repeat>
+					</apex:repeat>
+				</table>
+			</apex:outputPanel>
+		</apex:pageBlock>
+	</apex:form>
+
+	<script type="text/javascript">
+		function checkUncheck(field) {
+			for (var i=0; i < {!listApproverGroup.size}; i++) {
+				document.getElementById('page:form:pageBlock:agList:'+i+':agSelector').checked = field.checked;
+			}
+		}
+
+		function checkHeaderCheckbox(field) {
+			// Check if all checkboxes have the same status, to update the checkbox in the header
+			if (field.checked != document.getElementById('page:form:pageBlock:headerCheckbox').checked) {
+				var needsUpdate = true;
+				for (var i=0; i < {!listApproverGroup.size}; i++) {
+					if (document.getElementById('page:form:pageBlock:agList:'+i+':agSelector').checked != field.checked) {
+						needsUpdate = false;
+						break;
+					}
+				}
+
+				if (needsUpdate) {
+					document.getElementById('page:form:pageBlock:headerCheckbox').checked = field.checked;
+				}
+			}
+		}
+	</script>
+</apex:page>

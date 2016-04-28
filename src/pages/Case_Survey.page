@@ -1,0 +1,133 @@
+<apex:page title="{!$Label.Case_Survey_Request_Closed}" standardController="Case" extensions="CaseSurveyContExt" sidebar="false" showHeader="false" action="{!checkSurvey}">
+    <style>
+        * {
+            font-family: Arial;
+        }
+        body .bPageTitle {
+            background: #51606E;
+            margin: 0;
+            padding: 15px 0 15px 0;
+            color: #3c3c3c;
+            font-size: 24px; 
+            /*font-family: AlstomMedium;           */
+        }
+        body .bPageTitle .ptBody h1.noSecondHeader {
+            color: #d6dbe8;
+            /*font-family: AlstomMedium, sans-serif !important;*/
+            line-height: 14px;
+            font-size: 24px;
+        }
+        body{
+            background-color: #fff !important;
+            color: #7c7c7c;
+            /*font-family: AlstomMedium, sans-serif !important;*/
+            line-height: 14px;
+            font-size: 16px;     
+        }
+        body .bPageBlock{
+            background-color: #fff !important;
+            border: 0;     
+        }
+        body .bEditBlock .pbBody .pbSubheader, 
+        body .bWizardBlock .pbBody .pbSubheader{
+            background: #4D649B !important;         
+        }
+        body .bPageBlock .pbBody .pbSubheader h3, 
+        body .bWizardBlock .bPageBlock .pbBody .pbSubheader label {
+            color: #d6dbe8 !important;
+            /*font-family: AlstomMedium !important;*/
+            font-size: 16px !important;
+            font-weight: normal;
+            line-height: 14px;
+        }
+        .requiredLegend {
+            color: #d6dbe8;
+            /*font-family: AlstomMedium;*/
+            font-size: 16px;
+            font-weight: normal;
+            line-height: 14px;          
+        }
+     
+        body .bDetailBlock.bPageBlock .pbBody .labelCol, 
+        body .bDetailBlock.bPageBlock .pbBody .dataCol, 
+        body .bDetailBlock.bPageBlock .pbBody .data2Col, 
+        body .bPageBlock.bEditBlock .pbBody .labelCol, 
+        body .bPageBlock.bEditBlock .pbBody .dataCol, 
+        body .bPageBlock.bEditBlock .pbBody .data2Col {
+            color: #7c7c7c;
+            /*font-family: AlstomMedium, sans-serif;*/
+            line-height: 24px;
+            font-size: 14px;
+            font-weight: normal;
+        }
+        .btnStyle{
+            display: inline-block !important;
+            height: 40px !important;
+            padding-left: 24px !important;
+            padding-right: 24px !important;
+            background: #334d8c !important;
+            color: white !important;
+            border: 0 !important;
+            font-size: 14px !important;
+            font-weight: normal !important;
+            line-height: 20px !important;
+            cursor: pointer !important;
+            outline: none !important;
+            /*font-family: AlstomMedium !important;*/
+        }
+        .btnStyle:hover{
+            background: #000000 !important;
+            opacity: 0.35 !important;
+        }        
+    </style>
+
+    <apex:pageMessages />
+    <apex:sectionHeader title="{!$Label.Case_Survey_Request_Closed}"/>
+    <apex:form id="TheForm">
+        <apex:inputHidden id="Quality_of_Request_Resolution__c" value="{!Case.Quality_of_Request_Resolution__c}"/>
+        <apex:inputHidden id="Rapidity_of_request_resolution__c" value="{!Case.Rapidity_of_request_resolution__c}"/>
+        <apex:pageBlock mode="edit">
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!Save}" value="{!$Label.Case_Survey_Submit}" styleClass="btnStyle"/>
+                <!-- apex:commandButton action="{!reopenRequest}" value="{!$Label.Case_Survey_Reopen}" styleClass="btnStyle"/ -->
+            </apex:pageBlockButtons>
+            <apex:pageBlockSection columns="2" title="{!$Label.Case_Survey_Review}" collapsible="false">
+                <apex:outputField value="{!Case.Subject}" />
+                <apex:outputField value="{!Case.Equipment__c}" />
+                <apex:outputField value="{!Case.CaseNumber}" />
+                <apex:outputField label="{!$Label.Case_Survey_Contact_Name}" value="{!Case.Contact.Name}" />
+                <apex:outputField value="{!Case.Answer__c}" />
+                <apex:outputField value="{!Case.Status}" />
+                <apex:pageBlockSectionItem />
+                <apex:outputField value="{!Case.ResolutionTimeText__c}" />
+            </apex:pageBlockSection>
+            <apex:pageBlockSection columns="1" collapsible="false">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel value="{!$ObjectType.Case.fields.Description.label}" />
+                    <apex:outputPanel layout="block">
+                        <apex:outputPanel layout="block"/>
+                        <apex:outputText value="{!Case.Description}"/>
+                    </apex:outputPanel>
+                </apex:pageBlockSectionItem>
+            </apex:pageBlockSection>
+            <apex:pageBlockSection id="SurveySection" columns="1" showHeader="true" collapsible="false" title="{!$Label.Case_Survey_Feedback}">
+                <apex:outputText label=" " value="{!$Label.Case_Survey_Tell_Us}" />
+                <apex:outputText label=" " value="{!$Label.Case_Survey_Quality_of_Request_Resolution}" styleClass="labelCol" />
+                <apex:pageBlockSectionItem >
+                    	<apex:outputLabel value=" "></apex:outputLabel>
+                    	<c:StarRating name="Quality_of_Request_Resolution__c" targetField="{!$Component.TheForm.Quality_of_Request_Resolution__c}"></c:StarRating>
+                </apex:pageBlockSectionItem>
+
+                <apex:outputText label=" " value="{!$Label.Case_Survey_Rapidity_of_Request_Resolution}" styleClass="labelCol" />
+                <apex:pageBlockSectionItem >
+                    	<apex:outputLabel value=" "></apex:outputLabel>
+                    	<c:StarRating name="Rapidity_of_request_resolution__c" targetField="{!$Component.TheForm.Rapidity_of_request_resolution__c}"></c:StarRating>
+                </apex:pageBlockSectionItem>
+                
+                <apex:outputText label=" " value="{!$Label.Case_Survey_Comments_on_Satisfaction}" styleClass="labelCol" />
+                <apex:inputField label=" " value="{!Case.Comments_on_Satisfaction__c}" />
+                <!-- apex:outputText label=" " value="{!$Label.Case_Survey_Close_Or_Reopen}" / -->
+            </apex:pageBlockSection> 
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

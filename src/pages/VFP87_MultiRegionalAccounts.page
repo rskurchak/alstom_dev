@@ -1,0 +1,46 @@
+<apex:page controller="VFC87_MultiRegionalAccount" tabStyle="Report">
+<head>
+	<style>
+		.accountLine
+		{
+			background-color: #ccccee !important;
+		}
+	</style>
+</head>
+	<apex:sectionHeader title="Multi Regional Accounts"/>
+	<apex:form >
+		
+		<apex:pageBlock >
+            <apex:pageBlockButtons >
+                <apex:commandButton action="{!exportPDF}" value="Export"/>
+            </apex:pageBlockButtons>
+			<apex:pageBlockTable value="{!items}" var="anItem">				
+				<apex:column headerValue="{!$ObjectType.Account.Fields.Name.label}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputLink value="/{!anItem.AccountId}"><b>{!anItem.AccountName}</b></apex:outputLink>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.label} {!$ObjectType.Opportunity.Fields.Name.label}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputLink value="/{!anItem.OpportunityId}">{!anItem.OpportunityName}</apex:outputLink>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.BOid__c.label}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputText value="{!anItem.boidInfo}"/>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.Platform__c.label}" value="{!anItem.Platform}" styleClass="{!if(anItem.isAccount, 'accountLine','')}"/>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.SubmittalDate__c.label}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+    					<apex:param value="{!anItem.SubmittalDate}" /> 
+					</apex:outputText>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.RFP__c.label}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputText value="{0,date,dd'/'MM'/'yyyy}">
+    					<apex:param value="{!anItem.RFP}"/> 
+					</apex:outputText>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.StageName.label}" value="{!anItem.Status}" styleClass="{!if(anItem.isAccount, 'accountLine','')}"/>
+				<apex:column headerValue="{!$ObjectType.Opportunity.label} {!$ObjectType.Opportunity.Fields.OwnerId.relationshipName}" styleClass="{!if(anItem.isAccount, 'accountLine','')}">
+					<apex:outputLink value="/{!anItem.OwnerId}">{!anItem.Owner}</apex:outputLink>
+				</apex:column>
+				<apex:column headerValue="{!$ObjectType.Opportunity.Fields.Country__c.label}" value="{!anItem.Country}" styleClass="{!if(anItem.isAccount, 'accountLine','')}"/>
+			</apex:pageBlockTable>
+        </apex:pageBlock>
+	</apex:form>
+</apex:page>

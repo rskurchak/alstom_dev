@@ -1,0 +1,46 @@
+<apex:component >
+	<!-- 
+		BPSMap - Custom component to display a BPS Map
+			~ Author			: 	Damian Hercun  ~ damian.hercun@axoa.fr
+			~ Date Created		: 	29/05/2012
+	-->
+
+	<!-- ATTRIBUTES -->
+	<apex:attribute name="oppAsId" assignTo="{!oppAsId}" type="String" required="true" description="Id of the current plan"/>
+	<apex:attribute name="oppId" assignTo="{!oppId}" type="String" required="true" description="Id of the current opportunity"/> 
+
+    <script type="text/javascript">
+    	// Loading component using jQuery library
+    	var bpsPlanEdit = jQuery.noConflict();
+        bpsPlanEdit(document).ready(
+	        function() {
+	            bpsPlanEdit("#BPSPlanEdit").dialog({ 
+	                modal:                  true,
+	                zIndex: 				1010,
+	                iframe:					false,  
+	                autoOpen:               false,
+	                width:                  '98%',
+	                height:					bpsPlanEdit(window).height()-50, 
+	                autoResize:				true,
+	                resizable:              false, 
+	                closeOnEscape:          false, 
+	                dialogClass:            'flora'
+	           }); // fold, 
+	            bpsPlanEdit('.flora.ui-dialog').css({position:"fixed"});
+	            bpsPlanEdit('.ui-dialog-titlebar').hide();
+	            document.getElementById("bpsFrame").src = "{!URLFOR($Page.VFP11_BPSMap, null, [oppAsId=oppAsId, oppId=oppId])}";
+	            bpsPlanEdit('#BPSPlanEdit').dialog('open');
+	        }
+        );
+        
+        function closeWCSPlanEdit() { 
+        	bpsPlanEdit('#BPSPlanEdit').dialog('close');
+        	document.getElementById("bpsFrame").src = "";
+        	toggleMap();
+        }
+	</script>
+    
+    <div id="BPSPlanEdit" style="display:none;background-color:#fff; border:3px solid #0099DB;text-align:center;border-radius:10px;-moz-border-radius:10px;-webkit-border-radius:10px;overflow: auto;">
+		<iframe id="bpsFrame" style="height:100%;" src="" frameborder="0" width="100%" scrolling="yes"/>
+	</div>
+</apex:component>

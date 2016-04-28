@@ -1,0 +1,1065 @@
+﻿<apex:page id="page" controller="VFC23_Forecasts" standardStylesheets="true" sidebar="false" tabStyle="Forecasts__tab">
+<apex:stylesheet value="/sCSS/25.0/sprites/1297816277000/Theme3/default/gc/versioning.css" />   
+<apex:stylesheet value="/sCSS/25.0/sprites/1297816277000/Theme3/default/gc/extended.css" />
+
+<script type="text/javascript">
+    function updateRolePicklists(role) 
+    {
+        document.getElementById('page:form:roleListTab1').value = role;
+        document.getElementById('page:form:roleListTab2').value = role;
+        document.getElementById('page:form:roleListTab3').value = role;
+    }
+    
+    function updateProductLinePicklists(productLine) 
+    {
+        document.getElementById('page:form:productLineTab1').value = productLine;
+        document.getElementById('page:form:productLineTab2').value = productLine;
+        document.getElementById('page:form:productLineTab3').value = productLine;
+        // Not always working without manual refresh, maybe because the fields are more than one time on the page
+        document.getElementById('page:form:platformTab1').value = '';
+        document.getElementById('page:form:platformTab2').value = '';
+        document.getElementById('page:form:platformTab3').value = '';
+        rerenderPlatform();
+    }
+    
+    function updatePlatformPicklists(platform) 
+    {
+        document.getElementById('page:form:platformTab1').value = platform;
+        document.getElementById('page:form:platformTab2').value = platform;
+        document.getElementById('page:form:platformTab3').value = platform;
+    }
+    
+    function disableOpportunitiesFilters() 
+    {
+        document.getElementById('page:form:roleListTab3').disabled = true;
+        document.getElementById('page:form:productLineTab3').disabled = true;
+        document.getElementById('page:form:platformTab3').disabled = true;
+        document.getElementById('page:form:quarterRangeList').disabled = true;
+        document.getElementById('page:form:yearRangeList').disabled = true;
+        document.getElementById('page:form:adjustedForecastFilter').disabled = true;
+        document.getElementById('page:form:opportunitiesFilters').disabled = true;
+        document.getElementById('page:form:refreshOppList').disabled = true;
+        document.getElementById('page:form:globalChildListTab3').disabled = true;
+    }
+    
+    function viewOpportunitiesJS(forecastCategory, period) 
+    {
+        disableOpportunitiesFilters();
+        
+        if (forecastCategory == null && period == null)
+            viewOpportunities(forecastCategory, period);
+        else
+            viewOpportunitiesWithStatus(forecastCategory, period);
+    }
+    
+    function setScreenMaxWidth()
+    {
+        var screenWidth = screen.width - 50;
+
+        // Not using setAttribute cause it's not working on IE7
+        if (screenWidth > 0)
+            document.getElementById("tab3Filters").style.maxWidth = screenWidth+'px';
+    }
+    
+    function showHideRecordNumberSelector() 
+    {
+        if (document.getElementById("recordNumberSelect").style.display == "block")
+        {
+            // Hiding
+            document.getElementById("recordNumberSelect").style.display = "none";
+            document.getElementById("arrowDiv").className = "arrow";
+        }
+        else
+        {
+            // Displaying
+            document.getElementById("recordNumberSelect").style.display = "block";
+            document.getElementById("arrowDiv").className += " arrowSelected";
+        }
+        
+        // To avoid hitting hideRecordNumberSelector() in document.onclick
+        if (event.stopPropagation) {
+            event.stopPropagation();
+        }
+        event.cancelBubble = true;
+    }
+    
+    function hideRecordNumberSelector()
+    {
+        if (document.getElementById("recordNumberSelect") != null)
+            document.getElementById("recordNumberSelect").style.display = "none";
+        
+        if (document.getElementById("arrowDiv") != null)
+            document.getElementById("arrowDiv").className = "arrow";
+    }
+    
+    window.onload = function()
+    {
+        setScreenMaxWidth();
+        
+        // To close Div to select Row numbers
+        document.onclick = function() {
+            hideRecordNumberSelector();
+        };
+    }            
+</script>
+                    
+<style type="text/css">
+    body .rich-tabpanel-content{  
+        border-top: 3px solid #204EA9;
+    }
+    td .filter {
+        text-align: center;
+    }
+    td .filterLabel {
+        text-align: right; 
+        font-weight: bold;
+        padding-right:7px;
+    }
+    td .filterValues {
+        text-align: left;
+        padding-left:7px;
+    }
+    body .pbBody table.list tr.dataRow td.dataCell.cellColumnClass {
+        margin:0px;
+        padding:0px;
+        border-width:0px 0px 1px 1px;
+    }
+    body .pbBody table.list tr.dataRow.even.first td.shortTermHeader {
+        background-color: #FAFAFA;
+        width:14.8%;
+    }
+    body .pbBody table.cellTableClass {
+        width:100%;
+        height:100%;
+        border-spacing:0px;
+    }
+    .list td.dataCell.cellColumnClass
+    {
+        padding:0px;
+        text-align:right;
+    }
+    body .pbBody table.list tr.dataRow td.cellTdClassLeft {
+        width:70%;
+        border-color:#ededed;
+        border-width:0px 0px 0px 0px;
+        margin:0px;
+        height:100%;
+        word-break:break-all;
+    }
+    body .pbBody table.list tr.dataRow td.cellTdClassRight {
+        width:30%;
+        border-color:#ededed;
+        border-width:0px 0px 0px 0px;
+        margin:0px;
+        height:100%;
+        word-break:break-all;
+    }
+    .yearForecast {
+        background-color:#D9E2FF;
+        text-align:right;
+    }
+    .yearForecastHeader {
+        background-color: #78A4DE !important;
+    }
+    .oppListDetail {
+        background-color:#F1F4FF;
+        text-align:right;
+    }
+    .oppListDetailHeader {
+        background-color: #D9E2FF !important;
+    }
+    .forecastCategoryStyle {
+        background-color: #FAFAFA;        
+    }
+    ul.reportList {
+        list-style: none;
+        margin: 0;
+        padding: 0px 0px 0px 20px;
+    }
+    ul.reportList li {
+        padding: 5px 5px 5px 25px;
+        margin: 0;
+        background: url(/img/analytics/home/listReport.png) no-repeat left center;
+        font-weight:bold;
+    }
+    .tooltipLink {
+        position:relative;
+        //width:1px;
+    } 
+    .tooltipLink > div {
+        margin-left: -999em;
+        position:absolute;
+    } 
+    .tooltipLink:hover > div {
+        position:absolute;
+        z-index:1000;
+        display:inline; 
+        background-color: white;
+        border-top: 3px solid #204EA9;
+        -moz-border-radius: 4px;
+        -webkit-border-radius: 4px;
+        border-radius: 4px;
+        padding: 15px 10px 15px 10px;
+        box-shadow: 0 3px 15px #727272;
+        -webkit-box-shadow: 0 3px 15px #727272;
+        -moz-box-shadow: 0 3px 15px #727272;
+        left:5em; 
+        top:-20em;
+        margin-left: 0em;
+    } 
+    body .pbBody table.list tr.dataRow td.tooltipLabel,
+    body .pbBody table.list tr.dataRow.highlight td.tooltipLabel {
+        color: #4a4a56;
+        font-weight: bold;
+        text-align: right; 
+        padding-right:7px;
+        background-color:white;
+        padding-left:40px;
+    }
+    body .pbBody table.list tr.dataRow td.tooltipValue,
+    body .pbBody table.list tr.dataRow.highlight td.tooltipValue {
+        color: #4a4a56;
+        text-align: left; 
+        padding-left:7px;
+        background-color:white;
+        padding-right:40px;
+    }
+    hr {
+        height:1px;
+        border-width:0;
+        color:#ECECEC;
+        background-color:#ECECEC;
+    }
+    span.dateFormat {
+        display:none;
+    }
+    .dateOnlyInput input {
+        width:100%; 
+    }
+    .arrow
+    {
+        background-image: url(/img/func_icons/util/selectArrow12.gif);
+        background-repeat: no-repeat;
+        height: 12px;
+        width: 14px;
+        position: relative;
+        left: 2px;
+        top: 1px;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: moz-none;
+        -ms-user-select: none;
+        user-select: none;
+        float: right;
+    }
+    .arrow:hover
+    {
+        background-position: -15px 0;
+    }
+    .arrowSelected
+    {
+        background-position: -15px 0;
+    }
+    .recordNumberSelector {
+        display: none;
+        position: absolute;
+        bottom: 1.5em;
+        left: -3.5em;
+        cursor: pointer;
+        border: 2px solid #ccc;
+        width: 170px;
+        height: 79px;
+        white-space: nowrap;
+        text-align: center;
+        font-family: Arial,Helvetica,sans-serif;
+        color: #222;
+    }
+    .recordNumberSelector tr td
+    {
+        background-color: #ddd;
+        color: #ddd;
+    }
+    .recordNumberSelector tr:hover td
+    {
+        background-color: #e1f6ff;
+        color: #333;
+    }
+    .recordNumberSelector tr.selected td 
+    {
+        background-color: #b0e1fa;
+        color: #333;
+    }
+    .recordNumberSelector .number
+    {
+        background-color: white;
+        font-weight: bold;
+        color: #333;
+        padding: 0 5px;
+    }
+</style>
+
+<!-- <apex:sectionHeader title="Forecasts" subtitle="Forecast Module"/> -->
+<apex:pageMessage summary="You must have a role associated to your User." severity="error" strength="3" rendered="{!noRoleFound}" />
+﻿
+<apex:form id="form" rendered="{!NOT(noRoleFound)}" >
+
+<c:C04_Loading displayMessage="Loading..."/>
+<apex:actionStatus id="saving" onstart="document.getElementById('statusMessage').innerHTML='Saving...';componentLoading('#loadingDialog').dialog('open');" onstop="componentLoading('#loadingDialog').dialog('close');"/>
+<apex:actionStatus id="loading" onstart="document.getElementById('statusMessage').innerHTML='Loading...';componentLoading('#loadingDialog').dialog('open');" onstop="componentLoading('#loadingDialog').dialog('close');"/>
+<apex:actionStatus id="loadingOppWithStatus" onstart="document.getElementById('statusMessage').innerHTML='Loading...';componentLoading('#loadingDialog').dialog('open');document.getElementById('page:form:oppLoading').style.display='block';document.getElementById('page:form:oppResults').style.display='none';" onstop="componentLoading('#loadingDialog').dialog('close');document.getElementById('page:form:oppLoading').style.display='none';document.getElementById('page:form:oppResults').style.display='block';"/>
+<apex:actionStatus id="loadingOpportunities" onstart="document.getElementById('page:form:oppLoading').style.display='block';document.getElementById('page:form:oppResults').style.display='none';" onstop="document.getElementById('page:form:oppLoading').style.display='none';document.getElementById('page:form:oppResults').style.display='block';"/>
+
+<apex:actionFunction action="{!viewOpportunities}" name="viewOpportunitiesWithStatus" oncomplete="setScreenMaxWidth();" rerender="tabPanel" status="loadingOppWithStatus" >
+    <apex:param name="oppFilterForecastCategory" value="" assignTo="{!oppFilterForecastCategory}"/>
+    <apex:param name="oppFilterPeriod" value="" assignTo="{!oppFilterPeriod}"/>
+</apex:actionFunction>
+
+<apex:actionFunction action="{!viewOpportunities}" name="viewOpportunities" oncomplete="setScreenMaxWidth();" rerender="tabPanel" status="loadingOpportunities" >
+    <apex:param name="oppFilterForecastCategory" value="" assignTo="{!oppFilterForecastCategory}"/>
+    <apex:param name="oppFilterPeriod" value="" assignTo="{!oppFilterPeriod}"/>
+</apex:actionFunction>
+
+<apex:actionFunction name="rerenderPlatform" rerender="platformTab1" immediate="true" />
+
+<apex:actionFunction action="{!setNumberOfRows}" name="setNumberOfRows" rerender="tabPanel" status="loadingOppWithStatus" >
+    <apex:param name="numberOfRows" value="" assignTo="{!oppQueryRecordLimit}"/>
+</apex:actionFunction>
+
+<apex:tabPanel switchType="client" value="{!selectedTab}" id="tabPanel" activeTabClass="activeTab" inactiveTabClass="inactiveTab" >
+    <!-- FIRST TAB -->    
+    <apex:tab label="4 Years Consolidated View" name="forecastView4Years" id="tabForecast">
+        <br/>
+        <apex:outputPanel id="filter" layout="none">
+        <table width="100%" border="0">
+        <tr><td style="width:32%;padding-left:20px;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="Role" />
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:selectList id="roleListTab1" value="{!selectedRole}" size="1" onchange="updateRolePicklists(this.value);" >
+                <apex:selectOptions value="{!roleList}" />
+            </apex:selectList>
+        </td><td style="width:34%;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:inputField value="{!oppParams.LeadingProductLine__c}" id="productLineTab1" onchange="updateProductLinePicklists(this.value);"/>
+        </td><td style="width:34%;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.Platform__c.label}"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:inputField value="{!oppParams.Platform__c}" id="platformTab1" onchange="updatePlatformPicklists(this.value);" />
+        </td></tr>
+        <tr><td colspan="3" style="width:100%;padding-top:10px;" class="filter">
+            <apex:commandButton action="{!refreshForecastList}" value="Refresh Forecast View" title="Refresh" rerender="forecastPageBlock,forecastShortTermPageBlock" status="loading"/>
+        </td></tr>
+        </table>
+        </apex:outputPanel>
+        <br/>
+        <apex:pageBlock id="forecastPageBlock">
+            <apex:pageMessage summary="{!$Label.LBL0036}" severity="error" strength="3" rendered="{!noCurrentForecast}" />
+﻿           <apex:pageMessage summary="{!$Label.LBL0037}" severity="warning" strength="3" rendered="{!noForecast}" />
+﻿           <apex:outputPanel rendered="{!forecastLines.size > 0 && NOT(hasError)}" layout="none">
+                <apex:pageMessage summary="{!forecastTableTitle}" severity="info" strength="1" escape="false"/>
+                <apex:pageBlockTable value="{!forecastLines}" var="fLine" first="1" >  
+                    <apex:column headerValue=" " styleClass="forecastCategoryStyle" style="width:11.1%;" >
+                        <apex:outputText value="{!fLine.forecastCategory}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!quarterName1}" style="width:11.1%;text-align:right;" >
+                        <apex:outputText value="{!fLine.quarter1}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!quarterName2}" style="width:11.1%;text-align:right;" >
+                        <apex:outputText value="{!fLine.quarter2}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!quarterName3}" style="width:11.1%;text-align:right;" >
+                        <apex:outputText value="{!fLine.quarter3}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!quarterName4}" style="width:11.1%;text-align:right;" >
+                        <apex:outputText value="{!fLine.quarter4}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!yearName1}" style="width:11.1%;" styleClass="yearForecast" headerClass="yearForecastHeader" >
+                        <apex:outputText value="{!fLine.year1}" escape="false" />
+                    </apex:column>
+                    <apex:column headerValue="{!yearName2}" style="width:11.1%;" styleClass="yearForecast" headerClass="yearForecastHeader" >
+                        <apex:outputText value="{!fLine.year2}" escape="false" />
+                    </apex:column> 
+                    <apex:column headerValue="{!yearName3}" style="width:11.1%;" styleClass="yearForecast" headerClass="yearForecastHeader" >
+                        <apex:outputText value="{!fLine.year3}" escape="false" />
+                    </apex:column> 
+                    <apex:column headerValue="{!yearName4}" style="width:11.1%;" styleClass="yearForecast" headerClass="yearForecastHeader" >
+                        <apex:outputText value="{!fLine.year4}" escape="false" />
+                    </apex:column> 
+                </apex:pageBlockTable>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:tab>
+    
+    <!-- SECOND TAB -->  
+    <apex:tab label="Short term Consolidated View" name="forecastView3ShortTerm" id="tabForecastShortTerm" rendered="{!$User.ProfileId != $Label.LBL0050}">
+        <br/>
+        <apex:outputPanel id="filter2" layout="none">
+        <table width="100%" border="0">
+        <tr><td style="width:32%;padding-left:20px;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="Role" />
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:selectList id="roleListTab2" value="{!selectedRole}" size="1" onchange="updateRolePicklists(this.value);" >
+                <apex:selectOptions value="{!roleList}" />
+            </apex:selectList>
+        </td><td style="width:34%;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:inputField value="{!oppParams.LeadingProductLine__c}" id="productLineTab2" onchange="updateProductLinePicklists(this.value);" />
+        </td><td style="width:34%;" class="filter">
+            <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.Platform__c.label}"/>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+            <apex:inputField value="{!oppParams.Platform__c}" id="platformTab2" onchange="updatePlatformPicklists(this.value);" />
+        </td></tr>
+        <tr><td colspan="3" style="width:100%;padding-top:10px;" class="filter">
+            <apex:commandButton action="{!refreshForecastList}" value="Refresh Forecast View" title="Refresh" rerender="forecastPageBlock,forecastShortTermPageBlock" status="loading"/>
+        </td></tr>
+        </table>
+        </apex:outputPanel>
+        <br/>
+        <apex:pageBlock id="forecastShortTermPageBlock">
+            <apex:pageMessage summary="{!$Label.LBL0036}" severity="error" strength="3" rendered="{!noCurrentForecast}" />
+﻿           <apex:pageMessage summary="{!$Label.LBL0037}" severity="warning" strength="3" rendered="{!noForecast}" />
+            <apex:outputPanel rendered="{!forecastLines.size > 0 && NOT(hasError)}" layout="none">
+                    <apex:pageMessage summary="{!forecastTableTitle}" severity="info" strength="1" escape="false" />
+                    <apex:pageBlockTable value="{!forecastLines}" var="fLine" id="tableShortTerm">  
+                    
+                        <apex:column headerValue=" " style="width:11.1%;" styleClass="forecastCategoryStyle shortTermHeader" >
+                            <apex:outputText value="{!fLine.forecastCategory}" escape="false" />
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!quarterName2_1}" styleClass="cellColumnClass shortTermHeader">
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_1}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_1GM}" escape="false" /></td>
+                            </tr></table>
+                        </apex:column> 
+                            
+                        <apex:column headerValue="{!quarterName2_2}" styleClass="cellColumnClass shortTermHeader">
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_2}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_2GM}" escape="false" /></td>
+                            </tr></table>
+                        </apex:column>  
+
+                        <apex:column headerValue="{!quarterName2_3}" styleClass="cellColumnClass shortTermHeader" >
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_3}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_3GM}" escape="false" /></td>
+                            </tr></table>
+                        </apex:column>
+                                        
+                        <apex:column headerValue="{!quarterName2_4}" styleClass="cellColumnClass shortTermHeader" >
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_4}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_4GM}" escape="false" /></td>
+                            </tr></table>
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!quarterName2_5}" styleClass="cellColumnClass shortTermHeader" >
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_5}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_5GM}" escape="false" /></td>
+                            </tr></table>
+                        </apex:column>
+                        
+                        <apex:column headerValue="{!quarterName2_6}" styleClass="cellColumnClass shortTermHeader" >
+                            <table class="cellTableClass"><tr>
+                                <td class="cellTdClassLeft"><apex:outputText value="{!fLine.quarter2_6}" escape="false" /></td>
+                                <td class="cellTdClassRight"><apex:outputText value="{!fLine.quarter2_6GM}" escape="false" /></td>
+                            </tr></table>                   
+                        </apex:column> 
+                        
+                    </apex:pageBlockTable>
+                </apex:outputPanel>
+                    
+        </apex:pageBlock>
+    </apex:tab>
+    
+    <!-- THIRD TAB -->  
+    <apex:tab label="{!$ObjectType.Opportunity.label} List" name="opportunitiesTab" id="tabOpportunities" ontabenter="{!IF(opportunitiesList.size == 0 && opportunitiesTabFirstEnter, 'viewOpportunitiesJS();', '')}">
+        <br/>
+        <div id="tab3Filters">
+            <table border="0">
+            <tr><td style="width:7%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="Role" />
+            </td><td style="width:17%;" class="filterValues">
+                <apex:selectList id="roleListTab3" value="{!selectedRole}" size="1" onchange="updateRolePicklists(this.value);" >
+                    <apex:selectOptions value="{!roleList}" />
+                </apex:selectList>
+            </td>
+            
+            <td style="width:19%" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}"/>
+            </td><td style="width:19%;" class="filterValues">
+                <apex:inputField value="{!oppParams.LeadingProductLine__c}" id="productLineTab3" onchange="updateProductLinePicklists(this.value);" />
+            </td>
+            
+            <td style="width:21%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.Platform__c.label}"/>
+            </td><td style="width:17%;" class="filterValues">
+                <apex:inputField value="{!oppParams.Platform__c}" id="platformTab3" onchange="updatePlatformPicklists(this.value);" />
+            </td></tr>
+            
+            <tr><td style="width:7%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="Period" />
+            </td><td style="width:17%;" class="filterValues">
+                <apex:selectList id="quarterRangeList" value="{!selectedQuarterRange}" size="1" >
+                    <apex:selectOptions value="{!quarterRangeList}" />
+                </apex:selectList>
+                <apex:selectList id="yearRangeList" value="{!selectedYearRange}" size="1" >
+                    <apex:selectOptions value="{!yearRangeList}" />
+                </apex:selectList>
+            </td>
+            
+            <td style="width:19%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="{!$ObjectType.Opportunity.fields.AdjustedForecastCategory__c.label}"/>
+            </td><td style="width:19%;" class="filterValues">
+                <apex:selectList id="adjustedForecastFilter" value="{!selectedForecast}" size="1" >
+                    <apex:selectOptions value="{!forecastOptionList}" />
+                </apex:selectList>
+            </td>
+            
+            <td style="width:21%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="Filter by Price"/>
+            </td><td style="width:17%;" class="filterValues">
+                <apex:selectList id="opportunitiesFilters" value="{!selectedOppFilter}" size="1" >
+                    <apex:selectOptions value="{!oppFilters}" />
+                </apex:selectList>
+            </td>
+            </tr>
+            
+            <tr>
+            <td style="width:7%;" class="filterLabel">
+                <apex:outputLabel style="font-weight:bold" value="Global/Child" />
+            </td><td style="width:17%;" class="filterValues">
+                <apex:selectList id="globalChildListTab3" value="{!selectedGlobalChild}" size="1" >
+                    <apex:selectOptions value="{!globalChildList}" />
+                </apex:selectList>
+            </td>
+            
+            <td style="width:19%"/>
+            
+            <td colspan="4" style="width:57%;padding-top:10px;padding-left:7px;" >
+                <apex:commandButton action="{!refreshOpportunities}" value="Refresh Opportunity List" id="refreshOppList" title="Refresh" rerender="oppResults, oppPageBlock, oppLoading" status="loadingOpportunities"/>
+            </td></tr>
+            </table>
+        </div>
+        <br/>
+        
+        <apex:outputPanel id="oppLoading" style="display:none;"> 
+            <apex:pageBlock >
+                <div style="text-align:center;">
+                    <img src="{!URLFOR($Resource.JQuery_LIB,'img/LoadingIcon.gif')}" />
+                </div>
+            </apex:pageBlock>
+        </apex:outputPanel>
+        
+        <apex:outputPanel id="oppResults" style="display:none;"> 
+            <apex:inputHidden value="{!lastOpportunitiesQuery}" id="lastQuery"/>
+            <apex:pageBlock id="oppPageBlock" rendered="{!opportunitiesList.size > 0}">
+                <apex:pageMessages />
+                <apex:outputPanel layout="none">
+                    <apex:pageMessage summary="{!opportunityTableTitle}" severity="info" strength="1" escape="false"/>
+                    
+                    <!-- RECORD NUMBER SELECTOR -->
+                    <div style="float:left;" rendered="{!numberOfOpportunities > oppQueryRecordLimit}">
+                        <apex:outputText value="{!offset+1}-{!IF(offset+oppQueryRecordLimit < numberOfOpportunities, offset+oppQueryRecordLimit, numberOfOpportunities)} of {!numberOfOpportunities}" style="float:left;" />
+                        <div class="arrow" id="arrowDiv" onclick="showHideRecordNumberSelector();">
+                            <div class="recordNumberSelector" id="recordNumberSelect">
+                                <table cellpadding="0" cellspacing="0" style="width:100%;height:100%;">
+                                    <tbody>
+                                        <tr class="{!IF(oppQueryRecordLimit == 10, 'selected', '')}" onclick="setNumberOfRows(10);">    
+                                            <td>Display</td>    
+                                            <td class="number">10</td>  
+                                            <td>records per page</td>
+                                        </tr>
+                                        <tr class="{!IF(oppQueryRecordLimit == 25, 'selected', '')}" onclick="setNumberOfRows(25);">    
+                                            <td>Display</td>    
+                                            <td class="number">25</td>  
+                                            <td>records per page</td>
+                                        </tr>
+                                        <tr class="{!IF(oppQueryRecordLimit == 50, 'selected', '')}" onclick="setNumberOfRows(50);">    
+                                            <td>Display</td>    
+                                            <td class="number">50</td>  
+                                            <td>records per page</td>
+                                        </tr>
+                                        <tr class="{!IF(oppQueryRecordLimit == 100, 'selected', '')}" onclick="setNumberOfRows(100);">  
+                                            <td>Display</td>    
+                                            <td class="number">100</td> 
+                                            <td>records per page</td>
+                                        </tr>
+                                        <tr class="{!IF(oppQueryRecordLimit == 200, 'selected', '')}" onclick="setNumberOfRows(200);">  
+                                            <td>Display</td>    
+                                            <td class="number">200</td> 
+                                            <td>records per page</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <apex:outputPanel layout="block" style="margin:auto;width:150px;" rendered="{!numberOfOpportunities > oppQueryRecordLimit}">
+                        <apex:commandLink action="{!previous}" value="<< Previous" rendered="{!offset != 0}" rerender="oppResults, oppPageBlock, oppLoading" status="loadingOpportunities" />
+                        <apex:outputText value="<< Previous" style="color:#a8a8a8;" rendered="{!offset == 0}" />
+                        &nbsp;
+                        <apex:commandLink action="{!next}" value="Next >>" rendered="{!(offset+oppQueryRecordLimit) < numberOfOpportunities}" rerender="oppResults, oppPageBlock, oppLoading" status="loadingOpportunities" />
+                        <apex:outputText value="Next >>" style="color:#a8a8a8;" rendered="{!(offset+oppQueryRecordLimit) >= numberOfOpportunities}" />
+                    </apex:outputPanel>
+                    
+                    <apex:pageBlockTable value="{!opportunitiesList}" var="oLine" rows="{!oppQueryRecordLimit}" >  
+                    
+                        <!--  Error Message -->
+                        <apex:column styleClass="forecastCategoryStyle" rendered="{!saveFailed}" >
+                            <apex:image value="/img/msg_icons/error16.png" title="{!oLine.errorMessage}" rendered="{!oLine.errorMessage != ''}"/>
+                        </apex:column>
+                        
+                        <!--  BOID -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.BOid__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.BOid__c.label} {!IF(orderBy == 'BOid__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'BOid__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="BOid__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.BOid__c}" />
+                        </apex:column>
+                        
+                        <!--  NAME -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Name.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Name.label} {!IF(orderBy == 'Name',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'Name',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Name" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <div class="tooltipLink">
+                                <a href="/{!oLine.opp.Id}">{!oLine.opp.Name}</a>
+                                <div>
+                                    <h1 style="font-weight:bold;font-size:1.3em;">{!$ObjectType.Opportunity.label} {!oLine.opp.Name}</h1><br/><br/>
+                                    <table width="400px">
+                                    <!-- 
+                                    <tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.LeadingProductLine__c}" /></td>
+                                    </tr>
+                                    -->
+                                    <tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.Platform__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.Platform__c}" /></td>
+                                    </tr><tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.Formula_Status__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.Formula_Status__c}" /></td>
+                                    </tr>
+                                    <!-- <tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.FiscalPeriod__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.FiscalPeriod__c}" /></td>
+                                    </tr>-->
+                                    <tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.GlobalEnvironmentRisk__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.GlobalEnvironmentRisk__c}" /></td>
+                                    </tr><tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.Product_Strategy__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.Product_Strategy__c}" /></td>
+                                    </tr><tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.Project_Feasibility__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.Project_Feasibility__c}" /></td>
+                                    </tr><tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.ProbP1OfImplementation__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.ProbP1OfImplementation__c}" /></td>
+                                    </tr><tr>
+                                    <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.ProbP2OfWin__c.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.ProbP2OfWin__c}" /></td>
+                                    </tr><tr>
+                                        <td class="tooltipLabel"><apex:outputText value="{!$ObjectType.Opportunity.fields.OwnerId.label}" styleClass="tooltipLabels"/></td>
+                                        <td class="tooltipValue"><apex:outputField value="{!oLine.opp.Owner.Name}" /></td>              
+                                    </tr>
+                                    </table>
+                                </div>
+                            </div>
+                        </apex:column>
+                        
+                        <!--  AT REGION -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header"> 
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.ATRegion__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.ATRegion__c.label} {!IF(orderBy == 'ATRegion__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'ATRegion__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="ATRegion__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.ATRegion__c}" />
+                        </apex:column>
+                        
+                        <!--  AT CLUSTER -->
+                        <!-- <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header"> 
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.ATCluster__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.ATCluster__c.label} {!IF(orderBy == 'ATCluster__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'ATCluster__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="ATCluster__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.ATCluster__c}" />
+                        </apex:column> -->
+                        
+                        <!--  COUNTRY -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Country__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Country__c.label} {!IF(orderBy == 'Country__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'Country__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Country__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Country__c}" />
+                        </apex:column>
+                        
+                        <!--  LEADING PRODUCT LINE -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.LeadingProductLine__c.label} {!IF(orderBy == 'LeadingProductLine__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'LeadingProductLine__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="LeadingProductLine__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.LeadingProductLine__c}" />
+                        </apex:column>
+                        
+                        <!--  LEADING PLATFORM -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Platform__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Platform__c.label} {!IF(orderBy == 'Platform__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Platform__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Platform__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Platform__c}" />
+                        </apex:column> -->
+                        
+                        <!--  STATUS -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Formula_Status__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Formula_Status__c.label} {!IF(orderBy == 'Formula_Status__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Formula_Status__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Formula_Status__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Formula_Status__c}" />
+                        </apex:column> -->
+                        
+                        <!--  FISCAL PERIOD -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.FiscalPeriod__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.FiscalPeriod__c.label} {!IF(orderBy == 'FiscalPeriod__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'FiscalPeriod__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="FiscalPeriod__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.FiscalPeriod__c}" />
+                        </apex:column> -->
+                        
+                        <!--  ADJUSTED FORECAST CATEGORY -->
+                        <apex:column styleClass="oppListDetail" headerClass="oppListDetailHeader" >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.AdjustedForecastCategory__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.AdjustedForecastCategory__c.label} {!IF(orderBy == 'AdjustedForecastCategory__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'AdjustedForecastCategory__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="AdjustedForecastCategory__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.AdjustedForecastCategory__c}" rendered="{!NOT(editMode)}"/>
+                            <apex:inputField value="{!oLine.oppEdit.AdjustedForecastCategory__c}" rendered="{!editMode}"/>
+                        </apex:column>
+                        
+                        <!--  ADJUSTED SELLING PRICE -->
+                        <apex:column styleClass="oppListDetail" headerClass="oppListDetailHeader" >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.AdjustedSellingPrice__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.AdjustedSellingPrice__c.label} {!IF(orderBy == 'AdjustedSellingPrice__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'AdjustedSellingPrice__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="AdjustedSellingPrice__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.AdjustedSellingPrice__c}" rendered="{!NOT(editMode)}"/ >
+                            <apex:inputField value="{!oLine.oppEdit.AdjustedSellingPrice__c}" rendered="{!editMode}"/>
+                        </apex:column>
+                        
+                        <!--  FORECASTED GROSS MARGIN -->
+                        <apex:column styleClass="oppListDetail" headerClass="oppListDetailHeader" >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.ForecastedGrossMargin__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.ForecastedGrossMargin__c.label} {!IF(orderBy == 'ForecastedGrossMargin__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'ForecastedGrossMargin__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="ForecastedGrossMargin__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.ForecastedGrossMargin__c}" rendered="{!NOT(editMode)}" />
+                            <apex:inputField value="{!oLine.oppEdit.ForecastedGrossMargin__c}" rendered="{!editMode}" />
+                        </apex:column>
+                        
+                        <!--  FORECASTED FISCAL PERIOD -->
+                        <apex:column styleClass="oppListDetail" headerClass="oppListDetailHeader" >
+                            <apex:facet name="header"> 
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.ForecastedFiscalPeriod__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.ForecastedFiscalPeriod__c.label} {!IF(orderBy == 'ForecastedFiscalPeriod__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'ForecastedFiscalPeriod__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="ForecastedFiscalPeriod__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink> 
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.ForecastedFiscalPeriod__c}" rendered="{!NOT(editMode)}" />
+                            <apex:inputField value="{!oLine.oppEdit.ForecastedFiscalPeriod__c}" rendered="{!editMode}" />
+                        </apex:column>
+                        
+                        <!--  ADJUSTMENT COMMENT -->
+                        <apex:column headerValue="{!$ObjectType.Opportunity.fields.AdjustmentComment__c.label}" styleClass="oppListDetail" headerClass="oppListDetailHeader" >
+                            <!-- This type of field can't be sorted -->
+                            <apex:outputField value="{!oLine.opp.AdjustmentComment__c}" rendered="{!NOT(editMode)}"/>
+                            <apex:inputField value="{!oLine.oppEdit.AdjustmentComment__c}" rendered="{!editMode}"/>
+                        </apex:column>
+                        
+                        <!--  SUGGESTED FORECAST CATEGORY -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.SuggestedForecastCategory__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.SuggestedForecastCategory__c.label} {!IF(orderBy == 'SuggestedForecastCategory__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'SuggestedForecastCategory__c', IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="SuggestedForecastCategory__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.SuggestedForecastCategory__c}" />
+                        </apex:column>
+                        
+                        <!--  SELLING PRICE -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Amount.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Amount.label} {!IF(orderBy == 'Amount',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'Amount',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Amount" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputText value="{!oLine.formatedSellingPrice}" />
+                        </apex:column>
+                        
+                        <!--  GROSS MARGIN -->
+                        <!-- CR-0734 - Not used anymore -->
+                        <!--
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.GrossMargin__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.GrossMargin__c.label} {!IF(orderBy == 'GrossMargin__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'GrossMargin__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="GrossMargin__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.GrossMargin__c}" />
+                        </apex:column>
+                        -->
+                        
+                        <!--  COMING INTO FORCE DATE -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header"> 
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.CloseDate.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.CloseDate.label} {!IF(orderBy == 'CloseDate',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'CloseDate',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="CloseDate" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                                </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.CloseDate}" />
+                        </apex:column>
+                        
+                        <!--  GLOBAL / CHILD ? -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Global_Child__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Global_Child__c.label} {!IF(orderBy == 'Global_Child__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'Global_Child__c', IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Global_Child__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputText value="{!oLine.opp.Global_Child__c}" />
+                        </apex:column>
+                        
+                        <!--  CHILD OPPORTUNITY FROM -->
+                        <apex:column styleClass="forecastCategoryStyle" >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Global_Opportunity__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Global_Opportunity__c.label} {!IF(orderBy == 'Global_Opportunity__r.Name',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" status="loading" >
+                                    <apex:param value="{!IF(orderBy == 'Global_Opportunity__r.Name', IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Global_Opportunity__r.Name" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <a href="/{!oLine.opp.Global_Opportunity__c}">{!oLine.opp.Global_Opportunity__r.Name}</a>
+                        </apex:column>
+                        
+                        <!--  GLOBAL ENVIRONMENT RISK -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.GlobalEnvironmentRisk__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.GlobalEnvironmentRisk__c.label} {!IF(orderBy == 'GlobalEnvironmentRisk__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'GlobalEnvironmentRisk__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="GlobalEnvironmentRisk__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.GlobalEnvironmentRisk__c}" />
+                        </apex:column> -->
+                        
+                        <!--  PRODUCT STRATEGY -->
+                        <!-- <apex:column >
+                            <apex:facet name="header"> 
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Product_Strategy__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Product_Strategy__c.label} {!IF(orderBy == 'Product_Strategy__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Product_Strategy__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Product_Strategy__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Product_Strategy__c}" />
+                        </apex:column> -->
+                        
+                        <!--  PRODUCT FEASIBILITY -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.Project_Feasibility__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.Project_Feasibility__c.label} {!IF(orderBy == 'Project_Feasibility__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Project_Feasibility__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Project_Feasibility__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Project_Feasibility__c}" />
+                        </apex:column> -->
+                        
+                        <!--  PROBABILITY OF WIN -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="{!$ObjectType.Opportunity.fields.ProbabilityOfWin__c.label}" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="{!$ObjectType.Opportunity.fields.ProbabilityOfWin__c.label} {!IF(orderBy == 'ProbabilityOfWin__c',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'ProbabilityOfWin__c',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="ProbabilityOfWin__c" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.ProbabilityOfWin__c}" />
+                        </apex:column> -->
+                        
+                        <!--  OPPORTUNITY OWNER -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">  
+                            <apex:outputPanel >
+                                <apex:outputText value="Opportunity Owner" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="Opportunity Owner {!IF(orderBy == 'Owner.Name',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Owner.Name',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Owner.Name" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel> 
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Owner.Name}" />
+                        </apex:column> -->
+                        
+                        <!--  ACCOUNT NAME -->
+                        <!-- <apex:column >
+                            <apex:facet name="header">   
+                            <apex:outputPanel >
+                                <apex:outputText value="Account Name" rendered="{!editMode}" />
+                                <apex:commandLink action="{!sortOpportunities}" value="Account Name {!IF(orderBy == 'Account.Name',IF(sortDirection='DESC','▼','▲'),'')}" rerender="oppPageBlock" rendered="{!NOT(editMode)}" >
+                                    <apex:param value="{!IF(orderBy == 'Account.Name',  IF(sortDirection == 'ASC', 'DESC', 'ASC'), 'ASC')}" assignTo="{!sortDirection}" ></apex:param>
+                                    <apex:param value="Account.Name" assignTo="{!orderBy}" ></apex:param>
+                                </apex:commandLink>
+                            </apex:outputPanel>
+                            </apex:facet>
+                            <apex:outputField value="{!oLine.opp.Account.Name}" />
+                        </apex:column> -->
+                        
+                    </apex:pageBlockTable>
+                
+                    <apex:outputText value="{!offset+1}-{!IF(offset+oppQueryRecordLimit < numberOfOpportunities, offset+oppQueryRecordLimit, numberOfOpportunities)} of {!numberOfOpportunities}" style="float:left;" />
+                    <apex:outputPanel layout="block" style="margin:auto;width:150px;" rendered="{!numberOfOpportunities > oppQueryRecordLimit}">
+                        <apex:commandLink action="{!previous}" value="<< Previous" rendered="{!offset != 0}" rerender="oppResults, oppPageBlock, oppLoading" status="loadingOpportunities" />
+                        <apex:outputText value="<< Previous" style="color:#a8a8a8;" rendered="{!offset == 0}" />
+                        &nbsp;
+                        <apex:commandLink action="{!next}" value="Next >>" rendered="{!(offset+oppQueryRecordLimit) < numberOfOpportunities}" rerender="oppResults, oppPageBlock, oppLoading" status="loadingOpportunities" />
+                        <apex:outputText value="Next >>" style="color:#a8a8a8;" rendered="{!(offset+oppQueryRecordLimit) >= numberOfOpportunities}" />
+                    </apex:outputPanel>
+                    
+                </apex:outputPanel>
+                <apex:pageBlockButtons >
+                    <apex:commandButton action="{!editOpportunities}" id="editButton" value="Edit" rendered="{!NOT(editMode)}" rerender="oppPageBlock" status="loading" />
+                    <apex:commandButton action="{!saveOpportunities}" id="saveButton" value="Save" rendered="{!editMode}" rerender="oppPageBlock" status="saving" />
+                    <apex:commandButton action="{!cancelEdit}" id="cancelButton" value="Cancel" rendered="{!editMode}"  rerender="oppPageBlock" immediate="true" status="loading" />
+                    <apex:commandButton action="{!exportData}" id="exportData" value="Export Data" rendered="{!NOT(editMode)}" />
+                </apex:pageBlockButtons>
+            </apex:pageBlock>
+            <!--  Use of another PageBlock because hiding apex:pageBlockButtons with rendered not working -->
+            <apex:pageBlock id="oppPageBlockNoRows" rendered="{!opportunitiesList.size == 0}">
+                <apex:pageMessage title="Warning:" summary="{!$Label.LBL0042}" severity="warning" strength="2" />
+            </apex:pageBlock>
+        </apex:outputPanel>
+    </apex:tab>
+    
+    <!-- FOURTH TAB -->  
+    <apex:tab label="Forecast Reports" name="reports" id="tabReports">
+    <br/>
+        <apex:pageBlock id="forecastReports" title="Forecasts Reports">
+            <ul class="reportList">
+            <apex:repeat value="{!reportsList}" var="report" id="reportList">
+                <apex:outputText value="{!report}" escape="false" />
+            </apex:repeat>
+            </ul>
+        </apex:pageBlock>
+    <br/>
+    </apex:tab>
+</apex:tabPanel>        
+        ﻿﻿
+</apex:form>
+</apex:page>

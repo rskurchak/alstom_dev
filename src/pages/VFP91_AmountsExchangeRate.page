@@ -1,0 +1,6 @@
+<apex:page standardController="Amounts__c" extensions="VFC91_AmountsExchangeRate">
+  
+	   <apex:outputPanel rendered="{!bRateDifferente}" >
+	       <apex:pageMessages />
+	  </apex:outputPanel>
+</apex:page>

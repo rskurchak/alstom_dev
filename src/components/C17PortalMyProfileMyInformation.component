@@ -1,0 +1,27 @@
+<!--
+ C17PortalMyProfileMyInformation
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to present the Personal User Information in the My Profile page.
+-->
+<apex:component controller="VFC64_PortalHome">
+	<div class="widget_inner">
+	    <div class="imgContain centerContent" id="thumbs">
+	      <div class="myProfile">
+	        <h2><strong>{!UPPER($Label.LBL0156)}</strong></h2>
+	        <hr/>
+	        <a title="{!u.FirstName} {!u.LastName}" href="/_ui/core/userprofile/UserProfilePage?u={!u.id}&tab=sfdc.ProfilePlatformOverview"><img class="pull-left PhotoImageContent" alt="new" src="{!u.FullPhotoUrl}"/></a>
+	        <p class="titreInfosTech"><a title="{!u.FirstName} {!u.LastName}" href="/_ui/core/userprofile/UserProfilePage?u={!u.id}&tab=sfdc.ProfilePlatformOverview"><strong>{!u.FirstName} {!u.LastName}</strong></a></p>
+	        <p>{!$Label.LBL0193} : {!u.Title}<br/>
+	        {!$Label.LBL0194} :  <a class="email" href="mailto:{!$user.Email}">{!$user.Email}</a> <br/>
+	        {!$Label.LBL0195} :  {!u.CompanyName}<br/>
+	        {!$Label.LBL0196} :  {!u.Street}<p style="margin: 0 0px 0px 260px; !important; position:inherit;">{!u.PostalCode} {!IF(!ISBLANK(u.PostalCode)&&!ISBLANK(u.City),',','')} {!u.City}<br/>{!u.Country}</p></p>
+	        
+	        <div class="btnEdit">
+	            <a title="Edit" href="/_ui/core/userprofile/UserProfilePage?u={!u.id}&tab=sfdc.ProfilePlatformOverview">{!$Label.LBL0191}</a>
+	        </div>
+	        <br/>
+	      </div>
+	    </div>
+	</div>  
+</apex:component>

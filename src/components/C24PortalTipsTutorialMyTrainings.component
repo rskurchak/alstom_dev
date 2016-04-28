@@ -1,0 +1,18 @@
+<!--
+ C24PortalTipsTutorialMyTrainings
+    ~ Author          : Yamyle MERLE-REMOND ~ yamyle.merle-remond@axoa.fr 
+    ~ Date Created    : 18/04/2014 
+    ~ Description     : VisualForce Component to contain the link to open My Training Session list view.
+-->
+<apex:component controller="VFC64_PortalHome">
+    <div class="widget_inner">
+        <div class="widget_header_Formation">
+            <div>{!UPPER($Label.LBL0186)}</div>
+        </div>
+        <div class="widget_body">
+            <p>{!$Label.LBL0185}</p>
+            <p class="btnFormation"><a title="{!$Label.LBL0184}" href="{!MyTrainingSessionListViewURL}">{!$Label.LBL0184}</a></p>
+            <div class="widget_footer"> </div>
+        </div>
+    </div> 
+</apex:component>

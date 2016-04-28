@@ -1,0 +1,101 @@
+<apex:page controller="VFC64_PortalHome" sidebar="false" >
+    <!-- apex:stylesheet value="{!$Resource.Style}" / >
+    <apex:stylesheet value="{!URLFOR($Resource.Bootstrap,'bootstrap.css')}" /-->
+    <apex:includeScript value="{!URLFOR($Resource.SDO_jqueryui192, '/js/jquery-1.8.3.js')}"/>
+    <apex:includeScript value="{!URLFOR($Resource.SDO_bootstrap, '/js/bootstrap.js')}"/>
+    <apex:stylesheet value="{!URLFOR($Resource.SDO_bootstrap, '/css/bootstrap.css')}"/>
+    <apex:stylesheet value="{!$Resource.ComCSS}"/>
+
+
+        <style type="text/css">
+  			IMG.chatter-photo {
+            	width:20px !important;
+            	height:20px !important;
+            	max-width: 20px;
+            }
+            body{
+                min-width:0px;
+                margin:auto;
+                background:none;
+                /*padding-top:10px;*/
+                
+            }
+            body .bPageBlock, body #bodyCell .bResource .secondaryPalette, body .secondaryPalette.bPageBlock, body .individualPalette .secondaryPalette.bPageBlock, body .bodyDiv .genericTable, body .genericPageBlockTable, body .bodyDiv .bSubBlock, body .bComponentBlock .bPageBlock, body .bMyDashboard .bPageBlock, body.rlHoverFrame .bPageBlock, body.subjectSelectionPopup div.choicesBox, body.lookupTab .secondaryPalette.bPageBlock, body.popupTab .secondaryPalette.bPageBlock, body.UserTagStatsPage .secondaryPalette.bPageBlock {
+                border-radius: 0px;
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+                border-top-color: #FFFFFF !important;
+                background-color: #FFFFFF !important;                 
+            }
+            body .bRelatedList .pbBody table.list, body .apexp .pbBody table.list {
+                border: 1px solid #FFFFFF;
+            }    
+        
+            html body .bPageBlock.brandSecondaryBrd, html body .linkBar.brandSecondaryBrd, html body .bSubBlock.brandSecondaryBrd, html body #stt.brandSecondaryBrd, html body .genericTable.brandSecondaryBrd, html body .choicesBox.brandSecondaryBrd, html body .action-panel.brandSecondaryBrd, html body .zen-data.brandSecondaryBrd {
+                border-bottom-color: #FFFFFF !important;
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+            }   
+            body .pbBody table.list tr.headerRow th:first-child, body .pbBody table.list tr.dataRow td:first-child {
+                border-left-color: #FFFFFF !important;
+                border-right-color: #FFFFFF !important; 
+                border-bottom-color: #FFFFFF !important;
+            }
+        
+            body .pbBody table.list tr.headerRow td, body .pbBody table.list tr.headerRow th {
+                padding: 0px 0px 0px 0px;
+            }
+            
+            .noSidebarCell{
+                background:#E4E4E4;
+            }
+
+            body .btnDisabled, .btn, .btn:hover, .btn:focus, .btn:active, body .x-btn-pressed {
+                border-color:#FFFFFF !important;
+                cursor: pointer;
+            }
+            .apexp .bPageBlock.apexDefaultPageBlock .pbBody {
+                margin: 0px 0px 0px 0px !important;                
+            }
+            
+			.pagination {
+				font-size: 11px;
+				color: #9f9f9f;
+			}
+			.pgPrevNext {
+				border: 0px !important;
+				padding: 0px !important;
+				background: none !important;
+				box-shadow: none !important;
+				outline: none !important;
+				-moz-border-radius: 0px !important;
+				-webkit-border-radius: 0px !important;
+				border-radius: 0px !important;
+			}
+			.btnDisabled {
+				cursor: default !important;
+			}
+        .IBImageContent {
+            width: 130px;
+            height: auto; 
+        }
+        .PhotoImageContent {
+            width: auto;
+            height: 140px; 
+        }
+        </style>
+
+    <div class="container-fluid"> 
+        <div class="row-fluid"> 
+            <div class="span9">
+                <c:C17PortalMyProfileMyInformation ></c:C17PortalMyProfileMyInformation> 
+                <c:C13PortalHomeMyInstalledBaseRS listo="{!instBaseList}" listofield="{!FieldList}" listoheader="My Installed Base" listopagesize="3" listorelatedlistname="" listomyinstalledbaseRSListViewURL="{!MyInstalledBaseRSListViewURL}"/> 
+            </div>
+            <div class="span3 centerContent">
+                <c:C15PortalHomeMyContacts technical="true"/>
+                <c:C22PortalMyFleetSupportMyDocuments listoheader="My Library" /> 
+            </div>
+        </div>
+    </div>
+</apex:page>
