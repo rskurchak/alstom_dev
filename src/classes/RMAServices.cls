@@ -26,7 +26,7 @@ global without sharing class RMAServices {
     webservice static String submitRMA(String rmaId, String rmaName, String emailToAddress, String emailToCCAddress, String contactId) {
         //check if Email field is populated
         if (String.isEmpty(emailToAddress)){
-            return System.label.LBL0391;
+            return System.label.RMA_Email_Empty_Notification;
         }
 
         try {
@@ -78,8 +78,6 @@ global without sharing class RMAServices {
         mail.setToAddresses( new List<String>{ emailToAddress } );
         if ( !String.isEmpty(emailToCCAddress) ) mail.setCcAddresses( new List<String>{ emailToCCAddress } );
         mail.setSubject( emailSubject );
-//        mail.setSubject( setting != null && !String.isEmpty(setting.Email_Subject__c) ? setting.Email_Subject__c.replace(REPLASMENT_VALUE, ' ' + rmaName + ' ') : 'RMA with details' );
-//        mail.setHtmlBody( emailBody );
         mail.setPlainTextBody( emailBody );
         mail.setFileAttachments(new Messaging.EmailFileAttachment[] { attach });
 

@@ -5,11 +5,14 @@ private class RMAServices_Test {
 	private static final Integer NUMBER_TO_CREATE_ITEM = 2;
 
 	private static List<Account> testAccountList;
+	private static List<Contact> testContactList;
 	private static List<RMA__c> testRMAList;
 	private static List<Item__c> testItemList;
 
 	private static void prepareDataForTest(){
 		testAccountList = TestUtils.createAccount(NUMBER_TO_CREATE_ACCOUNT, null, true);
+
+		testContactList = TestUtils.createContacts(testAccountList, true);
 
 		testRMAList = new List<RMA__c>();
 		for (Account account : testAccountList){
@@ -64,7 +67,28 @@ private class RMAServices_Test {
 
 		Test.startTest();
 
-			result = RMAServices.submitRMA( String.valueOf(testRMAList[0].Id), 'RMA Name', 'test_email@gmail.com', 'test_cc_email@gmail.com');
+			result = RMAServices.submitRMA( String.valueOf(testRMAList[0].Id), 'RMA Name', 'test_email@gmail.com', 'test_cc_email@gmail.com', testContactList[0].Id);
+
+		Test.stopTest();
+
+		System.assert(!String.isEmpty(result), 'Result can not be empty.');
+		System.assertEquals( 'Success', result, 'Result should be "Success".');
+
+		RMA__c check = [SELECT Id, Status__c, Submitted_Date__c
+						FROM RMA__c WHERE Id = : testRMAList[0].Id];
+
+		System.assertEquals(System.label.RMA_Submit_Status, check.Status__c, 'Status value should be updated.');
+		System.assertEquals(Date.today(), check.Submitted_Date__c, 'Submitted_Date__c value should be updated to the current Date.');
+	}
+
+	private static testMethod void submitRMAWithoutContact(){
+		prepareDataForTest();
+
+		String result;
+
+		Test.startTest();
+
+			result = RMAServices.submitRMA( String.valueOf(testRMAList[0].Id), 'RMA Name', 'test_email@gmail.com', 'test_cc_email@gmail.com', null);
 
 		Test.stopTest();
 
@@ -85,12 +109,12 @@ private class RMAServices_Test {
 
 		Test.startTest();
 
-			result = RMAServices.submitRMA( String.valueOf(testRMAList[0].Id), 'RMA Name', '', 'test_cc_email@gmail.com');
+			result = RMAServices.submitRMA( String.valueOf(testRMAList[0].Id), 'RMA Name', '', 'test_cc_email@gmail.com', testContactList[0].Id);
 
 		Test.stopTest();
 
 		System.assert(!String.isEmpty(result), 'Result can not be empty.');
-		System.assertEquals( System.label.LBL0391, result, 'Result should be "' + System.label.LBL0391 + '".');
+		System.assertEquals( System.label.RMA_Email_Empty_Notification, result, 'Result should be "' + System.label.RMA_Email_Empty_Notification + '".');
 	}
 
 	private static testMethod void submitRMAWithIncorrectData(){
@@ -100,7 +124,7 @@ private class RMAServices_Test {
 
 		Test.startTest();
 
-			result = RMAServices.submitRMA( String.valueOf(incorrectRMAId), 'RMA Name', 'test_email@gmail.com', 'test_cc_email@gmail.com');
+			result = RMAServices.submitRMA( String.valueOf(incorrectRMAId), 'RMA Name', 'test_email@gmail.com', 'test_cc_email@gmail.com', null/*testContactList[0].Id*/);
 
 		Test.stopTest();
 

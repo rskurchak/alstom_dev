@@ -1,4 +1,4 @@
-<apex:page standardController="RMA__c" extensions="AttachmentExtention" showHeader="false" sidebar="false" showChat="false" applyhtmltag="false" renderAs="{!pdf}">
+<apex:page standardController="RMA__c" extensions="AttachmentExtention" showHeader="false" sidebar="false" showChat="false" applyhtmltag="false" renderAs="PDF">
 <apex:stylesheet value="{!URLFOR($Resource.ComCSS)}"/>
 <head>
 <style>
@@ -15,28 +15,16 @@
     }
     td.rmaFormFieldNameStyleClass{
         width: 20%;
-//        max-width: 20% !important;
     }
     td.rmaFormFieldValueStyleClass{
         width: 30%;
-//        max-width: 30% !important;
-    }
-    table.rmaFormTableStyleClass{
-//        max-width: 100% !important;
-        table-layout: fixed;
     }
 </style>
 </head>
     <c:RMAFormHeader rmaName="{!rma.Name}" rmaDate="{!rma.Submitted_Date__c}" rmaProcessingOption="{!headerValue}"/>
     <table width="100%" class="rmaFormTableStyleClass">
         <tr class="rmaFormTableStyleClass">
-            <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass" style="height: 0px; border: 0px; padding: 0px;"></td>
-            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="height: 0px; border: 0px; padding: 0px;"></td>
-            <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass" style="height: 0px; border: 0px; padding: 0px;"></td>
-            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="height: 0px; border: 0px; padding: 0px;"></td>
-        </tr>
-        <tr class="rmaFormTableStyleClass">
-            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.LBL0393}</th>
+            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.RMA_Return_To_Section}</th>
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.CustomerName_Returnto__c.label}:</td>
@@ -57,7 +45,7 @@
             <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass">{!rma.Zip_Returnto__c}</td>
         </tr>
         <tr class="rmaFormTableStyleClass">
-            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.LBL0394}</th>
+            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.RMA_Bill_To_Section}</th>
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.CustomerName_Billto__c.label}:</td>
@@ -78,7 +66,7 @@
             <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass">{!rma.Zip_Billto__c}</td>
         </tr>
         <tr class="rmaFormTableStyleClass">
-            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.LBL0395}</th>
+            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.RMA_Form_Additional_In}</th>
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Phone__c.label}:</td>
@@ -88,10 +76,9 @@
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Email__c.label}:</td>
-            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="overflow: hidden;">{!rma.Email__c}</td>
+            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass"><apex:outputText escape="false" value="{!emailValue}"/></td>
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Emailc__c.label}:</td>
-            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="overflow: hidden;">{!rma.Emailc__c}</td>
-            <!--td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="overflow: hidden;"><apex:outputText  escape="false" value="{!testString}"/></td-->
+            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass"><apex:outputText escape="false" value="{!emailcValue}"/></td>
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Priority_Code__c.label}:</td>
@@ -101,10 +88,10 @@
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Additional_Comments__c.label}:</td>
-            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="width:40px !important; overflow: hidden;" colspan="3">{!rma.Additional_Comments__c}"</td>
+            <td class="rmaFormTableStyleClass rmaFormFieldValueStyleClass" style="width:75% !important;" colspan="3"><apex:outputText escape="false" value="{!additionalComments}"/></td>
         </tr>
         <tr class="rmaFormTableStyleClass">
-            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.LBL0396}</th>
+            <th class="rmaFormTableStyleClass" colspan="4">{!$Label.RMA_Form_Payment}</th>
         </tr>
         <tr class="rmaFormTableStyleClass">
             <td class="rmaFormTableStyleClass rmaFormFieldNameStyleClass">{!$ObjectType.RMA__c.fields.Payment_Type__c.label}:</td>
@@ -116,7 +103,7 @@
     <div class="separatorClass"/>
     <table width="100%" class="rmaDetileFormTableStyleClass">
         <tr class="rmaDetileFormTableStyleClass">
-            <th class="rmaDetileFormTableStyleClass" colspan="{!IF(headerValue == 'Standard', '5', '6')}">{!$Label.LBL0397}</th>
+            <th class="rmaDetileFormTableStyleClass" colspan="{!IF(headerValue == 'Standard', '5', '6')}">{!$Label.RMA_Form_ItemDetail}</th>
         </tr>
         <tr>
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Action__c.label}</td>
@@ -126,14 +113,14 @@
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.GE_Part_Number__c.label}</td>
             <td class="rmaDetileFormTableStyleClass boldStyleClass" style="{!IF(headerValue == 'Standard', 'display: none;', '')}">{!$ObjectType.Item__c.fields.Processing_Option__c.label}</td>
         </tr>
-        <apex:repeat value="{!itemDetailList}" var="item">
+        <apex:repeat value="{!items}" var="item">
             <tr>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass">{!item.Action__c}</td>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass">{!item.Item_Description__c}</td>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass">{!item.Serial_Number__c}</td>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass">{!item.Reason_for_Return__c}</td>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass">{!item.GE_Part_Number__c}</td>
-                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass" style="{!IF(headerValue == 'Standard', 'display: none;', '')}">{!item.Processing_Option__c}</td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass"><apex:outputText escape="false" value="{!item.action}"/></td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass"><apex:outputText escape="false" value="{!item.description}"/></td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass"><apex:outputText escape="false" value="{!item.serialNumber}"/></td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass"><apex:outputText escape="false" value="{!item.reasonForReturn}"/></td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass"><apex:outputText escape="false" value="{!item.gePartNumber}"/></td>
+                <td class="rmaDetileFormTableStyleClass rmaDetileFormTableItemsrStyleClass" style="{!IF(headerValue == 'Standard', 'display: none;', '')}"><apex:outputText escape="false" value="{!item.processingOption}"/></td>
             </tr>
         </apex:repeat>
     </table>

@@ -8,12 +8,12 @@
         <div class="rmaHeaderMain">{!$Label.RMA_Form_Header}</div>
         <table class="rmaHeaderTableClassStyle">
             <tr>
-                <td rowspan="2" style="width:50%;">
+                <td rowspan="2" style="width:40%;">
                     <img src="{!URLFOR($Resource.RMA_PDF_Logo)}" class="rmaHeaderTableClassStyle"/>
                 </td>
-                <td class="rmaHeaderTableClassStyle">
+                <td class="rmaHeaderTableClassStyle" style="width:60%;">
                     {!$ObjectType.RMA__c.fields.Name.label}#: {!rmaName}<br/>
-                    <apex:outputText value="Date: {!$Label.LBL0392}">
+                    <apex:outputText value="Date: {!$Label.RMA_Form_Date_Format}">
                         <apex:param value="{!rmaDate}"/>
                     </apex:outputText>
                 </td>
