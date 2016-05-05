@@ -1,0 +1,21 @@
+<apex:page standardController="Item__c">
+    <apex:form styleClass="blockEditor" id="mainFormId">
+        <apex:sectionHeader title="Item Detail Edit" subtitle="{!Item__c.Name}" />
+        <apex:pageMessages />
+        <apex:pageBlock title="" id="pageBlock">
+            <apex:pageBlockButtons location="both">
+                <apex:commandButton value="Save" action="{!save}" />
+                <apex:commandButton value="Cancel" action="{!cancel}" />
+            </apex:pageBlockButtons>
+            <apex:outputPanel >
+                <apex:pageBlockSection title="Item Detail Edit" columns="1" collapsible="false">
+                    <apex:repeat value="{!$ObjectType.Item__c.FieldSets.Edit_Mode_Field}" var="f">
+                        <apex:inputField value="{!Item__c[f]}" styleClass="testteststyle" rendered="{!IF(f == 'Name', 'true', 'false')}" required="{!IF(f == 'Name', 'true', 'false')}"/>
+                        <apex:inputField value="{!Item__c[f]}" styleClass="testteststyle" rendered="{!IF(f == 'Name', 'false', 'true')}"/>
+                    </apex:repeat>
+                </apex:pageBlockSection>
+            </apex:outputPanel>
+        </apex:pageBlock>
+    </apex:form>
+
+</apex:page>

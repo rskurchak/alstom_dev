@@ -107,7 +107,7 @@
         </tr>
         <tr>
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Action__c.label}</td>
-            <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Item_Description__c.label}</td>
+            <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Name.label}</td>
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Serial_Number__c.label}</td>
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.Reason_for_Return__c.label}</td>
             <td class="rmaDetileFormTableStyleClass boldStyleClass">{!$ObjectType.Item__c.fields.GE_Part_Number__c.label}</td>

@@ -3,6 +3,7 @@ global without sharing class RMAServices {
     public static final String RMA_ITEM_OPTION_EXPEDITE = 'Expedite';
     public static final String RMA_ITEM_OPTION_STANDARD = 'Standard';
     private static final String REPLASMENT_VALUE = '{!RMA__c.Name}';
+    private static final String ATTACHMENT_PREFIX = 'RMA-';
 
     public static RMA__c getRMAById(Id rmaId){
         List<RMA__c> listRMA = [SELECT Id, Name, Submitted_Date__c, CustomerName_Returnto__c, Attention_Returnto__c,
@@ -17,7 +18,7 @@ global without sharing class RMAServices {
     }
 
     public static List<Item__c> getItemsByRMAId(Id rmaId){
-        return [SELECT Id, Name, Action__c, Item_Description__c, Serial_Number__c, RMA__c,
+        return [SELECT Id, Name, Action__c, Serial_Number__c, RMA__c,
                     Reason_for_Return__c, GE_Part_Number__c, Processing_Option__c
                 FROM Item__c
                 WHERE RMA__c = : rmaId];
@@ -37,11 +38,7 @@ global without sharing class RMAServices {
             update rma;
 
             //send email with attachment
-            if (String.isEmpty(contactId)){
-                sendEmailWithAttachment(Id.valueOf(rmaId), rmaName, emailToAddress, emailToCCAddress);
-            } else {
-                sendEmailWithAttachmentFuture(Id.valueOf(rmaId), rmaName, emailToAddress, emailToCCAddress);
-            }
+            sendEmailWithAttachmentFuture(Id.valueOf(rmaId), rmaName, emailToAddress, emailToCCAddress);
 
             return 'Success';
         } catch (Exception ex){
@@ -72,6 +69,14 @@ global without sharing class RMAServices {
         attach.setFileName( setting != null && !String.isEmpty(setting.Attachment_Name__c) ? setting.Attachment_Name__c : 'Attachment.pdf');
         attach.setInline(false);
         attach.Body = body;
+
+        Attachment attachItem = new Attachment();
+//        attachItem.ContentType = 'pdf';
+        attachItem.Name = ATTACHMENT_PREFIX + rmaName + '.pdf';
+        attachItem.IsPrivate = false;
+        attachItem.ParentId = id.valueOf(rmaId);
+        attachItem.Body = body;
+        insert attachItem;
 
         //prepare mail with attachment
         Messaging.SingleEmailMessage mail = new Messaging.SingleEmailMessage();

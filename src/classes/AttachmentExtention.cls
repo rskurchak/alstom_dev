@@ -24,29 +24,15 @@ public without sharing class AttachmentExtention {
 
         this.itemDetailList = RMAServices.getItemsByRMAId(this.rma.Id);
 
+        this.items = new List<ItemWrapper>();
         this.headerValue = RMAServices.RMA_ITEM_OPTION_STANDARD;
         for (Item__c item : this.itemDetailList){
             if (item.Processing_Option__c == RMAServices.RMA_ITEM_OPTION_UX){
                 this.headerValue = RMAServices.RMA_ITEM_OPTION_UX;
-                break;
-            } else if (item.Processing_Option__c == RMAServices.RMA_ITEM_OPTION_EXPEDITE){
+            } else if (this.headerValue != RMAServices.RMA_ITEM_OPTION_UX && item.Processing_Option__c == RMAServices.RMA_ITEM_OPTION_EXPEDITE){
                 this.headerValue = RMAServices.RMA_ITEM_OPTION_EXPEDITE;
             }
-        }
-
-        this.items = new List<ItemWrapper>();
-
-        for (Item__c item : this.itemDetailList){
-            if ( !String.isEmpty(item.Action__c) ||
-                 !String.isEmpty(item.Item_Description__c) ||
-                 !String.isEmpty(item.Serial_Number__c) ||
-                 !String.isEmpty(item.Reason_for_Return__c) ||
-                 !String.isEmpty(item.GE_Part_Number__c) ||
-                 ( this.headerValue != RMAServices.RMA_ITEM_OPTION_STANDARD && !String.isEmpty(item.Processing_Option__c) ) ){
-
-                this.items.add(new ItemWrapper(item));
-
-            }
+            this.items.add(new ItemWrapper(item));
         }
     }
 
@@ -89,7 +75,7 @@ public without sharing class AttachmentExtention {
 
 		public ItemWrapper(Item__c item){
 			action = splitStringByTag(item.Action__c, SPLITE_SIZE_DETAIL_TABLE);
-			description = splitStringByTag(item.Item_Description__c, SPLITE_SIZE_DETAIL_TABLE);
+			description = splitStringByTag(item.Name, SPLITE_SIZE_DETAIL_TABLE);
 			serialNumber = splitStringByTag(item.Serial_Number__c, SPLITE_SIZE_DETAIL_TABLE);
 			reasonForReturn = splitStringByTag(item.Reason_for_Return__c, SPLITE_SIZE_DETAIL_TABLE);
 			gePartNumber = splitStringByTag(item.GE_Part_Number__c, SPLITE_SIZE_DETAIL_TABLE);
