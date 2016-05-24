@@ -141,6 +141,10 @@ System.debug(LoggingLevel.ERROR, '@@@ perSetAssignmentsToInsert '+ perSetAssignm
 
 	@future 
 	public static void processPermissionSetAssignments( String perSetAssgsString, Boolean isInsert ){
+		processPermissionSetAssignment( perSetAssgsString, isInsert );
+	}
+
+	public static void processPermissionSetAssignment( String perSetAssgsString, Boolean isInsert ){
 		List<PermissionSetAssignment> perSetAssgs = (List<PermissionSetAssignment>)JSON.deserialize(perSetAssgsString, List<PermissionSetAssignment>.class);
 
 		Database.SaveResult[] saveResultList;
@@ -301,7 +305,11 @@ System.debug(LoggingLevel.ERROR, '@@@ perSetAssignmentsToInsert '+ perSetAssignm
 		//Insert new PermissionSetAssignments records
 		if( !permissionSetAssignmentsToInsert.isEmpty() ){
 			//Insert should be performed in @future function as PermissionSetAssignment object is setup object
-			TileService.processPermissionSetAssignments( JSON.serialize( permissionSetAssignmentsToInsert ), true );
+			if ( !System.isBatch() ){
+				TileService.processPermissionSetAssignments( JSON.serialize( permissionSetAssignmentsToInsert ), true );
+			} else {
+				TileService.processPermissionSetAssignment( JSON.serialize( permissionSetAssignmentsToInsert ), true );
+			}
 		}
 	}
 
